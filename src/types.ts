@@ -99,7 +99,10 @@ export interface Controller {
   destroy(): void;
   getState(): ControllerState;
   setState(partial: Partial<ControllerState>): Promise<void>;
-  on(event: "stepchange" | "error" | "render", handler: (payload: unknown) => void): () => void;
+  on(
+    event: "stepchange" | "actionerror" | "error" | "render",
+    handler: (payload: unknown) => void
+  ): () => void;
 }
 
 export interface PresentMermaidOptions {
