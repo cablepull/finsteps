@@ -1,4 +1,17 @@
 {
+  "name": "finsteps",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:unit": "vitest run",
+    "test:playwright": "playwright test",
+    "test": "npm run test:unit && npm run test:playwright"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "jsdom": "^25.0.1",
+    "vitest": "^2.1.8"
   "name": "@mpf/mpd-parser",
   "version": "0.1.0",
   "description": "Browser-compatible MPD DSL parser with AST and diagnostics.",
