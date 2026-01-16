@@ -1884,6 +1884,11 @@ function validateAST(ast: ProgramNode): Diagnostic[] {
         step.statements.forEach(visitNode);
         break;
       }
+      case "SceneDecl": {
+        const scene = node as SceneDeclNode;
+        scene.items.forEach(visitNode);
+        break;
+      }
       case "FocusStmt":
         visitExpr((node as FocusStmtNode).target);
         break;
