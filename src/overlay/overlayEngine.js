@@ -1,4 +1,4 @@
-import { MPFError } from '../errors.js';
+import { MPFError } from '../errors.ts';
 
 const DEFAULT_OFFSET = 8;
 
