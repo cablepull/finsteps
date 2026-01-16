@@ -51,14 +51,18 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --target es2018 --dts",
-    "test": "vitest run",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:playwright": "playwright test",
+    "test": "npm run test:unit && npm run test:playwright"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@types/node": "^22.13.1",
+    "jsdom": "^25.0.1",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^1.6.0"
+    "vitest": "^2.1.8"
   }
 }
