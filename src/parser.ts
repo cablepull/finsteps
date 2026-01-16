@@ -83,6 +83,20 @@ export function parseMPD(source: string): ParseResult {
 class MPDParser {
   private index = 0;
   public diagnostics: Diagnostic[];
+  private static readonly KEYWORD_ITEM_PARSERS: Record<
+    string,
+    (parser: MPDParser) => DeckItem | null
+  > = {
+    diagram: (parser) => parser.parseDiagramDecl(),
+    runtime: (parser) => parser.parseRuntimeDecl(),
+    selectors: (parser) => parser.parseSelectorsDecl(),
+    styles: (parser) => parser.parseStylesDecl(),
+    let: (parser) => parser.parseConstDecl(),
+    scene: (parser) => parser.parseSceneDecl(),
+    binding: (parser) => parser.parseBindingDecl(),
+    use: (parser) => parser.parsePluginDecl(),
+    meta: (parser) => parser.parseMetaDecl()
+  };
 
   constructor(
     private readonly source: string,
@@ -141,72 +155,29 @@ class MPDParser {
   }
 
   private parseTopLevelItem(): DeckItem | null {
-    if (this.isAtEnd()) {
-      return null;
-    }
-    const token = this.peek();
-    if (token.type === "keyword") {
-      switch (token.value) {
-        case "diagram":
-          return this.parseDiagramDecl();
-        case "runtime":
-          return this.parseRuntimeDecl();
-        case "selectors":
-          return this.parseSelectorsDecl();
-        case "styles":
-          return this.parseStylesDecl();
-        case "let":
-          return this.parseConstDecl();
-        case "scene":
-          return this.parseSceneDecl();
-        case "binding":
-          return this.parseBindingDecl();
-        case "use":
-          return this.parsePluginDecl();
-        case "meta":
-          return this.parseMetaDecl();
-        default:
-          break;
-      }
-    }
-    if (token.type === "identifier") {
-      return this.parseUnknownBlock();
-    }
-    this.error(token, "top-level declaration");
-    return null;
+    return this.parseDeckItemInternal(true);
   }
 
   private parseDeckItem(): DeckItem | null {
+    return this.parseDeckItemInternal(false);
+  }
+
+  private parseDeckItemInternal(reportErrors: boolean): DeckItem | null {
     if (this.isAtEnd()) {
       return null;
     }
     const token = this.peek();
     if (token.type === "keyword") {
-      switch (token.value) {
-        case "diagram":
-          return this.parseDiagramDecl();
-        case "runtime":
-          return this.parseRuntimeDecl();
-        case "selectors":
-          return this.parseSelectorsDecl();
-        case "styles":
-          return this.parseStylesDecl();
-        case "let":
-          return this.parseConstDecl();
-        case "scene":
-          return this.parseSceneDecl();
-        case "binding":
-          return this.parseBindingDecl();
-        case "use":
-          return this.parsePluginDecl();
-        case "meta":
-          return this.parseMetaDecl();
-        default:
-          break;
+      const handler = MPDParser.KEYWORD_ITEM_PARSERS[token.value];
+      if (handler) {
+        return handler(this);
       }
     }
     if (token.type === "identifier") {
       return this.parseUnknownBlock();
+    }
+    if (reportErrors) {
+      this.error(token, "top-level declaration");
     }
     return null;
   }
