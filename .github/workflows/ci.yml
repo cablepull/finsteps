@@ -14,9 +14,4 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm install
-      - run: npx playwright install --with-deps
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run test:e2e
+      - run: ./scripts/ci-build.sh
