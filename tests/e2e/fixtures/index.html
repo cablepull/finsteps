@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps Integration</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      #scroll-container {
+        height: 320px;
+        overflow: auto;
+        border: 1px solid #cbd5f5;
+        margin: 16px;
+        padding: 16px;
+      }
+      #mount {
+        min-height: 600px;
+      }
+      .finsteps-highlight rect,
+      .finsteps-highlight path {
+        stroke: #e11d48 !important;
+        stroke-width: 3px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="scroll-container">
+      <div id="mount"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../../dist/index.js";
+
+      const mountEl = document.getElementById("mount");
+      window.mermaid.initialize({ startOnLoad: false });
+
+      const ast = {
+        steps: [
+          {
+            id: "intro",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "A" }, padding: 24 } },
+              { type: "style.highlight", payload: { target: { dataId: "A" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "A" }, text: "Step 1: A" } }
+            ],
+            bindings: [
+              {
+                event: "click",
+                target: { dataId: "B" },
+                actions: [{ type: "nav.goto", payload: { id: "focus-b" } }]
+              }
+            ]
+          },
+          {
+            id: "focus-b",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "B" }, padding: 24 } },
+              { type: "style.highlight", payload: { target: { dataId: "B" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "B" }, text: "Step 2: B" } }
+            ]
+          }
+        ],
+        bindings: [
+          { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+          { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] }
+        ]
+      };
+
+      const mermaidText = "graph TD\\n  A[Start] --> B[Process]\\n  B --> C[Finish]";
+
+      const controller = await presentMermaid({
+        mountEl,
+        mermaidText,
+        ast
+      });
+
+      window.__controller = controller;
+      window.__controllerReady = true;
+    </script>
+  </body>
+</html>
