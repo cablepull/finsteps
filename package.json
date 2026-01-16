@@ -8,6 +8,32 @@
     "@types/jsdom": "^21.1.2",
     "jsdom": "^24.0.0",
     "typescript": "^5.4.5",
+  "name": "@mpf/mpd-parser",
+  "version": "0.1.0",
+  "description": "Browser-compatible MPD DSL parser with AST and diagnostics.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --target es2018 --dts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
     "vitest": "^1.6.0"
   }
 }
