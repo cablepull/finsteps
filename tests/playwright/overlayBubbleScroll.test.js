@@ -4,6 +4,7 @@ import path from 'node:path';
 const browserScript = path.resolve('src/overlay/browser.js');
 
 test('bubble remains visible during container scroll', async ({ page }) => {
+  test.setTimeout(10_000);
   await page.setContent(`
     <style>
       body { margin: 0; }
@@ -44,6 +45,7 @@ test('bubble remains visible during container scroll', async ({ page }) => {
   await page.waitForTimeout(100);
 
   const bubble = page.locator('[data-overlay="bubble"]');
+  await expect(bubble).toBeVisible({ timeout: 2000 });
   const box = await bubble.boundingBox();
   const viewport = page.viewportSize();
 
