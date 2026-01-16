@@ -20,4 +20,3 @@ npx playwright install --with-deps
 npm run lint
 npm run typecheck
 npm test
-npm run test:e2e

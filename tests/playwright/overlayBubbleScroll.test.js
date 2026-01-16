@@ -5,7 +5,7 @@ const browserScript = path.resolve('src/overlay/browser.js');
 
 test('bubble remains visible during container scroll', async ({ page }) => {
   const timeoutMs = 10_000;
-  test.setTimeout(timeoutMs + 2_000);
+  test.setTimeout(timeoutMs);
 
   const runTest = async () => {
     await page.setContent(`
@@ -31,7 +31,7 @@ test('bubble remains visible during container scroll', async ({ page }) => {
     `);
 
     await page.addScriptTag({ path: browserScript, type: 'module' });
-    await page.waitForFunction(() => window.createOverlayEngine);
+    await page.waitForFunction(() => window.createOverlayEngine, { timeout: 2_000 });
 
     await page.evaluate(() => {
       const engine = window.createOverlayEngine({ mountRoot: document.body });
