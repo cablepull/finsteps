@@ -73,7 +73,7 @@ FMPF is a framework-agnostic presentation runtime for Mermaid diagrams, driven b
   - Vite, Webpack, Rollup, Parcel
   - React/Vue/Svelte (as a UI-agnostic library)
 - Provide builds:
-  - ESM (`dist/index.mjs`)
+  - ESM (`dist/index.js`)
   - CJS (`dist/index.cjs`) optional, depending on packaging strategy
   - Type definitions (`dist/index.d.ts`)
 
