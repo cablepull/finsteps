@@ -1,3 +1,4 @@
+import { ActionError } from "../errors.js";
 import { ActionContext, ActionDefinition, ActionHandlerMap, ErrorPolicy } from "../types.js";
 
 export class ActionEngine {
@@ -12,7 +13,7 @@ export class ActionEngine {
     for (const action of actions) {
       const handler = this.handlers[action.type];
       if (!handler) {
-        const error = new Error(`Unknown action: ${action.type}`);
+        const error = new ActionError(`Unknown action: ${action.type}`, "MPF_ACTION_UNKNOWN");
         if (errorPolicy === "haltOnError") {
           throw error;
         }
