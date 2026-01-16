@@ -28,7 +28,8 @@ Methods:
 - `setState(partial)`
 
 Events:
-- `on("stepchange" | "error" | "render", handler)`
+- `on("stepchange" | "actionerror" | "error" | "render", handler)`
+  - `actionerror` is the preferred event name for action failures; `error` remains as a legacy alias.
 
 ## Interfaces
 

@@ -29,9 +29,27 @@ test.describe("finsteps controller integration", () => {
         container.scrollTop = 240;
       }
     });
-    await page.waitForTimeout(100);
-    const screenshot = await page.screenshot();
-    expect(screenshot).toMatchSnapshot("bubble-anchored.png");
+    const bubble = page.locator(".finsteps-bubble");
+    await expect(bubble).toBeVisible();
+    const bubbleState = await page.evaluate(() => {
+      const bubbleEl = document.querySelector(".finsteps-bubble");
+      const container = document.getElementById("scroll-container");
+      if (!bubbleEl || !container) {
+        return null;
+      }
+      const rect = bubbleEl.getBoundingClientRect();
+      return {
+        insideContainer: container.contains(bubbleEl),
+        inViewport:
+          rect.top >= 0 &&
+          rect.left >= 0 &&
+          rect.bottom <= window.innerHeight &&
+          rect.right <= window.innerWidth
+      };
+    });
+    expect(bubbleState).not.toBeNull();
+    expect(bubbleState?.insideContainer).toBe(false);
+    expect(bubbleState?.inViewport).toBe(true);
   });
 
   test("destroy removes listeners and overlays", async ({ page }) => {

@@ -52,7 +52,7 @@ export class MermaidController implements Controller {
         controller: this,
         camera: this.deps.camera,
         overlay: this.deps.overlay,
-        onError: (error) => this.emitter.emit("error", error)
+        onError: (error) => this.emitActionError(error)
       });
     }
     if (this.steps.length > 0) {
@@ -88,10 +88,11 @@ export class MermaidController implements Controller {
         errorPolicy
       );
       for (const error of errors) {
-        this.emitter.emit("error", error);
+        this.emitActionError(error);
       }
     } catch (error) {
-      this.emitter.emit("error", error);
+      const actionError = error instanceof Error ? error : new Error(String(error));
+      this.emitActionError(actionError);
       if (errorPolicy === "haltOnError") {
         return;
       }
@@ -105,7 +106,7 @@ export class MermaidController implements Controller {
         controller: this,
         camera: this.deps.camera,
         overlay: this.deps.overlay,
-        onError: (error) => this.emitter.emit("error", error)
+        onError: (error) => this.emitActionError(error)
       });
     }
     this.emitter.emit("stepchange", this.getState());
@@ -142,7 +143,15 @@ export class MermaidController implements Controller {
     }
   }
 
-  on(event: "stepchange" | "error" | "render", handler: (payload: unknown) => void): () => void {
+  on(
+    event: "stepchange" | "actionerror" | "error" | "render",
+    handler: (payload: unknown) => void
+  ): () => void {
     return this.emitter.on(event, handler);
+  }
+
+  private emitActionError(error: Error): void {
+    this.emitter.emit("actionerror", error);
+    this.emitter.emit("error", error);
   }
 }
