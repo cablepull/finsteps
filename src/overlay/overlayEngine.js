@@ -1,3 +1,5 @@
+import { MPFError } from '../errors.js';
+
 const DEFAULT_OFFSET = 8;
 
 function normalizeMode(mode) {
@@ -213,10 +215,10 @@ export function createOverlayEngine({ mountRoot = document.body, mode, adapters 
 
   const showBubble = ({ targetEl, title, body }) => {
     if (destroyed) {
-      throw new Error('OverlayEngine has been destroyed.');
+      throw new MPFError('OverlayEngine has been destroyed.', 'MPF_OVERLAY_DESTROYED');
     }
     if (!targetEl) {
-      throw new Error('showBubble requires a targetEl.');
+      throw new MPFError('showBubble requires a targetEl.', 'MPF_OVERLAY_TARGET_MISSING');
     }
     const adapter = overlayAdapters.bubble ?? defaultBubbleAdapter;
     const overlay = adapter({
@@ -232,7 +234,7 @@ export function createOverlayEngine({ mountRoot = document.body, mode, adapters 
 
   const showPanel = ({ title, body }) => {
     if (destroyed) {
-      throw new Error('OverlayEngine has been destroyed.');
+      throw new MPFError('OverlayEngine has been destroyed.', 'MPF_OVERLAY_DESTROYED');
     }
     const panel = createPanelElement({ title, body, mode: resolvedMode });
     (mountRoot ?? document.body).appendChild(panel);

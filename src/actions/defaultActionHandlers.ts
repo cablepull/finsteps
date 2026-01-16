@@ -1,3 +1,4 @@
+import { ActionError } from "../errors.js";
 import { ActionHandlerMap, ActionDefinition, ActionContext, TargetDescriptor } from "../types.js";
 import { resolveTarget } from "../targetResolver.js";
 
@@ -50,7 +51,7 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
         await controller.goto(id);
         return;
       }
-      throw new Error("nav.goto requires index or id");
+      throw new ActionError("nav.goto requires index or id", "MPF_ACTION_INVALID_ARGS");
     },
     "nav.reset": async ({ controller }) => {
       await controller.reset();
@@ -62,7 +63,7 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       const target = action.payload?.target as TargetDescriptor | undefined;
       const resolved = resolveTarget(context.diagram, target);
       if (!resolved) {
-        throw new Error("camera.fit missing target");
+        throw new ActionError("camera.fit missing target", "MPF_ACTION_INVALID_ARGS");
       }
       await context.camera.fit(resolved, {
         padding: typeof action.payload?.padding === "number" ? action.payload.padding : undefined
@@ -78,7 +79,7 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       const target = action.payload?.target as TargetDescriptor | undefined;
       const resolved = resolveTarget(context.diagram, target);
       if (!resolved) {
-        throw new Error("overlay.bubble missing target");
+        throw new ActionError("overlay.bubble missing target", "MPF_ACTION_INVALID_ARGS");
       }
       const text = String(action.payload?.text ?? "");
       context.overlay.showBubble({

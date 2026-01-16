@@ -2,6 +2,7 @@ import { createBasicCameraHandle } from "./adapters/basicCamera.js";
 import { createBasicOverlayHandle } from "./adapters/basicOverlay.js";
 import { createMermaidDiagramAdapter } from "./adapters/mermaidDiagram.js";
 import { MermaidController } from "./controller/controller.js";
+import { MPFError } from "./errors.js";
 import { PresentMermaidOptions, PresentationAst } from "./types.js";
 
 const resolveAst = (options: PresentMermaidOptions): PresentationAst => {
@@ -11,7 +12,10 @@ const resolveAst = (options: PresentMermaidOptions): PresentationAst => {
   if (options.mpdText && options.options?.parseMpd) {
     return options.options.parseMpd(options.mpdText);
   }
-  throw new Error("presentMermaid requires ast or mpdText with parseMpd");
+  throw new MPFError(
+    "presentMermaid requires ast or mpdText with parseMpd",
+    "MPF_INVALID_PRESENT_OPTIONS"
+  );
 };
 
 export const presentMermaid = async (options: PresentMermaidOptions) => {
@@ -42,6 +46,7 @@ export * from "./adapters/mermaidDiagram.js";
 export * from "./mocks/mockHandles.js";
 export { parseMPD } from "./parser";
 export { formatDiagnostics } from "./diagnostics";
+export { ActionError, MPFError, ParseError } from "./errors.js";
 export type {
   ActionArg,
   ActionCallNode,

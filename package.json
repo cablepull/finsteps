@@ -6,39 +6,6 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
-    "test:e2e": "npm run build && playwright test"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.46.0",
-    "@typescript-eslint/eslint-plugin": "^8.8.1",
-    "@typescript-eslint/parser": "^8.8.1",
-    "@types/node": "^22.10.2",
-    "eslint": "^9.6.0",
-    "typescript": "^5.6.3",
-    "vitest": "^2.1.2"
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "test:unit": "vitest run",
-    "test:playwright": "playwright test",
-    "test": "npm run test:unit && npm run test:playwright"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.49.1",
-    "jsdom": "^25.0.1",
-    "vitest": "^2.1.8"
-  "name": "@mpf/mpd-parser",
-  "version": "0.1.0",
-  "description": "Browser-compatible MPD DSL parser with AST and diagnostics.",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -50,19 +17,21 @@
     "docs"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --target es2018 --dts",
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:unit": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
     "test:playwright": "playwright test",
     "test": "npm run test:unit && npm run test:playwright"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.1",
-    "@types/node": "^22.13.1",
-    "jsdom": "^25.0.1",
-    "tsup": "^8.0.1",
-    "typescript": "^5.3.3",
-    "vitest": "^2.1.8"
+    "@playwright/test": "1.49.1",
+    "@types/node": "22.13.1",
+    "@typescript-eslint/eslint-plugin": "8.8.1",
+    "@typescript-eslint/parser": "8.8.1",
+    "eslint": "9.6.0",
+    "jsdom": "25.0.1",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
   }
 }
