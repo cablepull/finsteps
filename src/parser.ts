@@ -55,6 +55,7 @@ import {
   StylesDeclNode,
   StylesItem,
   SubgraphRef,
+  TopLevelItem,
   TargetExprNode,
   TargetExceptExpr,
   TargetGroupExpr,
@@ -115,7 +116,7 @@ class MPDParser {
     if (!version) {
       return null;
     }
-    const body: DeckItem[] = [];
+    const body: TopLevelItem[] = [];
     if (this.matchKeyword("deck")) {
       const deck = this.parseDeck();
       if (deck) {
@@ -621,7 +622,7 @@ class MPDParser {
       const start = this.consumeKeyword("strategy");
       this.consumePunct(":");
       const strategyToken = this.consume("keyword");
-      const strategy = (strategyToken?.value ?? "css") as SelectorsItem["strategy"];
+      const strategy = (strategyToken?.value ?? "css") as "mermaid-node-id" | "mermaid-data-id" | "css" | "hybrid";
       this.consumePunct(";");
       return {
         type: "SelectorsStrategy",
@@ -1319,11 +1320,11 @@ class MPDParser {
       case "subgraph":
         return this.parseTargetUnary(token, "TargetSubgraph", () => this.parseSubgraphRef());
       case "css":
-        return this.parseTargetString(token, "TargetCss", "selector");
+        return this.parseTargetString(token, "TargetCss");
       case "id":
-        return this.parseTargetString(token, "TargetId", "id");
+        return this.parseTargetString(token, "TargetId");
       case "text":
-        return this.parseTargetString(token, "TargetText", "text");
+        return this.parseTargetString(token, "TargetText");
       case "group":
         return this.parseTargetList(token, "TargetGroup");
       case "union":
@@ -1352,15 +1353,30 @@ class MPDParser {
     } as TargetExprNode;
   }
 
-  private parseTargetString(start: Token, type: TargetExprNode["type"], field: "selector" | "id" | "text"): TargetExprNode {
+  private parseTargetString(start: Token, type: "TargetCss" | "TargetId" | "TargetText"): TargetExprNode {
     this.consumePunct("(");
     const value = this.consume("string");
     this.consumePunct(")");
+    const textValue = value?.value ?? "";
+    if (type === "TargetCss") {
+      return {
+        type: "TargetCss",
+        selector: textValue,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (type === "TargetId") {
+      return {
+        type: "TargetId",
+        id: textValue,
+        span: spanFrom(start, this.previous())
+      };
+    }
     return {
-      type,
-      [field]: value?.value ?? "",
+      type: "TargetText",
+      text: textValue,
       span: spanFrom(start, this.previous())
-    } as TargetExprNode;
+    };
   }
 
   private parseTargetList(start: Token, type: TargetExprNode["type"]): TargetExprNode {
