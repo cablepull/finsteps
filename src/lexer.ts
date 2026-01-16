@@ -153,7 +153,6 @@ export function lexMPD(source: string): LexResult {
       const match = /^[ \t\r\n]+/.exec(source.slice(index));
       if (match) {
         const image = match[0];
-        const start = position;
         position = advancePosition(position, image);
         index += image.length;
         continue;
@@ -164,7 +163,6 @@ export function lexMPD(source: string): LexResult {
       const match = /^(#|\/\/)[^\n\r]*/.exec(source.slice(index));
       if (match) {
         const image = match[0];
-        const start = position;
         position = advancePosition(position, image);
         index += image.length;
         continue;
