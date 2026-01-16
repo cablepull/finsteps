@@ -1,0 +1,343 @@
+; =========================
+; 1) LEXICAL CONVENTIONS
+; =========================
+
+WS            ::= (" " | "\t" | "\r" | "\n")+
+COMMENT       ::= ("#" | "//") ~("\n")* ("\n" | EOF)
+SEP           ::= (WS | COMMENT)*
+
+LETTER        ::= "A".."Z" | "a".."z"
+DIGIT         ::= "0".."9"
+HEXDIGIT      ::= DIGIT | "A".."F" | "a".."f"
+
+IDENT         ::= (LETTER | "_") (LETTER | DIGIT | "_" | "-")*
+QIDENT        ::= IDENT ("." IDENT)+        ; qualified name, e.g. camera.fit
+
+INT           ::= DIGIT+
+NUMBER        ::= ("+"|"-")? (INT ("." INT)? | "." INT)
+BOOLEAN       ::= "true" | "false"
+NULL          ::= "null"
+
+; Duration literals
+DURATION      ::= NUMBER ("ms" | "s" | "m")
+PERCENT       ::= NUMBER "%"
+
+; String literals
+STRING        ::= '"' ( '\\"' | "\\n" | "\\t" | "\\r" | ~["\\] )* '"'
+SSTRING       ::= "'" ( "\\'" | "\\n" | "\\t" | "\\r" | ~['\\] )* "'"
+STR           ::= STRING | SSTRING
+
+; Color literals (optional convenience)
+COLOR_HEX     ::= "#" HEXDIGIT HEXDIGIT HEXDIGIT (HEXDIGIT HEXDIGIT HEXDIGIT)?
+COLOR         ::= COLOR_HEX | STR
+
+; Heredoc for Mermaid source
+HEREDOC_START ::= "<<<" IDENT
+HEREDOC_END   ::= IDENT ">>>"
+HEREDOC_BODY  ::= ( ~EOF )*                 ; consumer reads until matching HEREDOC_END
+
+; =========================
+; 2) PROGRAM STRUCTURE
+; =========================
+
+Program       ::= SEP "mpd" SEP Version SEP
+                 (Deck | TopLevelBlockList) SEP EOF
+
+Version       ::= NUMBER ("." NUMBER)*
+
+TopLevelBlockList
+              ::= TopLevelItem*
+
+TopLevelItem  ::= DiagramDecl
+               | RuntimeDecl
+               | SelectorsDecl
+               | StylesDecl
+               | ConstDecl
+               | SceneDecl
+               | BindingDecl
+               | PluginDecl
+               | MetaDecl
+
+Deck          ::= "deck" SEP Name? SEP Block(DeckItem*)
+
+DeckItem      ::= MetaDecl
+               | DiagramDecl
+               | RuntimeDecl
+               | SelectorsDecl
+               | StylesDecl
+               | ConstDecl
+               | SceneDecl
+               | BindingDecl
+               | PluginDecl
+
+Name          ::= STR | IDENT
+
+Block(X)      ::= "{" SEP X SEP "}"
+
+; =========================
+; 3) METADATA / CONSTANTS / PLUGINS
+; =========================
+
+MetaDecl      ::= "meta" SEP Block(MetaPairList?)
+MetaPairList  ::= MetaPair (SEP "," SEP MetaPair)* (SEP "," SEP)?
+MetaPair      ::= IDENT SEP ":" SEP Expr
+
+ConstDecl     ::= "let" SEP IDENT SEP "=" SEP Expr SEP ";"
+
+PluginDecl    ::= "use" SEP PluginRef SEP (SEP PluginOptions)? SEP ";"
+PluginRef     ::= STR | IDENT                       ; e.g. "svg-pan-zoom", "d3-zoom", "tippy"
+PluginOptions ::= Object
+
+; =========================
+; 4) DIAGRAM DECLARATION
+; =========================
+
+DiagramDecl   ::= "diagram" SEP DiagramId SEP Block(DiagramItem*)
+
+DiagramId     ::= STR | IDENT
+
+DiagramItem   ::= MermaidSourceDecl
+               | MermaidConfigDecl
+               | DiagramAssetsDecl
+               | MetaDecl
+
+MermaidSourceDecl
+              ::= "mermaid" SEP Heredoc SEP ";"
+
+Heredoc       ::= HEREDOC_START "\n" HEREDOC_BODY "\n" HEREDOC_END
+
+MermaidConfigDecl
+              ::= "config" SEP Object SEP ";"
+                 ; Hint: merged into Mermaid init/render config by host runtime
+
+DiagramAssetsDecl
+              ::= "assets" SEP Object SEP ";"
+                 ; Optional: fonts, CSS, external scripts, etc.
+
+; =========================
+; 5) RUNTIME DECLARATION
+; =========================
+
+RuntimeDecl   ::= "runtime" SEP Block(RuntimeItem*)
+
+RuntimeItem   ::= CameraDecl
+               | OverlayDecl
+               | NavigationDecl
+               | PerformanceDecl
+               | MetaDecl
+
+CameraDecl    ::= "camera" SEP Block(CameraItem*)
+CameraItem    ::= "engine" SEP ":" SEP Name SEP ";"
+               | "options" SEP ":" SEP Object SEP ";"
+               | "bounds" SEP ":" SEP BoundsSpec SEP ";"
+
+BoundsSpec    ::= "viewport"
+               | "container"
+               | "svg"
+
+OverlayDecl   ::= "overlay" SEP Block(OverlayItem*)
+OverlayItem   ::= "engine" SEP ":" SEP Name SEP ";"
+               | "options" SEP ":" SEP Object SEP ";"
+
+NavigationDecl
+              ::= "navigation" SEP Block(NavItem*)
+NavItem       ::= "keys" SEP ":" SEP Object SEP ";"
+               | "wheelZoom" SEP ":" SEP BOOLEAN SEP ";"
+               | "dragPan" SEP ":" SEP BOOLEAN SEP ";"
+               | "tapToAdvance" SEP ":" SEP BOOLEAN SEP ";"
+               | "progressUI" SEP ":" SEP BOOLEAN SEP ";"
+               | "startAt" SEP ":" SEP (INT | STR) SEP ";"
+
+PerformanceDecl
+              ::= "performance" SEP Object SEP ";"
+
+; =========================
+; 6) SELECTORS (TARGET RESOLUTION)
+; =========================
+
+SelectorsDecl ::= "selectors" SEP Block(SelectorsItem*)
+
+SelectorsItem ::= "strategy" SEP ":" SEP SelectorStrategy SEP ";"
+               | "fallback" SEP ":" SEP Array SEP ";"
+               | "node" SEP ":" SEP NodeSelectorSpec SEP ";"
+               | "edge" SEP ":" SEP EdgeSelectorSpec SEP ";"
+               | "subgraph" SEP ":" SEP SubgraphSelectorSpec SEP ";"
+               | MetaDecl
+
+SelectorStrategy
+              ::= "mermaid-node-id"
+               | "mermaid-data-id"
+               | "css"
+               | "hybrid"
+
+NodeSelectorSpec
+              ::= Object
+EdgeSelectorSpec
+              ::= Object
+SubgraphSelectorSpec
+              ::= Object
+
+; =========================
+; 7) STYLES (CLASS NAMES + DEFAULTS)
+; =========================
+
+StylesDecl    ::= "styles" SEP Block(StylesItem*)
+
+StylesItem    ::= "classes" SEP ":" SEP Object SEP ";"
+               | "spotlight" SEP ":" SEP Object SEP ";"
+               | "theme" SEP ":" SEP Name SEP ";"
+               | MetaDecl
+
+; =========================
+; 8) SCENES + STEPS
+; =========================
+
+SceneDecl     ::= "scene" SEP Name SEP (SEP "diagram" SEP DiagramId)? SEP Block(SceneItem*)
+
+SceneItem     ::= StepDecl
+               | BindingDecl
+               | MetaDecl
+               | ConstDecl
+
+StepDecl      ::= "step" SEP Name SEP (SEP "as" SEP IDENT)? SEP Block(StepStmt*)
+
+StepStmt      ::= FocusStmt
+               | DoStmt
+               | LetStmt
+               | AssertStmt
+               | MetaDecl
+
+LetStmt       ::= "let" SEP IDENT SEP "=" SEP Expr SEP ";"
+
+AssertStmt    ::= "assert" SEP Expr SEP (SEP "else" SEP STR)? SEP ";"
+
+FocusStmt     ::= "focus" SEP TargetExpr SEP FocusOptions? SEP ";"
+FocusOptions  ::= (SEP "pad" SEP NUMBER)?
+                  (SEP "align" SEP Align)?
+                  (SEP "lock" SEP LockMode)?
+                  (SEP "id" SEP IDENT)?          ; stores focus bbox into $focus.<id>
+
+Align         ::= "center" | "start" | "end" | "top" | "bottom" | "left" | "right"
+LockMode      ::= "none" | "x" | "y" | "xy"
+
+DoStmt        ::= "do" SEP ActionCall SEP ";"
+
+; =========================
+; 9) ACTIONS
+; =========================
+
+ActionCall    ::= ActionName SEP "(" SEP ArgList? SEP ")"
+ActionName    ::= QIDENT | IDENT                 ; e.g. camera.fit, style.spotlight, ui.bubble
+
+ArgList       ::= Arg (SEP "," SEP Arg)* (SEP "," SEP)?
+Arg           ::= (IDENT SEP ":" SEP Expr) | Expr
+
+; =========================
+; 10) BINDINGS (EVENTS → ACTIONS)
+; =========================
+
+BindingDecl   ::= "binding" SEP Name? SEP BindingPriority? SEP Block(BindingRule+)
+
+BindingPriority
+              ::= "priority" SEP INT SEP ";"
+
+BindingRule   ::= "on" SEP EventSpec
+                  (SEP "target" SEP TargetPattern)?
+                  (SEP "when" SEP Expr)?
+                  SEP Block(BindingStmt*)
+
+BindingStmt   ::= DoStmt
+               | LetStmt
+               | AssertStmt
+
+EventSpec     ::= "click"
+               | "dblclick"
+               | "hover"
+               | "mouseenter"
+               | "mouseleave"
+               | "wheel"
+               | "scroll"
+               | "key" SEP KeyCombo
+               | "timer" SEP DURATION
+               | "custom" SEP Name
+
+KeyCombo      ::= STR                          ; e.g. "ArrowRight", "Shift+Enter"
+
+TargetPattern ::= TargetExpr | "any"
+
+; =========================
+; 11) EXPRESSIONS
+; =========================
+
+Expr          ::= OrExpr
+
+OrExpr        ::= AndExpr (SEP "or" SEP AndExpr)*
+AndExpr       ::= EqExpr  (SEP "and" SEP EqExpr )*
+EqExpr        ::= RelExpr (SEP ("==" | "!=") SEP RelExpr)*
+RelExpr       ::= AddExpr (SEP ("<" | "<=" | ">" | ">=") SEP AddExpr)*
+AddExpr       ::= MulExpr (SEP ("+" | "-") SEP MulExpr)*
+MulExpr       ::= Unary   (SEP ("*" | "/" | "%") SEP Unary)*
+
+Unary         ::= ( "!" | "-" ) SEP Unary
+               | Primary
+
+Primary       ::= Literal
+               | VarRef
+               | Object
+               | Array
+               | CallExpr
+               | TargetExpr
+               | "(" SEP Expr SEP ")"
+
+Literal       ::= NUMBER
+               | INT
+               | DURATION
+               | PERCENT
+               | BOOLEAN
+               | NULL
+               | STR
+               | COLOR
+
+VarRef        ::= "$" IDENT ( "." IDENT )*      ; e.g. $focus, $event.target, $step.index
+
+CallExpr      ::= IDENT SEP "(" SEP ArgList? SEP ")"
+                 ; helper functions (host-provided), not actions. e.g. clamp(…), len(…)
+
+Object        ::= "{" SEP PairList? SEP "}"
+PairList      ::= Pair (SEP "," SEP Pair)* (SEP "," SEP)?
+Pair          ::= IDENT SEP ":" SEP Expr
+
+Array         ::= "[" SEP ExprList? SEP "]"
+ExprList      ::= Expr (SEP "," SEP Expr)* (SEP "," SEP)?
+
+; =========================
+; 12) TARGET EXPRESSIONS (LOGICAL → SVG ELEMENTS)
+; =========================
+
+TargetExpr    ::= "node" SEP "(" SEP NodeRef SEP ")"
+               | "edge" SEP "(" SEP EdgeRef SEP ")"
+               | "subgraph" SEP "(" SEP SubgraphRef SEP ")"
+               | "css" SEP "(" SEP STR SEP ")"
+               | "id" SEP "(" SEP STR SEP ")"
+               | "text" SEP "(" SEP STR SEP ")"
+               | "group" SEP "(" SEP TargetList SEP ")"
+               | "union" SEP "(" SEP TargetList SEP ")"
+               | "intersect" SEP "(" SEP TargetList SEP ")"
+               | "except" SEP "(" SEP TargetExpr SEP "," SEP TargetExpr SEP ")"
+
+TargetList    ::= TargetExpr (SEP "," SEP TargetExpr)* (SEP "," SEP)?
+
+NodeRef       ::= "*" | IDENT | STR             ; "*" selects all nodes
+EdgeRef       ::= STR | IDENT | EdgeTuple
+EdgeTuple     ::= NodeRef SEP "," SEP NodeRef   ; edge(A,B)
+SubgraphRef   ::= "*" | IDENT | STR
+
+; =========================
+; 13) RESERVED RUNTIME VARIABLES (CONVENTION)
+; =========================
+; $event.*           event payload: $event.type, $event.target, $event.key, $event.x, $event.y
+; $step.*            step context: $step.index, $step.name, $step.scene
+; $focus             last focus bbox/target group (implementation-defined object)
+; $diagram.*         diagram context: $diagram.id, $diagram.svgRoot
+; $state.*           userland state namespace
+; =========================
