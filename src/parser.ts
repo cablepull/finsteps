@@ -64,9 +64,9 @@ import {
   UnaryExprNode,
   UnknownBlockNode,
   VarRefNode
-} from "./ast";
-import { Diagnostic } from "./ast";
-import { Token, lexMPD } from "./lexer";
+} from "./ast.js";
+import { Diagnostic } from "./ast.js";
+import { Token, lexMPD } from "./lexer.js";
 
 const SUPPORTED_VERSION = "1.0";
 

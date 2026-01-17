@@ -44,8 +44,8 @@ export * from "./adapters/basicCamera.js";
 export * from "./adapters/basicOverlay.js";
 export * from "./adapters/mermaidDiagram.js";
 export * from "./mocks/mockHandles.js";
-export { parseMPD } from "./parser";
-export { formatDiagnostics } from "./diagnostics";
+export { parseMPD } from "./parser.js";
+export { formatDiagnostics } from "./diagnostics.js";
 export { ActionError, MPFError, ParseError } from "./errors.js";
 export type {
   ActionArg,
@@ -113,4 +113,4 @@ export type {
   UnaryExprNode,
   UnknownBlockNode,
   VarRefNode
-} from "./ast";
+} from "./ast.js";
