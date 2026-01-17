@@ -1,4 +1,4 @@
-import { Diagnostic } from "./ast";
+import { Diagnostic } from "./ast.js";
 
 export function formatDiagnostics(diagnostics: Diagnostic[]): string {
   if (!diagnostics.length) {

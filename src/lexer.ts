@@ -1,4 +1,4 @@
-import { Diagnostic, SourcePosition, SourceSpan } from "./ast";
+import { Diagnostic, SourcePosition, SourceSpan } from "./ast.js";
 
 export type TokenType =
   | "keyword"

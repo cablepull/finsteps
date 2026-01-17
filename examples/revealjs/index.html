@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps + Reveal.js: Multi-Chart Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css"
+      id="theme"
+    />
+    <style>
+      .mermaid-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        align-items: start;
+      }
+
+      .mermaid-stage {
+        min-height: 360px;
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .slide-card {
+        padding: 1.5rem;
+        border-radius: 16px;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .controls {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+      }
+
+      .controls button {
+        font-size: 0.7em;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+      }
+
+      .callout {
+        font-size: 0.7em;
+        color: #a0ffce;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+      }
+
+      .legend {
+        font-size: 0.75em;
+        line-height: 1.5;
+        opacity: 0.9;
+      }
+
+      .legend strong {
+        color: #ffe38b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Finsteps Strategy Review</h1>
+          <p class="callout">Reveal.js + Mermaid + Finsteps runtime</p>
+          <p>
+            A multi-chart walkthrough that ties product delivery, system behavior, and
+            roadmap execution into a single narrative.
+          </p>
+        </section>
+
+        <section>
+          <section>
+            <h2>Agenda</h2>
+            <ul>
+              <li class="fragment">Pipeline synchronization</li>
+              <li class="fragment">Service orchestration</li>
+              <li class="fragment">Delivery runway</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>Working Rules</h2>
+            <div class="slide-card">
+              <ul>
+                <li class="fragment">Each diagram has its own stepper.</li>
+                <li class="fragment">Use the buttons on each slide to advance overlays.</li>
+                <li class="fragment">Reveal.js handles the deck navigation.</li>
+              </ul>
+            </div>
+          </section>
+        </section>
+
+        <section data-auto-animate>
+          <h2>1) Pipeline Synchronization</h2>
+          <div class="mermaid-grid">
+            <div class="mermaid-stage" id="pipeline-diagram"></div>
+            <div class="slide-card">
+              <p class="legend">
+                The pipeline is sequenced around three checkpoints: <strong>signal</strong>,
+                <strong>decision</strong>, and <strong>delivery</strong>.
+              </p>
+              <div class="controls">
+                <button data-controller="pipeline" data-action="prev">Back</button>
+                <button data-controller="pipeline" data-action="next">Advance</button>
+                <button data-controller="pipeline" data-action="reset">Reset</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <section data-auto-animate>
+            <h2>2) Service Orchestration</h2>
+            <div class="mermaid-grid">
+              <div class="mermaid-stage" id="orchestration-diagram"></div>
+              <div class="slide-card">
+                <p class="legend">
+                  The orchestration map highlights where latency is introduced and
+                  where approvals gate execution.
+                </p>
+                <div class="controls">
+                  <button data-controller="orchestration" data-action="prev">Back</button>
+                  <button data-controller="orchestration" data-action="next">Advance</button>
+                  <button data-controller="orchestration" data-action="reset">Reset</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h2>Observation</h2>
+            <div class="slide-card">
+              <p>
+                The orchestration slide tracks the availability fan-out and the policy
+                review loop. Notice how the overlay callouts align with approval gates.
+              </p>
+            </div>
+          </section>
+        </section>
+
+        <section data-auto-animate>
+          <h2>3) Delivery Runway</h2>
+          <div class="mermaid-grid">
+            <div class="mermaid-stage" id="runway-diagram"></div>
+            <div class="slide-card">
+              <p class="legend">
+                The runway ties capacity to quarterly outcomes. Emphasis shifts as we
+                move from foundation work into expansion.
+              </p>
+              <div class="controls">
+                <button data-controller="runway" data-action="prev">Back</button>
+                <button data-controller="runway" data-action="next">Advance</button>
+                <button data-controller="runway" data-action="reset">Reset</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Wrap-up</h2>
+          <p class="fragment">Three diagrams, one shared narrative.</p>
+          <p class="fragment">Use Finsteps to orchestrate overlays and story beats.</p>
+          <p class="fragment">Reveal.js manages the broader presentation structure.</p>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const pipelineController = await presentMermaid({
+        mountEl: document.getElementById("pipeline-diagram"),
+        mermaidText: `flowchart LR
+  A[Signal Intake] --> B{Gate Review}
+  B -->|Approved| C[Build Sprint]
+  B -->|Deferred| D[Backlog Vault]
+  C --> E[Release Train]
+  E --> F[Customer Feedback]
+  F --> B
+`,
+        ast: {
+          steps: [
+            {
+              id: "signal",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "A" },
+                    text: "Signals enter from sales, ops, and telemetry."
+                  }
+                }
+              ]
+            },
+            {
+              id: "gate",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "B" },
+                    text: "Approval gate aligns scope with quarterly OKRs."
+                  }
+                }
+              ]
+            },
+            {
+              id: "release",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "E" },
+                    text: "Release train bundles features into safe batches."
+                  }
+                }
+              ]
+            }
+          ],
+          bindings: [
+            { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+            { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] }
+          ]
+        }
+      });
+
+      const orchestrationController = await presentMermaid({
+        mountEl: document.getElementById("orchestration-diagram"),
+        mermaidText: `flowchart TD
+  S[Client Request] --> A[API Gateway]
+  A --> B{Risk Engine}
+  B -->|Auto Approve| C[Policy Service]
+  B -->|Manual Review| D[Analyst Desk]
+  C --> E[Ledger Write]
+  D --> E
+  E --> F[Notification Bus]
+  F --> G[Customer Channel]
+`,
+        ast: {
+          steps: [
+            {
+              id: "gateway",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "A" },
+                    text: "Gateway normalizes payloads and rate limits inbound traffic."
+                  }
+                }
+              ]
+            },
+            {
+              id: "risk",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "B" },
+                    text: "Risk engine decides if a request can auto-clear."
+                  }
+                }
+              ]
+            },
+            {
+              id: "human",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "D" },
+                    text: "Analyst review adds latency but catches edge cases."
+                  }
+                }
+              ]
+            }
+          ],
+          bindings: [
+            { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+            { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] }
+          ]
+        }
+      });
+
+      const runwayController = await presentMermaid({
+        mountEl: document.getElementById("runway-diagram"),
+        mermaidText: `flowchart LR
+  A[Q1: Foundation] --> B[Q2: Automation]
+  B --> C[Q3: Expansion]
+  C --> D[Q4: Optimization]
+  A --> E[Data Platform]
+  B --> F[Workflow Engine]
+  C --> G[Global Launch]
+  D --> H[Cost Reduction]
+`,
+        ast: {
+          steps: [
+            {
+              id: "foundation",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "A" },
+                    text: "Platform hardening and observability upgrades."
+                  }
+                }
+              ]
+            },
+            {
+              id: "automation",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "B" },
+                    text: "Automation reduces manual approvals across teams."
+                  }
+                }
+              ]
+            },
+            {
+              id: "expansion",
+              actions: [
+                {
+                  type: "overlay.bubble",
+                  payload: {
+                    target: { dataId: "C" },
+                    text: "Expansion focuses on global rollout and partner enablement."
+                  }
+                }
+              ]
+            }
+          ],
+          bindings: [
+            { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+            { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] }
+          ]
+        }
+      });
+
+      const controllers = {
+        pipeline: pipelineController,
+        orchestration: orchestrationController,
+        runway: runwayController
+      };
+
+      document.querySelectorAll(".controls button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.controller;
+          const action = button.dataset.action;
+          const controller = controllers[target];
+          if (!controller) return;
+          if (action === "next") {
+            controller.next();
+          } else if (action === "prev") {
+            controller.prev();
+          } else if (action === "reset") {
+            controller.reset();
+          }
+        });
+      });
+
+      Reveal.initialize({
+        hash: true,
+        slideNumber: true,
+        transition: "fade"
+      });
+
+      Reveal.on("slidechanged", (event) => {
+        const slide = event.currentSlide;
+        if (slide.querySelector("#pipeline-diagram")) {
+          pipelineController.reset();
+        }
+        if (slide.querySelector("#orchestration-diagram")) {
+          orchestrationController.reset();
+        }
+        if (slide.querySelector("#runway-diagram")) {
+          runwayController.reset();
+        }
+      });
+    </script>
+  </body>
+</html>
