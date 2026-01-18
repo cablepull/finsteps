@@ -67,4 +67,46 @@ test.describe("finsteps controller integration", () => {
     const overlayCount = await page.locator(".finsteps-overlay").count();
     expect(overlayCount).toBe(0);
   });
+
+  test("keyboard navigation only works when diagram container is focused", async ({ page }) => {
+    const initialState = await page.evaluate(() => (window as any).__controller.getState());
+    expect(initialState.stepId).toBe("intro");
+
+    // Press arrow key when diagram is not focused - should not advance
+    await page.keyboard.press("ArrowRight");
+    const stateAfterUnfocusedKey = await page.evaluate(() => (window as any).__controller.getState());
+    expect(stateAfterUnfocusedKey.stepId).toBe("intro");
+
+    // Focus the diagram container
+    await page.locator(".finsteps-diagram").focus();
+
+    // Now arrow key should advance the step
+    await page.keyboard.press("ArrowRight");
+    const stateAfterFocusedKey = await page.evaluate(() => (window as any).__controller.getState());
+    expect(stateAfterFocusedKey.stepId).toBe("focus-b");
+  });
+
+  test("keyboard navigation does not interfere with other page elements", async ({ page }) => {
+    // Add an input field to test that other elements can still receive keyboard events
+    await page.evaluate(() => {
+      const input = document.createElement("input");
+      input.id = "test-input";
+      input.type = "text";
+      document.body.appendChild(input);
+    });
+
+    // Focus the input field
+    await page.locator("#test-input").focus();
+    
+    // Type in the input - should work normally
+    await page.keyboard.type("test");
+    const inputValue = await page.locator("#test-input").inputValue();
+    expect(inputValue).toBe("test");
+
+    // Press arrow keys while input is focused - should not advance diagram steps
+    const initialState = await page.evaluate(() => (window as any).__controller.getState());
+    await page.keyboard.press("ArrowRight");
+    const stateAfterKey = await page.evaluate(() => (window as any).__controller.getState());
+    expect(stateAfterKey.stepId).toBe(initialState.stepId);
+  });
 });

@@ -7,4 +7,4 @@ cd "$repo_root"
 
 npm run build
 
-python -m http.server 5173
+npx serve -p 5173

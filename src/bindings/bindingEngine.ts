@@ -47,7 +47,7 @@ export class BindingEngine {
       }
 
       const defaultTarget =
-        binding.event === "key" ? window : context.diagram.getRoot();
+        binding.event === "key" ? context.diagram.getContainer() : context.diagram.getRoot();
       const target = resolveTarget(context.diagram, binding.target) ?? defaultTarget;
       const eventName =
         binding.event === "click"
