@@ -1,0 +1,182 @@
+{
+  "svgInfo": {
+    "viewBox": "-40 -40 378.142822265625 546",
+    "width": "100%",
+    "height": "100%",
+    "rootDataId": null
+  },
+  "allIds": {
+    "total": 78,
+    "ids": [
+      {
+        "id": "MD_PARENT_START",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "MD_PARENT_END",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ONLY_ONE_START",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ONLY_ONE_END",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ZERO_OR_ONE_START",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ZERO_OR_ONE_END",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ONE_OR_MORE_START",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ONE_OR_MORE_END",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ZERO_OR_MORE_START",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "ZERO_OR_MORE_END",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67",
+        "tagName": "g",
+        "className": "",
+        "textContent": "CUSTOMERintidPKstringnamestringemailUKstringaddress"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "CUSTOMER"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-1-type",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "int"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-1-name",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "id"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-1-key",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "PK"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-2-type",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "string"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-2-name",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "name"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-2-key",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": ""
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-3-type",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "string"
+      },
+      {
+        "id": "text-entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67-attr-3-name",
+        "tagName": "text",
+        "className": "er entityLabel",
+        "textContent": "email"
+      }
+    ]
+  },
+  "entityMatches": {
+    "Customer": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "Order": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "Product": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "OrderItem": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    }
+  },
+  "dataIdElements": {
+    "total": 3,
+    "elements": [
+      {
+        "tagName": "g",
+        "id": "entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67",
+        "dataId": "CUSTOMER",
+        "className": ""
+      },
+      {
+        "tagName": "g",
+        "id": "entity-ORDER-36941e20-eb1d-50a3-81c5-00079b43c24a",
+        "dataId": "ORDER",
+        "className": ""
+      },
+      {
+        "tagName": "g",
+        "id": "entity-ORDERITEM-e5349d72-b47b-55be-8020-113016425f62",
+        "dataId": "PRODUCT",
+        "className": ""
+      }
+    ]
+  }
+}

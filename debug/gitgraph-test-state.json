@@ -1,0 +1,100 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 11,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "feature",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "main",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "develop",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Tag v1.0",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Initial",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Setup",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Feature A",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Feature B",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Update",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Feature C",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "merge",
+          "id": null
+        }
+      ]
+    },
+    "rootDataId": null,
+    "aliasResults": {
+      "main": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "branchLabel",
+        "textContent": "main",
+        "hasShapes": false
+      },
+      "feature": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "maindevelopfeature",
+        "hasShapes": true
+      },
+      "merge": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "Release",
+        "hasShapes": true
+      },
+      "Initial": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "Initial",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

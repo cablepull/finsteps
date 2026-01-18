@@ -1,0 +1,65 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 4,
+      "elements": [
+        {
+          "tagName": "path",
+          "dataId": "Desktop",
+          "id": null
+        },
+        {
+          "tagName": "path",
+          "dataId": "Mobile",
+          "id": null
+        },
+        {
+          "tagName": "path",
+          "dataId": "Tablet",
+          "id": null
+        },
+        {
+          "tagName": "path",
+          "dataId": "Other",
+          "id": null
+        }
+      ]
+    },
+    "rootDataId": null,
+    "sliceResults": {
+      "Desktop": {
+        "found": true,
+        "tagName": "path",
+        "id": null,
+        "className": "pieCircle",
+        "textContent": "",
+        "hasShapes": false
+      },
+      "Mobile": {
+        "found": true,
+        "tagName": "path",
+        "id": null,
+        "className": "pieCircle",
+        "textContent": "",
+        "hasShapes": false
+      },
+      "Tablet": {
+        "found": true,
+        "tagName": "path",
+        "id": null,
+        "className": "pieCircle",
+        "textContent": "",
+        "hasShapes": false
+      },
+      "Other": {
+        "found": true,
+        "tagName": "path",
+        "id": null,
+        "className": "pieCircle",
+        "textContent": "",
+        "hasShapes": false
+      }
+    }
+  },
+  "logs": []
+}

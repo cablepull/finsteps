@@ -1,0 +1,160 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 4,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "user",
+          "id": null,
+          "className": "person-man"
+        },
+        {
+          "tagName": "g",
+          "dataId": "db",
+          "id": null,
+          "className": "person-man"
+        },
+        {
+          "tagName": "g",
+          "dataId": "web",
+          "id": null,
+          "className": "person-man"
+        },
+        {
+          "tagName": "g",
+          "dataId": "api",
+          "id": null,
+          "className": "person-man"
+        }
+      ]
+    },
+    "aliasResults": {
+      "user": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<person>>UserUses the system",
+        "hasShapes": true,
+        "children": [
+          {
+            "tagName": "rect",
+            "textContent": ""
+          },
+          {
+            "tagName": "text",
+            "textContent": "<<person>>"
+          },
+          {
+            "tagName": "image",
+            "textContent": ""
+          },
+          {
+            "tagName": "text",
+            "textContent": "User"
+          },
+          {
+            "tagName": "text",
+            "textContent": "Uses the system"
+          }
+        ]
+      },
+      "webapp": {
+        "found": false
+      },
+      "web": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<container>>Web UI[React]User interface",
+        "hasShapes": true,
+        "children": [
+          {
+            "tagName": "rect",
+            "textContent": ""
+          },
+          {
+            "tagName": "text",
+            "textContent": "<<container>>"
+          },
+          {
+            "tagName": "text",
+            "textContent": "Web UI"
+          },
+          {
+            "tagName": "text",
+            "textContent": "[React]"
+          },
+          {
+            "tagName": "text",
+            "textContent": "User interface"
+          }
+        ]
+      },
+      "api": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<container>>API[REST]Business logic",
+        "hasShapes": true,
+        "children": [
+          {
+            "tagName": "rect",
+            "textContent": ""
+          },
+          {
+            "tagName": "text",
+            "textContent": "<<container>>"
+          },
+          {
+            "tagName": "text",
+            "textContent": "API"
+          },
+          {
+            "tagName": "text",
+            "textContent": "[REST]"
+          },
+          {
+            "tagName": "text",
+            "textContent": "Business logic"
+          }
+        ]
+      },
+      "db": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<system_db>>DatabasePostgreSQL",
+        "hasShapes": true,
+        "children": [
+          {
+            "tagName": "path",
+            "textContent": ""
+          },
+          {
+            "tagName": "path",
+            "textContent": ""
+          },
+          {
+            "tagName": "text",
+            "textContent": "<<system_db>>"
+          },
+          {
+            "tagName": "text",
+            "textContent": "Database"
+          },
+          {
+            "tagName": "text",
+            "textContent": "PostgreSQL"
+          }
+        ]
+      }
+    },
+    "webappCandidates": []
+  },
+  "logs": []
+}

@@ -1,4 +1,6 @@
 import { CameraHandle, DiagramHandle } from "../types.js";
+import { DiagramStrategy } from "./diagramStrategies.js";
+import { FlowchartStrategy } from "./strategies/flowchartStrategy.js";
 
 /**
  * Easing function type
@@ -86,178 +88,15 @@ const getSvgViewBox = (svg: SVGSVGElement): string | null => {
   return svg.getAttribute("viewBox");
 };
 
+
 /**
  * Finds nodes adjacent to the target node (parent and child nodes connected by edges)
  * @param targetNode - The target node element
  * @param svg - The root SVG element
  * @returns Array of adjacent node elements
  */
-function findAdjacentNodes(targetNode: SVGGraphicsElement, svg: SVGSVGElement): SVGGraphicsElement[] {
-  const targetDataId = targetNode.getAttribute('data-id');
-  if (!targetDataId) return [];
-  
-  // Get target node's bounding box (in local coordinates, we'll need to account for transform)
-  let targetBbox: DOMRect;
-  try {
-    const bboxLocal = targetNode.getBBox();
-    const transform = targetNode.getAttribute('transform');
-    
-    // Apply transform if present
-    if (transform && transform.includes('translate')) {
-      const translateMatch = transform.match(/translate\s*\(\s*([-\d.]+)\s*[, ]\s*([-\d.]+)\s*\)/);
-      if (translateMatch) {
-        const tx = parseFloat(translateMatch[1]);
-        const ty = parseFloat(translateMatch[2]);
-        targetBbox = new DOMRect(
-          bboxLocal.x + tx,
-          bboxLocal.y + ty,
-          bboxLocal.width,
-          bboxLocal.height
-        );
-      } else {
-        targetBbox = bboxLocal;
-      }
-    } else {
-      targetBbox = bboxLocal;
-    }
-  } catch {
-    return [];
-  }
-  
-  // Calculate target node center for edge proximity checks
-  const targetCenterX = targetBbox.x + targetBbox.width / 2;
-  const targetCenterY = targetBbox.y + targetBbox.height / 2;
-  
-  // Find all edge paths in the SVG
-  // Mermaid edges are typically path elements with class "edge" or inside g.edge
-  const edgePaths = Array.from(svg.querySelectorAll<SVGPathElement>('path.edge, path[class*="edge"], g.edge path, path[id*="edge"]'));
-  
-  const adjacentNodes = new Set<SVGGraphicsElement>();
-  
-  // For each edge, check if it connects to the target node
-  for (const edgePath of edgePaths) {
-    try {
-      const edgeBbox = edgePath.getBBox();
-      const edgeCenterX = edgeBbox.x + edgeBbox.width / 2;
-      const edgeCenterY = edgeBbox.y + edgeBbox.height / 2;
-      
-      // Check if edge is near the target node (within a reasonable distance)
-      // Use a threshold based on node size
-      const threshold = Math.max(targetBbox.width, targetBbox.height) * 1.5;
-      const distanceToCenter = Math.sqrt(
-        Math.pow(edgeCenterX - targetCenterX, 2) + Math.pow(edgeCenterY - targetCenterY, 2)
-      );
-      
-      // Check if edge intersects target node bbox or is very close
-      const edgeIntersectsTarget = 
-        edgeBbox.x < targetBbox.x + targetBbox.width &&
-        edgeBbox.x + edgeBbox.width > targetBbox.x &&
-        edgeBbox.y < targetBbox.y + targetBbox.height &&
-        edgeBbox.y + edgeBbox.height > targetBbox.y;
-      
-      // Also check if edge path data contains points near target node
-      // This handles curved edges that might not intersect the bbox
-      const pathData = edgePath.getAttribute('d');
-      let pathNearTarget = false;
-      if (pathData) {
-        // Extract path points (simplified - just check M and L commands)
-        const pathCommands = pathData.match(/[ML]\s*([-\d.]+)\s+([-\d.]+)/g);
-        if (pathCommands) {
-          for (const cmd of pathCommands) {
-            const coords = cmd.match(/[ML]\s*([-\d.]+)\s+([-\d.]+)/);
-            if (coords) {
-              const x = parseFloat(coords[1]);
-              const y = parseFloat(coords[2]);
-              const dist = Math.sqrt(Math.pow(x - targetCenterX, 2) + Math.pow(y - targetCenterY, 2));
-              if (dist < threshold) {
-                pathNearTarget = true;
-                break;
-              }
-            }
-          }
-        }
-      }
-      
-      if (edgeIntersectsTarget || pathNearTarget || distanceToCenter < threshold) {
-        // This edge connects to our target node, now find the other node it connects to
-        // Find all other nodes and check if they're near the other end of this edge
-        
-        const allNodes = Array.from(svg.querySelectorAll<SVGGraphicsElement>('g.node[data-id]'));
-        
-        for (const node of allNodes) {
-          if (node === targetNode) continue;
-          if (adjacentNodes.has(node)) continue; // Already found
-          
-          try {
-            const nodeBboxLocal = node.getBBox();
-            const nodeTransform = node.getAttribute('transform');
-            
-            let nodeBbox = nodeBboxLocal;
-            if (nodeTransform && nodeTransform.includes('translate')) {
-              const translateMatch = nodeTransform.match(/translate\s*\(\s*([-\d.]+)\s*[, ]\s*([-\d.]+)\s*\)/);
-              if (translateMatch) {
-                const tx = parseFloat(translateMatch[1]);
-                const ty = parseFloat(translateMatch[2]);
-                nodeBbox = new DOMRect(
-                  nodeBboxLocal.x + tx,
-                  nodeBboxLocal.y + ty,
-                  nodeBboxLocal.width,
-                  nodeBboxLocal.height
-                );
-              }
-            }
-            
-            const nodeCenterX = nodeBbox.x + nodeBbox.width / 2;
-            const nodeCenterY = nodeBbox.y + nodeBbox.height / 2;
-            
-            // Check if this node is near the edge (indicating it's connected)
-            const nodeNearEdge = 
-              edgeBbox.x < nodeBbox.x + nodeBbox.width &&
-              edgeBbox.x + edgeBbox.width > nodeBbox.x &&
-              edgeBbox.y < nodeBbox.y + nodeBbox.height &&
-              edgeBbox.y + edgeBbox.height > nodeBbox.y;
-            
-            const nodeDistanceToEdge = Math.sqrt(
-              Math.pow(nodeCenterX - edgeCenterX, 2) + Math.pow(nodeCenterY - edgeCenterY, 2)
-            );
-            
-            // Check if path points are near this node
-            let pathNearNode = false;
-            if (pathData) {
-              const pathCommands = pathData.match(/[ML]\s*([-\d.]+)\s+([-\d.]+)/g);
-              if (pathCommands) {
-                for (const cmd of pathCommands) {
-                const coords = cmd.match(/[ML]\s*([-\d.]+)\s+([-\d.]+)/);
-                if (coords) {
-                  const x = parseFloat(coords[1]);
-                  const y = parseFloat(coords[2]);
-                  const dist = Math.sqrt(Math.pow(x - nodeCenterX, 2) + Math.pow(y - nodeCenterY, 2));
-                  const nodeThreshold = Math.max(nodeBbox.width, nodeBbox.height) * 1.5;
-                  if (dist < nodeThreshold) {
-                    pathNearNode = true;
-                    break;
-                  }
-                }
-              }
-            }
-            
-            if (nodeNearEdge || pathNearNode || nodeDistanceToEdge < threshold) {
-              adjacentNodes.add(node);
-            }
-            }
-          } catch {
-            // Skip if we can't process this node
-            continue;
-          }
-        }
-      }
-    } catch {
-      // Skip if we can't process this edge
-      continue;
-    }
-  }
-  
-  return Array.from(adjacentNodes);
+function findAdjacentNodes(targetNode: SVGGraphicsElement, svg: SVGSVGElement, strategy: DiagramStrategy): SVGGraphicsElement[] {
+  return strategy.findAdjacentElements(targetNode, svg);
 }
 
 const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): string | null => {
@@ -288,8 +127,23 @@ const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): str
     }
   }
 
-  // If root group didn't work, calculate from all top-level groups and shapes
-  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+  // Check if root group bbox is valid and reasonable
+  const calculatedWidth = maxX - minX;
+  const calculatedHeight = maxY - minY;
+  const existingViewBox = getSvgViewBox(svg);
+  let existingViewBoxSize = { width: 0, height: 0 };
+  if (existingViewBox) {
+    const parts = existingViewBox.split(" ").map(Number);
+    if (parts.length === 4) {
+      existingViewBoxSize = { width: parts[2], height: parts[3] };
+    }
+  }
+  
+  // If root group bbox is too small or invalid, try calculating from elements
+  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY) || 
+      calculatedWidth < 10 || calculatedHeight < 10 ||
+      (existingViewBoxSize.width > 0 && calculatedWidth < existingViewBoxSize.width * 0.1)) {
+    
     // Find all top-level groups and graphical elements
     const topLevelElements: SVGGraphicsElement[] = [];
     for (const child of Array.from(svg.children)) {
@@ -305,24 +159,42 @@ const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): str
       );
     }
 
+    // Reset min/max for element-based calculation
+    minX = Infinity;
+    minY = Infinity;
+    maxX = -Infinity;
+    maxY = -Infinity;
+
     for (const el of topLevelElements) {
       try {
         const bbox = el.getBBox();
         // getBBox() returns coordinates in the SVG's local coordinate system
-        minX = Math.min(minX, bbox.x);
-        minY = Math.min(minY, bbox.y);
-        maxX = Math.max(maxX, bbox.x + bbox.width);
-        maxY = Math.max(maxY, bbox.y + bbox.height);
+        // Skip elements with invalid or zero-size bboxes
+        if (isFinite(bbox.x) && isFinite(bbox.y) && isFinite(bbox.width) && isFinite(bbox.height) && bbox.width > 0 && bbox.height > 0) {
+          minX = Math.min(minX, bbox.x);
+          minY = Math.min(minY, bbox.y);
+          maxX = Math.max(maxX, bbox.x + bbox.width);
+          maxY = Math.max(maxY, bbox.y + bbox.height);
+        }
       } catch {
         // Some elements might not have valid bboxes (e.g., empty groups, hidden elements)
         continue;
       }
     }
+    
+    // Recalculate dimensions after element-based calculation
+    const elementBasedWidth = maxX - minX;
+    const elementBasedHeight = maxY - minY;
   }
 
-  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+  const finalWidth = maxX - minX;
+  const finalHeight = maxY - minY;
+
+  // If calculation failed or result is too small, use existing viewBox
+  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY) || 
+      finalWidth < 10 || finalHeight < 10 ||
+      (existingViewBoxSize.width > 0 && finalWidth < existingViewBoxSize.width * 0.1)) {
     // Last resort: use the SVG's existing viewBox or dimensions
-    const existingViewBox = getSvgViewBox(svg);
     if (existingViewBox) {
       return existingViewBox;
     }
@@ -340,8 +212,8 @@ const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): str
   const viewBox = {
     x: minX - padding,
     y: minY - padding,
-    width: maxX - minX + padding * 2,
-    height: maxY - minY + padding * 2
+    width: finalWidth + padding * 2,
+    height: finalHeight + padding * 2
   };
 
   return `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
@@ -413,14 +285,6 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
 
   return {
     fit(target, options) {
-      // #region agent log
-      const viewBoxBeforeFit = svg.getAttribute("viewBox");
-      const targetClassName = target instanceof SVGElement ? (typeof target.className === 'string' ? target.className : target.className.baseVal) : '';
-      const targetInfo = {tagName:target.tagName,id:target.id,dataId:target.getAttribute('data-id'),className:targetClassName};
-      const logFit1 = {location:'basicCamera.ts:103',message:'fit entry',data:{targetInfo,viewBoxBeforeFit,isSVGGraphics:target instanceof SVGGraphicsElement},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,C'};
-      console.log('[DEBUG]', logFit1);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit1)}).catch(()=>{});
-      // #endregion
       if (!(target instanceof SVGGraphicsElement)) {
         return;
       }
@@ -473,18 +337,12 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
         
         const padding = options?.padding ?? 16;
         
-        // Find adjacent nodes and calculate union bounding box
-        const adjacentNodes = findAdjacentNodes(target, svg);
+        // Find adjacent nodes using the diagram strategy
+        const strategy = diagram.getStrategy?.() || new FlowchartStrategy();
+        const adjacentNodes = findAdjacentNodes(target, svg, strategy);
         
         // Calculate union bounding box including adjacent nodes
         let unionBbox = bbox; // Start with target bbox
-        
-        // #region agent log
-        const logAdjacent = {location:'basicCamera.ts:248',message:'finding adjacent nodes',data:{targetDataId:target.getAttribute('data-id'),adjacentCount:adjacentNodes.length,adjacentIds:adjacentNodes.map(n => n.getAttribute('data-id')).filter(Boolean)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-        console.log('[DEBUG]', logAdjacent);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logAdjacent)}).catch(()=>{});
-        // #endregion
-        
         for (const adjacentNode of adjacentNodes) {
           try {
             const adjBboxLocal = adjacentNode.getBBox();
@@ -525,54 +383,12 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
         
         // Use union bbox instead of target bbox for viewBox calculation
         bbox = unionBbox;
-        
-        // Get screen coordinates for debugging
-        const clientRect = target.getBoundingClientRect();
-        const svgRect = svg.getBoundingClientRect();
-        
-        // #region agent log
-        const logFit2 = {
-          location:'basicCamera.ts:116',
-          message:'getBBox result',
-          data:{
-            bboxLocal:{x:bboxLocal.x,y:bboxLocal.y,width:bboxLocal.width,height:bboxLocal.height},
-            bboxTransformed:{x:bbox.x,y:bbox.y,width:bbox.width,height:bbox.height},
-            isFinite:{x:isFinite(bbox.x),y:isFinite(bbox.y),w:isFinite(bbox.width),h:isFinite(bbox.height)},
-            validSize:bbox.width>0&&bbox.height>0,
-            currentViewBox,
-            targetId:target.id,
-            targetDataId:target.getAttribute('data-id'),
-            targetClassName:target instanceof SVGElement ? (typeof target.className === 'string' ? target.className : target.className.baseVal) : '',
-            transform,
-            hasCTM:target instanceof SVGGraphicsElement && target.getCTM() !== null,
-            clientRect:{x:clientRect.x,y:clientRect.y,width:clientRect.width,height:clientRect.height},
-            svgRect:{x:svgRect.x,y:svgRect.y,width:svgRect.width,height:svgRect.height}
-          },
-          timestamp:Date.now(),
-          sessionId:'debug-session',
-          runId:'run1',
-          hypothesisId:'B'
-        };
-        console.log('[DEBUG]', logFit2);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit2)}).catch(()=>{});
-        // #endregion
-        
         // Ensure we have valid dimensions
         if (!isFinite(bbox.width) || !isFinite(bbox.height) || bbox.width <= 0 || bbox.height <= 0) {
-          // #region agent log
-          const logFit4 = {location:'basicCamera.ts:114',message:'bbox invalid trying parent',data:{bbox:{x:bbox.x,y:bbox.y,width:bbox.width,height:bbox.height}},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-          console.log('[DEBUG]', logFit4);
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit4)}).catch(()=>{});
-          // #endregion
           // If bbox is invalid, try to get it from the parent group
           const parent = target.parentElement;
           if (parent instanceof SVGGraphicsElement) {
             const parentBBox = parent.getBBox();
-            // #region agent log
-            const logFit5 = {location:'basicCamera.ts:118',message:'parent bbox',data:{parentBBox:{x:parentBBox.x,y:parentBBox.y,width:parentBBox.width,height:parentBBox.height},valid:isFinite(parentBBox.width)&&isFinite(parentBBox.height)&&parentBBox.width>0&&parentBBox.height>0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-            console.log('[DEBUG]', logFit5);
-            fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit5)}).catch(()=>{});
-            // #endregion
             if (isFinite(parentBBox.width) && isFinite(parentBBox.height) && parentBBox.width > 0 && parentBBox.height > 0) {
               const viewBox = {
                 x: parentBBox.x - padding,
@@ -581,20 +397,9 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
                 height: parentBBox.height + padding * 2
               };
               svg.setAttribute("viewBox", `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
-              // #region agent log
-              const viewBoxAfterFit = svg.getAttribute("viewBox");
-              const logFit6 = {location:'basicCamera.ts:127',message:'fit using parent exit',data:{viewBoxAfterFit,usedParent:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-              console.log('[DEBUG]', logFit6);
-              fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit6)}).catch(()=>{});
-              // #endregion
               return;
             }
           }
-          // #region agent log
-          const logFit7 = {location:'basicCamera.ts:130',message:'fit failed no valid bbox',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-          console.log('[DEBUG]', logFit7);
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit7)}).catch(()=>{});
-          // #endregion
           return;
         }
         
@@ -621,28 +426,6 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
           height: bbox.height + padding * 2
         };
         
-        // #region agent log
-        const logBBoxValidation = {
-          location:'basicCamera.ts:180',
-          message:'bbox validation',
-          data:{
-            bboxLocal:{x:bboxLocal.x,y:bboxLocal.y,width:bboxLocal.width,height:bboxLocal.height},
-            bbox:{x:bbox.x,y:bbox.y,width:bbox.width,height:bbox.height},
-            calculatedViewBox:viewBox,
-            padding,
-            rootGroupBBox:rootGroupBBox ? {x:rootGroupBBox.x,y:rootGroupBBox.y,width:rootGroupBBox.width,height:rootGroupBBox.height} : null,
-            bboxWithinRoot:rootGroupBBox ? (bbox.x >= rootGroupBBox.x && bbox.y >= rootGroupBBox.y && bbox.x + bbox.width <= rootGroupBBox.x + rootGroupBBox.width && bbox.y + bbox.height <= rootGroupBBox.y + rootGroupBBox.height) : null,
-            bboxFitsInViewBox:viewBox.x <= bbox.x && viewBox.y <= bbox.y && viewBox.x + viewBox.width >= bbox.x + bbox.width && viewBox.y + viewBox.height >= bbox.y + bbox.height
-          },
-          timestamp:Date.now(),
-          sessionId:'debug-session',
-          runId:'run1',
-          hypothesisId:'B'
-        };
-        console.log('[DEBUG]', logBBoxValidation);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logBBoxValidation)}).catch(()=>{});
-        // #endregion
-        
         const viewBoxString = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
         
         // Check if we should animate the transition
@@ -652,132 +435,28 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
         if (duration <= 0) {
           // Instant transition (current behavior - backward compatible)
           svg.setAttribute("viewBox", viewBoxString);
-          // #region agent log
-          const viewBoxAfterFit = svg.getAttribute("viewBox");
-        const container = svg.parentElement;
-        
-        // Verify the target is actually visible in the viewBox
-        const targetInView = (() => {
-          const viewBoxParts = viewBoxAfterFit?.split(" ").map(Number) || [];
-          if (viewBoxParts.length !== 4) return null;
-          const [vbX, vbY, vbW, vbH] = viewBoxParts;
-          const targetRight = bbox.x + bbox.width;
-          const targetBottom = bbox.y + bbox.height;
-          return {
-            targetX: bbox.x,
-            targetY: bbox.y,
-            targetRight,
-            targetBottom,
-            viewBoxX: vbX,
-            viewBoxY: vbY,
-            viewBoxRight: vbX + vbW,
-            viewBoxBottom: vbY + vbH,
-            targetVisible: bbox.x >= vbX && bbox.y >= vbY && targetRight <= vbX + vbW && targetBottom <= vbY + vbH,
-            targetXInView: bbox.x >= vbX && bbox.x <= vbX + vbW,
-            targetYInView: bbox.y >= vbY && bbox.y <= vbY + vbH,
-          };
-        })();
-        
-        const logFit3Immediate = {
-          location:'basicCamera.ts:173',
-          message:'fit exit immediate',
-          data:{
-            viewBoxAfterFit,
-            calculatedViewBox:viewBox,
-            viewBoxString,
-            targetInView,
-            svgWidth:svg.clientWidth,
-            svgHeight:svg.clientHeight,
-            svgWidthAttr:svg.getAttribute("width"),
-            svgHeightAttr:svg.getAttribute("height"),
-            svgPreserveAspectRatio:svg.getAttribute("preserveAspectRatio"),
-            containerWidth:container?.clientWidth,
-            containerHeight:container?.clientHeight,
-            containerDisplay:container ? window.getComputedStyle(container).display : null,
-            svgDisplay:window.getComputedStyle(svg).display
-          },
-          timestamp:Date.now(),
-          sessionId:'debug-session',
-          runId:'run1',
-          hypothesisId:'B,D'
-        };
-        console.log('[DEBUG]', logFit3Immediate);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit3Immediate)}).catch(()=>{});
-        // #endregion
-        // Also check after a delay
-        setTimeout(() => {
-          const viewBoxCheck = svg.getAttribute("viewBox");
-          const logFit3Delayed = {
-            location:'basicCamera.ts:200',
-            message:'fit exit delayed',
-            data:{
-              viewBoxAfterFit,
-              viewBoxCheck,
-              calculatedViewBox:viewBox,
-              viewBoxString,
-              svgWidth:svg.clientWidth,
-              svgHeight:svg.clientHeight,
-              containerWidth:container?.clientWidth,
-              containerHeight:container?.clientHeight
-            },
-            timestamp:Date.now(),
-            sessionId:'debug-session',
-            runId:'run1',
-            hypothesisId:'D'
-          };
-          console.log('[DEBUG]', logFit3Delayed);
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit3Delayed)}).catch(()=>{});
-        }, 300);
         } else {
           // Animated transition
           const startViewBox = parseViewBox(svg.getAttribute("viewBox"));
           const endViewBox = viewBox;
           const easing = getEasingFunction(easingName);
           
-          // #region agent log
-          const logAnimate = {location:'basicCamera.ts:603',message:'starting animation',data:{duration,easingName,startViewBox,endViewBox},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-          console.log('[DEBUG]', logAnimate);
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logAnimate)}).catch(()=>{});
-          // #endregion
-          
           return animateViewBox(svg, startViewBox, endViewBox, duration, easing);
         }
       } catch (error) {
         // getBBox() can fail if element is not in the DOM or not visible
-        // #region agent log
-        const logFit8 = {location:'basicCamera.ts:143',message:'fit error',data:{error:String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-        console.log('[DEBUG]', logFit8);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logFit8)}).catch(()=>{});
-        // #endregion
         console.warn("Failed to get bounding box for camera.fit:", error);
       }
     },
     reset() {
-      // #region agent log
-      const viewBoxBeforeReset = svg.getAttribute("viewBox");
-      const logReset1 = {location:'basicCamera.ts:145',message:'reset entry',data:{viewBoxBeforeReset,originalViewBox},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[DEBUG]', logReset1);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logReset1)}).catch(()=>{});
-      // #endregion
       // Calculate full bounding box to show entire diagram
       const fullViewBox = calculateFullBoundingBox(svg);
-      // #region agent log
-      const logReset2 = {location:'basicCamera.ts:147',message:'reset calculated',data:{fullViewBox,originalViewBox},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[DEBUG]', logReset2);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logReset2)}).catch(()=>{});
-      // #endregion
       if (fullViewBox) {
         svg.setAttribute("viewBox", fullViewBox);
       } else if (originalViewBox) {
         // Fallback to original if calculation fails
         svg.setAttribute("viewBox", originalViewBox);
       }
-      // #region agent log
-      const viewBoxAfterReset = svg.getAttribute("viewBox");
-      const logReset3 = {location:'basicCamera.ts:154',message:'reset exit',data:{viewBoxAfterReset},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[DEBUG]', logReset3);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logReset3)}).catch(()=>{});
-      // #endregion
     },
     zoom(factor: number, center?: { x: number; y: number }) {
       const baseVal = svg.viewBox?.baseVal;
@@ -823,8 +502,11 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
       const scaleX = currentViewBox.width / svgWidth;
       const scaleY = currentViewBox.height / svgHeight;
 
-      const newX = currentViewBox.x - deltaX * scaleX;
-      const newY = currentViewBox.y - deltaY * scaleY;
+      // To pan right (see content further right), increase viewBox x (viewBox x is the left edge of visible area)
+      // To pan down (see content further down), increase viewBox y (viewBox y is the top edge of visible area)
+      // Positive deltaX should pan right, positive deltaY should pan down
+      const newX = currentViewBox.x + deltaX * scaleX;
+      const newY = currentViewBox.y + deltaY * scaleY;
 
       svg.setAttribute("viewBox", `${newX} ${newY} ${currentViewBox.width} ${currentViewBox.height}`);
     },

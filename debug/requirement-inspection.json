@@ -1,0 +1,40 @@
+{
+  "svgInfo": {
+    "viewBox": "0 0 2412 512",
+    "width": "100%",
+    "height": null,
+    "rootDataId": null
+  },
+  "allIds": {
+    "total": 0,
+    "ids": []
+  },
+  "itemMatches": {
+    "req1": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "req2": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "func1": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    }
+  },
+  "dataIdElements": {
+    "total": 0,
+    "elements": []
+  },
+  "requirementGroups": {
+    "total": 0,
+    "groups": []
+  }
+}

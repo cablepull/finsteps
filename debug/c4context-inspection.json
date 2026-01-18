@@ -1,0 +1,262 @@
+{
+  "svgInfo": {
+    "viewBox": "110 -34.78816843032837 928 378.78816843032837",
+    "width": "100%",
+    "height": "100%",
+    "rootDataId": null
+  },
+  "allIds": {
+    "total": 7,
+    "ids": [
+      {
+        "id": "computer",
+        "tagName": "symbol",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "database",
+        "tagName": "symbol",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "clock",
+        "tagName": "symbol",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "arrowhead",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "arrowend",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "crosshead",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      },
+      {
+        "id": "filled-head",
+        "tagName": "marker",
+        "className": "",
+        "textContent": ""
+      }
+    ]
+  },
+  "aliasMatches": {
+    "user": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "textContent": "<<person>>UserInteracts with UI",
+          "parentTagName": "svg"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "User",
+          "parentTagName": "g"
+        },
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "User",
+          "parentTagName": "text"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<person>>UserInteracts with UI"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<person>>UserInteracts with UI"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<person>>UserInteracts with UI"
+        }
+      ]
+    },
+    "webapp": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "textContent": "<<system>>Web ApplicationServes UI & API",
+          "parentTagName": "svg"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Web Application",
+          "parentTagName": "g"
+        },
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Web Application",
+          "parentTagName": "text"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<system>>Web ApplicationServes UI & API"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<system>>Web ApplicationServes UI & API"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<system>>Web ApplicationServes UI & API"
+        }
+      ]
+    },
+    "auth": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "textContent": "<<external_system>>Authentication ServiceExternal Service",
+          "parentTagName": "svg"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Authentication Service",
+          "parentTagName": "g"
+        },
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Authentication Service",
+          "parentTagName": "text"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "UsesAuthenticates via",
+          "parentTagName": "svg"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Authenticates via",
+          "parentTagName": "g"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<external_system>>Authentication ServiceExternal Service"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<external_system>>Authentication ServiceExternal Service"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<external_system>>Authentication ServiceExternal Service"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "UsesAuthenticates via"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "UsesAuthenticates via"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "UsesAuthenticates via"
+        }
+      ]
+    }
+  },
+  "dataIdElements": {
+    "total": 2,
+    "elements": [
+      {
+        "tagName": "g",
+        "id": null,
+        "dataId": "user",
+        "className": "person-man"
+      },
+      {
+        "tagName": "g",
+        "id": null,
+        "dataId": "auth",
+        "className": "person-man"
+      }
+    ]
+  }
+}

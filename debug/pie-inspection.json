@@ -1,0 +1,206 @@
+{
+  "svgInfo": {
+    "viewBox": "-226 -263.5 564.4921875 489.5",
+    "width": "100%",
+    "height": "100%",
+    "rootDataId": null
+  },
+  "allIds": {
+    "total": 0,
+    "ids": []
+  },
+  "sliceMatches": {
+    "Desktop": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "textContent": "Desktop"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Desktop"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Desktop"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Desktop"
+        }
+      ]
+    },
+    "Mobile": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "textContent": "Mobile"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Mobile"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Mobile"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Mobile"
+        }
+      ]
+    },
+    "Tablet": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "textContent": "Tablet"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Tablet"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Tablet"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Tablet"
+        }
+      ]
+    },
+    "Other": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "textContent": "Other"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "Other"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "45%35%15%5%Device Usage DistributionDesktopMobileTabletOther"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Other"
+        },
+        {
+          "tagName": "g",
+          "className": "legend",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Other"
+        }
+      ]
+    }
+  },
+  "dataIdElements": {
+    "total": 0,
+    "elements": []
+  }
+}

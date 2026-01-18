@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Pie Chart Walkthrough</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 0;
+        height: 100vh;
+      }
+      header {
+        grid-column: 1 / -1;
+        padding: 0.75rem 1rem;
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+        font-size: 0.9rem;
+      }
+      header h1 { margin: 0; font-size: 1rem; font-weight: 600; }
+      .sidebar {
+        padding: 1rem 0.75rem;
+        background: #1e293b;
+        border-right: 1px solid #334155;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .sidebar-section { display: flex; flex-direction: column; gap: 0.5rem; }
+      .sidebar h2 {
+        margin: 0 0 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+      }
+      .jump-btn {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.8rem;
+        text-align: left;
+        background: #334155;
+        color: #e2e8f0;
+        border: 1px solid #475569;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .jump-btn:hover { background: #475569; border-color: #64748b; }
+      .jump-btn.active { background: #3b82f6; border-color: #60a5fa; color: #fff; }
+      .stage-wrap {
+        padding: 1rem;
+        overflow: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .diagram-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        width: 100%;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram svg {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        max-width: 100%;
+        display: block;
+      }
+      .finsteps-highlight {
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+      }
+      path.finsteps-highlight,
+      g.finsteps-highlight {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      .finsteps-highlight path {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      .control-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem;
+        margin-top: 0.5rem;
+      }
+      .control-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+        background: #334155;
+        color: #e2e8f0;
+        border: 1px solid #475569;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .control-btn:hover { background: #475569; }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header><h1>Pie Chart Walkthrough</h1></header>
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h2>Navigation</h2>
+          <button class="jump-btn" data-goto="overview">Overview</button>
+          <button class="jump-btn" data-goto="desktop">Desktop</button>
+          <button class="jump-btn" data-goto="mobile">Mobile</button>
+          <button class="jump-btn" data-goto="tablet">Tablet</button>
+          <button class="jump-btn" data-goto="other">Other</button>
+        </div>
+        <div class="sidebar-section">
+          <h2>Controls</h2>
+          <div class="control-group">
+            <button class="control-btn" id="zoom-in">Zoom In</button>
+            <button class="control-btn" id="zoom-out">Zoom Out</button>
+            <button class="control-btn" id="reset">Reset</button>
+            <button class="control-btn" id="fit-all">Fit All</button>
+          </div>
+        </div>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const mermaidText = `pie title Device Usage Distribution
+        "Desktop" : 45
+        "Mobile" : 35
+        "Tablet" : 15
+        "Other" : 5
+      `;
+
+      const ast = {
+        steps: [
+          {
+            id: "overview",
+            actions: [
+              { type: "camera.reset" },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "Desktop" },
+                  text: "Full pie chart showing device usage distribution percentages."
+                }
+              }
+            ]
+          },
+          {
+            id: "desktop",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Desktop" }, padding: 80, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Desktop" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "Desktop" },
+                  text: "Desktop: 45% - Largest segment, primary platform."
+                }
+              }
+            ]
+          },
+          {
+            id: "mobile",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Mobile" }, padding: 80, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Mobile" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "Mobile" },
+                  text: "Mobile: 35% - Second largest segment, growing rapidly."
+                }
+              }
+            ]
+          },
+          {
+            id: "tablet",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Tablet" }, padding: 80, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Tablet" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "Tablet" },
+                  text: "Tablet: 15% - Moderate usage segment."
+                }
+              }
+            ]
+          },
+          {
+            id: "other",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Other" }, padding: 80, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Other" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "Other" },
+                  text: "Other: 5% - Smallest segment, includes various devices."
+                }
+              }
+            ]
+          }
+        ],
+        bindings: [
+          { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+          { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] },
+          // DSL-driven button navigation
+          { event: "click", target: { selector: "button[data-goto='overview']" }, actions: [{ type: "nav.goto", payload: { id: "overview" } }] },
+          { event: "click", target: { selector: "button[data-goto='desktop']" }, actions: [{ type: "nav.goto", payload: { id: "desktop" } }] },
+          { event: "click", target: { selector: "button[data-goto='mobile']" }, actions: [{ type: "nav.goto", payload: { id: "mobile" } }] },
+          { event: "click", target: { selector: "button[data-goto='tablet']" }, actions: [{ type: "nav.goto", payload: { id: "tablet" } }] },
+          { event: "click", target: { selector: "button[data-goto='other']" }, actions: [{ type: "nav.goto", payload: { id: "other" } }] }
+        ]
+      };
+
+      const controller = await presentMermaid({
+        mountEl: document.getElementById("diagram-mount"),
+        mermaidText,
+        ast
+      });
+
+      // Get camera handle for manual controls (zoom/pan buttons)
+      const { createBasicCameraHandle } = await import("../../dist/adapters/basicCamera.js");
+      const diagramContainer = document.querySelector(".finsteps-diagram");
+      const svgElement = diagramContainer ? diagramContainer.querySelector("svg") : null;
+      let cameraHandle = null;
+      if (svgElement && diagramContainer) {
+        const diagramHandle = {
+          getRoot: () => svgElement,
+          getContainer: () => diagramContainer,
+          resolveTarget: () => null,
+          destroy: () => {}
+        };
+        cameraHandle = createBasicCameraHandle(diagramHandle);
+      }
+
+      // Update active button state on step change (driven by DSL step changes)
+      const updateActiveButtons = () => {
+        const state = controller.getState();
+        document.querySelectorAll('.jump-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-goto') === state.stepId);
+        });
+      };
+      controller.on('stepchange', updateActiveButtons);
+      updateActiveButtons();
+
+      // Manual camera controls (zoom/pan - utility controls, not DSL-driven)
+      const camera = cameraHandle;
+      if (camera) {
+        document.getElementById('zoom-in')?.addEventListener('click', () => camera.zoom?.(1.2));
+        document.getElementById('zoom-out')?.addEventListener('click', () => camera.zoom?.(0.8));
+        document.getElementById('reset')?.addEventListener('click', () => camera.reset());
+        document.getElementById('fit-all')?.addEventListener('click', () => camera.fitAll?.());
+      }
+    </script>
+  </body>
+</html>

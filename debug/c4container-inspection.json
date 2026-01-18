@@ -1,0 +1,230 @@
+{
+  "svgInfo": {
+    "viewBox": "110 -34.98214244842529 712 743.9821424484253",
+    "width": "100%",
+    "height": "100%"
+  },
+  "allIds": {
+    "total": 7,
+    "ids": [
+      {
+        "id": "computer",
+        "tagName": "symbol",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "database",
+        "tagName": "symbol",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "clock",
+        "tagName": "symbol",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "arrowhead",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "arrowend",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "crosshead",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "filled-head",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      }
+    ]
+  },
+  "groupsWithClasses": {
+    "total": 0,
+    "groups": []
+  },
+  "aliasMatches": {
+    "user": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "User",
+          "parentTagName": "text",
+          "parentClassName": ""
+        },
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "User interface",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<person>>UserUses the system"
+        },
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<container>>Web UI[React]User interface"
+        }
+      ]
+    },
+    "webapp": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "web": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Web UI",
+          "parentTagName": "text",
+          "parentClassName": ""
+        },
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Web Application",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<container>>Web UI[React]User interface"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Web Application[ENTERPRISE]"
+        }
+      ]
+    },
+    "api": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "API",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<container>>API[REST]Business logic"
+        }
+      ]
+    },
+    "db": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "<<system_db>>",
+          "parentTagName": "g",
+          "parentClassName": "person-man"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "person-man",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "<<system_db>>DatabasePostgreSQL"
+        }
+      ]
+    }
+  },
+  "dataIdElements": {
+    "total": 3,
+    "elements": [
+      {
+        "tagName": "g",
+        "id": null,
+        "dataId": "user",
+        "className": "person-man"
+      },
+      {
+        "tagName": "g",
+        "id": null,
+        "dataId": "web",
+        "className": "person-man"
+      },
+      {
+        "tagName": "g",
+        "id": null,
+        "dataId": "api",
+        "className": "person-man"
+      }
+    ]
+  }
+}

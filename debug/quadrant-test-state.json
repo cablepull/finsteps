@@ -1,0 +1,65 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 4,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "Innovator",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Niche",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Challenger",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Leader",
+          "id": null
+        }
+      ]
+    },
+    "rootDataId": null,
+    "itemResults": {
+      "Leader": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "data-point",
+        "textContent": "Leader",
+        "hasShapes": true
+      },
+      "Challenger": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "data-point",
+        "textContent": "Challenger",
+        "hasShapes": true
+      },
+      "Niche": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "data-point",
+        "textContent": "Niche",
+        "hasShapes": true
+      },
+      "Innovator": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "data-point",
+        "textContent": "Innovator",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

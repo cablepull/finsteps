@@ -1,0 +1,52 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 3,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "user",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "webapp",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "auth",
+          "id": null
+        }
+      ]
+    },
+    "rootDataId": null,
+    "aliasResults": {
+      "user": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<person>>UserInteracts with UI",
+        "hasShapes": true
+      },
+      "webapp": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<system>>Web ApplicationServes UI & API",
+        "hasShapes": true
+      },
+      "auth": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "person-man",
+        "textContent": "<<external_system>>Authentication ServiceExternal Service",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

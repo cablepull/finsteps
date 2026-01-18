@@ -1,0 +1,91 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 6,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "Landing Page",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Pricing Page",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Signup Form",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Email Verification",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Welcome Tour",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Dashboard",
+          "id": null
+        }
+      ]
+    },
+    "rootDataId": null,
+    "stepResults": {
+      "Landing Page": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "UserLanding PageLanding Page",
+        "hasShapes": true
+      },
+      "Pricing Page": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "UserPricing PagePricing Page",
+        "hasShapes": true
+      },
+      "Signup Form": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "UserSignup FormSignup Form",
+        "hasShapes": true
+      },
+      "Email Verification": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "UserEmail VerificationEmail Verification",
+        "hasShapes": true
+      },
+      "Welcome Tour": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "UserWelcome TourWelcome Tour",
+        "hasShapes": true
+      },
+      "Dashboard": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "UserDashboardDashboard",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

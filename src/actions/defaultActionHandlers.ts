@@ -57,30 +57,11 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       await controller.reset();
     },
     "camera.fit": async (context, action) => {
-      // #region agent log
-      const logAction1 = {location:'defaultActionHandlers.ts:59',message:'camera.fit entry',data:{hasCamera:!!context.camera,target:action.payload?.target},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-      console.log('[DEBUG]', logAction1);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logAction1)}).catch(()=>{});
-      // #endregion
       if (!context.camera) {
         return;
       }
       const target = action.payload?.target as TargetDescriptor | undefined;
       const resolved = resolveTarget(context.diagram, target);
-      // #region agent log
-      const resolvedInfo = resolved ? {
-        tagName:resolved.tagName,
-        id:resolved.id,
-        dataId:resolved.getAttribute('data-id'),
-        isSVGGraphics:resolved instanceof SVGGraphicsElement,
-        className:resolved instanceof SVGElement ? (typeof resolved.className === 'string' ? resolved.className : resolved.className.baseVal) : '',
-        parentTagName:resolved.parentElement?.tagName,
-        parentClassName:resolved.parentElement instanceof SVGElement ? (typeof resolved.parentElement.className === 'string' ? resolved.parentElement.className : resolved.parentElement.className.baseVal) : ''
-      } : null;
-      const logAction2 = {location:'defaultActionHandlers.ts:65',message:'target resolved',data:{target,resolved:resolvedInfo},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-      console.log('[DEBUG]', logAction2);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logAction2)}).catch(()=>{});
-      // #endregion
       if (!resolved) {
         throw new ActionError("camera.fit missing target", "MPF_ACTION_INVALID_ARGS");
       }
@@ -138,29 +119,6 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       const className =
         typeof action.payload?.className === "string" ? action.payload.className : "finsteps-highlight";
       const elements = getTargets(context, target);
-      // #region agent log
-      const logHighlight = {
-        location:'defaultActionHandlers.ts:117',
-        message:'style.highlight',
-        data:{
-          target,
-          elementsCount:elements.length,
-          elements:elements.map(el=>({
-            tagName:el.tagName,
-            id:el.id,
-            dataId:el.getAttribute('data-id'),
-            className:el instanceof SVGElement ? (typeof el.className === 'string' ? el.className : el.className.baseVal) : '',
-            hasHighlightClass:el.classList.contains(className)
-          }))
-        },
-        timestamp:Date.now(),
-        sessionId:'debug-session',
-        runId:'run1',
-        hypothesisId:'E'
-      };
-      console.log('[DEBUG]', logHighlight);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logHighlight)}).catch(()=>{});
-      // #endregion
       ensureHighlight(highlightState, elements, className);
     },
     "style.clear": () => {

@@ -51,6 +51,7 @@ export interface DiagramHandle {
   getRoot(): SVGSVGElement;
   getContainer(): HTMLElement;
   resolveTarget(target: TargetDescriptor): Element | null;
+  getStrategy?(): import("./adapters/diagramStrategies.js").DiagramStrategy;
   destroy(): void;
 }
 

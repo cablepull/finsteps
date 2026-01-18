@@ -1,0 +1,70 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 5,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "Wheel",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Vehicle",
+          "id": "classId-Vehicle-0"
+        },
+        {
+          "tagName": "g",
+          "dataId": "Car",
+          "id": "classId-Car-1"
+        },
+        {
+          "tagName": "g",
+          "dataId": "Motorcycle",
+          "id": "classId-Motorcycle-2"
+        },
+        {
+          "tagName": "g",
+          "dataId": "Wheel",
+          "id": "classId-Wheel-3"
+        }
+      ]
+    },
+    "rootDataId": null,
+    "aliasResults": {
+      "Vehicle": {
+        "found": true,
+        "tagName": "g",
+        "id": "classId-Vehicle-0",
+        "className": "node default",
+        "textContent": "Vehicle+String make+String model+int year+void start()+void stop()",
+        "hasShapes": true
+      },
+      "Car": {
+        "found": true,
+        "tagName": "g",
+        "id": "classId-Car-1",
+        "className": "node default",
+        "textContent": "Car+int numDoors+void openTrunk()",
+        "hasShapes": true
+      },
+      "Motorcycle": {
+        "found": true,
+        "tagName": "g",
+        "id": "classId-Motorcycle-2",
+        "className": "node default",
+        "textContent": "Motorcycle+bool hasSidecar+void wheelie()",
+        "hasShapes": true
+      },
+      "Wheel": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "Vehicle+String make+String model+int year+void start()+void stop()Car+int numDoors+void openTrunk()M",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

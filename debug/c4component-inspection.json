@@ -1,0 +1,153 @@
+{
+  "svgInfo": {
+    "viewBox": "110 -34.73913049697876 1028 695.7391304969788",
+    "width": "100%",
+    "height": "100%"
+  },
+  "allIds": {
+    "total": 7,
+    "ids": [
+      {
+        "id": "computer",
+        "tagName": "symbol",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "database",
+        "tagName": "symbol",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "clock",
+        "tagName": "symbol",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "arrowhead",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "arrowend",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "crosshead",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      },
+      {
+        "id": "filled-head",
+        "tagName": "marker",
+        "className": "",
+        "parentTagName": "defs",
+        "parentClassName": "",
+        "textContent": ""
+      }
+    ]
+  },
+  "groupsWithClasses": {
+    "total": 0,
+    "groups": []
+  },
+  "aliasMatches": {
+    "controller": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Controller",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ]
+    },
+    "service": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Service",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ]
+    },
+    "repo": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "Repository",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ]
+    },
+    "api": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "tspan",
+          "className": "",
+          "id": null,
+          "textContent": "API Container",
+          "parentTagName": "text",
+          "parentClassName": ""
+        }
+      ]
+    },
+    "db": {
+      "exactId": null,
+      "containsId": [],
+      "startsWithId": [],
+      "textContains": [
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "<<system_db>>",
+          "parentTagName": "g",
+          "parentClassName": "person-man"
+        }
+      ]
+    }
+  },
+  "dataIdElements": {
+    "total": 0,
+    "elements": []
+  }
+}

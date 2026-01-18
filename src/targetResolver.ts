@@ -1,4 +1,6 @@
 import { DiagramHandle, TargetDescriptor } from "./types.js";
+import { DiagramStrategy } from "./adapters/diagramStrategies.js";
+import { FlowchartStrategy } from "./adapters/strategies/flowchartStrategy.js";
 
 const escapeSelector = (value: string): string => {
   if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
@@ -21,16 +23,61 @@ export const resolveTarget = (
   let element: Element | null = null;
   
   if (target.selector) {
+    // Try diagram root first (for elements inside SVG/diagram)
     element = root.querySelector(target.selector);
+    // If not found and we have a selector, also try document (for elements outside diagram, like buttons)
+    if (!element && typeof document !== 'undefined') {
+      element = document.querySelector(target.selector);
+      // #region agent log
+      if (element) {
+        const logData = {location:'targetResolver.ts:28',message:'resolved selector from document',data:{selector:target.selector,found:!!element,elementTag:element.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'};
+        if (target.selector.includes('button[data-goto')) {
+          console.log('[TargetResolver]', logData.message, logData.data);
+        }
+        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
+      }
+      // #endregion
+    }
   } else if (target.id) {
     element = root.querySelector(`#${escapeSelector(target.id)}`);
   } else if (target.dataId) {
-    // First, try to find a node group with the data-id (preferred)
-    element = root.querySelector(`g.node[data-id="${escapeSelector(target.dataId)}"]`);
-    // If not found, fall back to any element with the data-id
-    if (!element) {
-      element = root.querySelector(`[data-id="${escapeSelector(target.dataId)}"]`);
+    // Use strategy to get target selectors, or fall back to default flowchart selectors
+    const strategy = diagram.getStrategy?.() || new FlowchartStrategy();
+    const selectors = strategy.getTargetSelectors(target.dataId);
+    
+    // #region agent log
+    const logData = {location:'targetResolver.ts:31',message:'resolving target by dataId',data:{dataId:target.dataId,diagramType:strategy.getDiagramType(),selectors:selectors},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
+    if (['Idle','Waiting','Active','Error'].includes(target.dataId)) {
+      console.log('[TargetResolver]', logData.message, logData.data);
     }
+    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
+    // #endregion
+    
+    // Try each selector in order until one matches
+    for (const selector of selectors) {
+      element = root.querySelector(selector);
+      if (element) {
+        // #region agent log
+        const elementClass = element instanceof SVGElement ? (typeof element.className === 'string' ? element.className : (element.className as unknown as SVGAnimatedString).baseVal) : '';
+        const logData2 = {location:'targetResolver.ts:37',message:'target found',data:{dataId:target.dataId,selector:selector,elementTag:element.tagName,elementClass:elementClass},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
+        if (['Idle','Waiting','Active','Error'].includes(target.dataId)) {
+          console.log('[TargetResolver]', logData2.message, logData2.data);
+        }
+        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData2)}).catch(()=>{});
+        // #endregion
+        break;
+      }
+    }
+    
+    // #region agent log
+    if (!element) {
+        const logData3 = {location:'targetResolver.ts:46',message:'target NOT found',data:{dataId:target.dataId,selectors:selectors,availableDataIds:Array.from(root.querySelectorAll('[data-id]')).map((el:Element)=>el.getAttribute('data-id')).filter((id:string|null)=>id).slice(0,10)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
+      if (['Idle','Waiting','Active','Error'].includes(target.dataId)) {
+        console.log('[TargetResolver]', logData3.message, logData3.data);
+      }
+      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData3)}).catch(()=>{});
+    }
+    // #endregion
   }
   
   if (!element) {

@@ -1,0 +1,52 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 3,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "req1",
+          "id": "req1"
+        },
+        {
+          "tagName": "g",
+          "dataId": "req2",
+          "id": "req2"
+        },
+        {
+          "tagName": "g",
+          "dataId": "func1",
+          "id": "func1"
+        }
+      ]
+    },
+    "rootDataId": null,
+    "requirementResults": {
+      "req1": {
+        "found": true,
+        "tagName": "g",
+        "id": "req1",
+        "className": "",
+        "textContent": "<<Requirement>>req1Id: 1Text: System must authenticate usersRisk: HighVerification: Test",
+        "hasShapes": true
+      },
+      "req2": {
+        "found": true,
+        "tagName": "g",
+        "id": "req2",
+        "className": "",
+        "textContent": "<<Requirement>>req2Id: 2Text: System must store user data securelyRisk: MediumVerification: Test",
+        "hasShapes": true
+      },
+      "func1": {
+        "found": true,
+        "tagName": "g",
+        "id": "func1",
+        "className": "",
+        "textContent": "<<Element>>func1Type: functionDoc Ref: Function 1",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

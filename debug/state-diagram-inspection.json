@@ -1,0 +1,278 @@
+{
+  "svgInfo": {
+    "viewBox": "-32 -32 829.296875 291.5",
+    "width": "100%",
+    "height": "100%",
+    "clientWidth": 765,
+    "clientHeight": 644
+  },
+  "allDataIdElements": [
+    {
+      "tagName": "g",
+      "id": "",
+      "dataId": "edge7",
+      "className": "edgePaths"
+    },
+    {
+      "tagName": "g",
+      "id": "state-root_start-0",
+      "dataId": "root_start",
+      "className": "node default"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Idle-7",
+      "dataId": "Idle",
+      "className": "node  statediagram-state undefined"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Waiting-2",
+      "dataId": "Waiting",
+      "className": "node  statediagram-state undefined"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Active-4",
+      "dataId": "Active",
+      "className": "node  statediagram-state undefined"
+    },
+    {
+      "tagName": "g",
+      "id": "Error",
+      "dataId": "Error",
+      "className": "errorState statediagram-state statediagram-cluster"
+    },
+    {
+      "tagName": "g",
+      "id": "",
+      "dataId": "edge6",
+      "className": "edgePaths"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Error_start-5",
+      "dataId": "Error_start",
+      "className": "node default"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Retry-6",
+      "dataId": "Retry",
+      "className": "node  statediagram-state undefined"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Error_end-6",
+      "dataId": "Error_end",
+      "className": "node default"
+    }
+  ],
+  "stateNodeElements": [
+    {
+      "nodeId": "Idle",
+      "found": true,
+      "elements": [
+        {
+          "tagName": "g",
+          "id": "state-Idle-7",
+          "dataId": "Idle",
+          "className": "node  statediagram-state undefined",
+          "parentTagName": "g",
+          "parentClassName": "nodes",
+          "transform": "translate(92.90625, 118.375)",
+          "bbox": {}
+        }
+      ]
+    },
+    {
+      "nodeId": "Waiting",
+      "found": true,
+      "elements": [
+        {
+          "tagName": "g",
+          "id": "state-Waiting-2",
+          "dataId": "Waiting",
+          "className": "node  statediagram-state undefined",
+          "parentTagName": "g",
+          "parentClassName": "nodes",
+          "transform": "translate(295.8828125, 57.375)",
+          "bbox": {}
+        }
+      ]
+    },
+    {
+      "nodeId": "Active",
+      "found": true,
+      "elements": [
+        {
+          "tagName": "g",
+          "id": "state-Active-4",
+          "dataId": "Active",
+          "className": "node  statediagram-state undefined",
+          "parentTagName": "g",
+          "parentClassName": "nodes",
+          "transform": "translate(500.8984375, 87.875)",
+          "bbox": {}
+        }
+      ]
+    },
+    {
+      "nodeId": "Error",
+      "found": true,
+      "elements": [
+        {
+          "tagName": "g",
+          "id": "Error",
+          "dataId": "Error",
+          "className": "errorState statediagram-state statediagram-cluster",
+          "parentTagName": "g",
+          "parentClassName": "clusters",
+          "transform": null,
+          "bbox": {}
+        }
+      ]
+    }
+  ],
+  "stateRelatedIds": [
+    {
+      "tagName": "g",
+      "id": "state-Idle-7",
+      "className": "node  statediagram-state undefined",
+      "hasDataId": true,
+      "dataId": "Idle"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Waiting-2",
+      "className": "node  statediagram-state undefined",
+      "hasDataId": true,
+      "dataId": "Waiting"
+    },
+    {
+      "tagName": "g",
+      "id": "state-Active-4",
+      "className": "node  statediagram-state undefined",
+      "hasDataId": true,
+      "dataId": "Active"
+    },
+    {
+      "tagName": "g",
+      "id": "Error",
+      "className": "errorState statediagram-state statediagram-cluster",
+      "hasDataId": true,
+      "dataId": "Error"
+    }
+  ],
+  "selectorResults": {
+    "Idle": [
+      {
+        "selector": "g.node[data-id=\"Idle\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Idle-7",
+          "className": "node  statediagram-state undefined"
+        }
+      },
+      {
+        "selector": "g[class*=\"node\"][data-id=\"Idle\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Idle-7",
+          "className": "node  statediagram-state undefined"
+        }
+      },
+      {
+        "selector": "[data-id=\"Idle\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Idle-7",
+          "className": "node  statediagram-state undefined"
+        }
+      }
+    ],
+    "Waiting": [
+      {
+        "selector": "g.node[data-id=\"Waiting\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Waiting-2",
+          "className": "node  statediagram-state undefined"
+        }
+      },
+      {
+        "selector": "g[class*=\"node\"][data-id=\"Waiting\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Waiting-2",
+          "className": "node  statediagram-state undefined"
+        }
+      },
+      {
+        "selector": "[data-id=\"Waiting\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Waiting-2",
+          "className": "node  statediagram-state undefined"
+        }
+      }
+    ],
+    "Active": [
+      {
+        "selector": "g.node[data-id=\"Active\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Active-4",
+          "className": "node  statediagram-state undefined"
+        }
+      },
+      {
+        "selector": "g[class*=\"node\"][data-id=\"Active\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Active-4",
+          "className": "node  statediagram-state undefined"
+        }
+      },
+      {
+        "selector": "[data-id=\"Active\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "state-Active-4",
+          "className": "node  statediagram-state undefined"
+        }
+      }
+    ],
+    "Error": [
+      {
+        "selector": "g.node[data-id=\"Error\"]",
+        "found": false,
+        "element": null
+      },
+      {
+        "selector": "g[class*=\"node\"][data-id=\"Error\"]",
+        "found": false,
+        "element": null
+      },
+      {
+        "selector": "[data-id=\"Error\"]",
+        "found": true,
+        "element": {
+          "tagName": "g",
+          "id": "Error",
+          "className": "errorState statediagram-state statediagram-cluster"
+        }
+      }
+    ]
+  },
+  "controllerState": null
+}

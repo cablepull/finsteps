@@ -1,0 +1,65 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 4,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "CUSTOMER",
+          "id": "entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67"
+        },
+        {
+          "tagName": "g",
+          "dataId": "ORDER",
+          "id": "entity-ORDER-36941e20-eb1d-50a3-81c5-00079b43c24a"
+        },
+        {
+          "tagName": "g",
+          "dataId": "ORDER_ITEM",
+          "id": "entity-ORDERITEM-e5349d72-b47b-55be-8020-113016425f62"
+        },
+        {
+          "tagName": "g",
+          "dataId": "PRODUCT",
+          "id": "entity-PRODUCT-b14524a1-8e20-5805-a382-423fd1ec339f"
+        }
+      ]
+    },
+    "rootDataId": null,
+    "aliasResults": {
+      "CUSTOMER": {
+        "found": true,
+        "tagName": "g",
+        "id": "entity-CUSTOMER-7c659eae-ee79-5f5d-acd7-c418f8ad1d67",
+        "className": "",
+        "textContent": "CUSTOMERintidPKstringnamestringemailUKstringaddress",
+        "hasShapes": true
+      },
+      "ORDER": {
+        "found": true,
+        "tagName": "g",
+        "id": "entity-ORDER-36941e20-eb1d-50a3-81c5-00079b43c24a",
+        "className": "",
+        "textContent": "ORDERintidPKintcustomer_idFKdateorder_datefloattotal",
+        "hasShapes": true
+      },
+      "PRODUCT": {
+        "found": true,
+        "tagName": "g",
+        "id": "entity-PRODUCT-b14524a1-8e20-5805-a382-423fd1ec339f",
+        "className": "",
+        "textContent": "PRODUCTintidPKstringskuUKstringnamefloatpriceintstock",
+        "hasShapes": true
+      },
+      "ORDER_ITEM": {
+        "found": true,
+        "tagName": "g",
+        "id": "entity-ORDERITEM-e5349d72-b47b-55be-8020-113016425f62",
+        "className": "",
+        "textContent": "ORDER_ITEMintidPKintorder_idFKintproduct_idFKstringproduct_nameintquantityfloatprice",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

@@ -1,0 +1,62 @@
+{
+  "state": {
+    "dataIdElements": {
+      "total": 5,
+      "elements": [
+        {
+          "tagName": "g",
+          "dataId": "InventoryService",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "PaymentService",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "WebApp",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Customer",
+          "id": null
+        },
+        {
+          "tagName": "g",
+          "dataId": "Success",
+          "id": null
+        }
+      ]
+    },
+    "rootDataId": null,
+    "participantResults": {
+      "Customer": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "Customer",
+        "hasShapes": true
+      },
+      "WebApp": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "WebApp",
+        "hasShapes": true
+      },
+      "PaymentService": {
+        "found": true,
+        "tagName": "g",
+        "id": null,
+        "className": "",
+        "textContent": "PaymentService",
+        "hasShapes": true
+      }
+    }
+  },
+  "logs": []
+}

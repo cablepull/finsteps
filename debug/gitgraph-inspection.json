@@ -1,0 +1,292 @@
+{
+  "svgInfo": {
+    "viewBox": "-149.421875 -50.5 689.421875 325.67594814300537",
+    "width": "100%",
+    "height": "100%",
+    "rootDataId": null
+  },
+  "allIds": {
+    "total": 0,
+    "ids": []
+  },
+  "branchMatches": {
+    "main": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "maindevelopfeature"
+        },
+        {
+          "tagName": "g",
+          "className": "branchLabel",
+          "id": null,
+          "textContent": "main"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label0",
+          "id": null,
+          "textContent": "main"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "main"
+        },
+        {
+          "tagName": "tspan",
+          "className": "row",
+          "id": null,
+          "textContent": "main"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "maindevelopfeature"
+        },
+        {
+          "tagName": "g",
+          "className": "branchLabel",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "main"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label0",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "main"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label0",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "main"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label0",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "main"
+        }
+      ]
+    },
+    "develop": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "maindevelopfeature"
+        },
+        {
+          "tagName": "g",
+          "className": "branchLabel",
+          "id": null,
+          "textContent": "develop"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label1",
+          "id": null,
+          "textContent": "develop"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "develop"
+        },
+        {
+          "tagName": "tspan",
+          "className": "row",
+          "id": null,
+          "textContent": "develop"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "maindevelopfeature"
+        },
+        {
+          "tagName": "g",
+          "className": "branchLabel",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "develop"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label1",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "develop"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label1",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "develop"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label1",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "develop"
+        }
+      ]
+    },
+    "feature": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "textContent": "maindevelopfeature"
+        },
+        {
+          "tagName": "g",
+          "className": "branchLabel",
+          "id": null,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label2",
+          "id": null,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "text",
+          "className": "",
+          "id": null,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "tspan",
+          "className": "row",
+          "id": null,
+          "textContent": "feature"
+        }
+      ],
+      "containingGroups": [
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "maindevelopfeature"
+        },
+        {
+          "tagName": "g",
+          "className": "branchLabel",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label2",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label2",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "g",
+          "className": "label branch-label2",
+          "id": null,
+          "hasShapes": false,
+          "textContent": "feature"
+        },
+        {
+          "tagName": "g",
+          "className": "commit-labels",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "InitialSetupFeature AFeature BUpdateFeature CReleaseTag v1.0"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Feature A"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Feature A"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Feature B"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Feature B"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Feature C"
+        },
+        {
+          "tagName": "g",
+          "className": "",
+          "id": null,
+          "hasShapes": true,
+          "textContent": "Feature C"
+        }
+      ]
+    },
+    "hotfix": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    }
+  },
+  "dataIdElements": {
+    "total": 0,
+    "elements": []
+  }
+}

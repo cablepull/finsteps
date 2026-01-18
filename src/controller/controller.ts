@@ -69,21 +69,11 @@ export class MermaidController implements Controller {
   }
 
   async goto(step: number | string): Promise<void> {
-    // #region agent log
-    const log1 = {location:'controller.ts:71',message:'goto entry',data:{step,currentIndex:this.currentStepIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C'};
-    console.log('[DEBUG]', log1);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log1)}).catch(()=>{});
-    // #endregion
     const index = typeof step === "number" ? step : this.steps.findIndex((s) => s.id === step);
     if (index < 0 || index >= this.steps.length) {
       return;
     }
     const stepDef = this.steps[index];
-    // #region agent log
-    const log2 = {location:'controller.ts:76',message:'stepDef found',data:{stepId:stepDef.id,actions:stepDef.actions.map(a=>a.type)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[DEBUG]', log2);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log2)}).catch(()=>{});
-    // #endregion
     const errorPolicy = stepDef.errorPolicy ?? this.deps.errorPolicy;
     this.stepBindingEngine.destroy();
 
@@ -96,28 +86,7 @@ export class MermaidController implements Controller {
     const firstActionIsCamera = stepDef.actions.length > 0 && 
       (stepDef.actions[0].type === "camera.fit" || stepDef.actions[0].type === "camera.reset" || stepDef.actions[0].type === "camera.fitAll");
     if (this.deps.camera && !firstActionIsCamera) {
-      // #region agent log
-      const svg = this.deps.diagram.getRoot();
-      const viewBoxBeforeReset = svg.getAttribute("viewBox");
-      const log3 = {location:'controller.ts:86',message:'before camera.reset',data:{stepId:stepDef.id,viewBoxBeforeReset,firstActionIsCamera},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[DEBUG]', log3);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log3)}).catch(()=>{});
-      // #endregion
       this.deps.camera.reset();
-      // #region agent log
-      const viewBoxAfterReset = svg.getAttribute("viewBox");
-      const log4 = {location:'controller.ts:87',message:'after camera.reset',data:{stepId:stepDef.id,viewBoxAfterReset},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[DEBUG]', log4);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log4)}).catch(()=>{});
-      // #endregion
-    } else if (this.deps.camera && firstActionIsCamera) {
-      // #region agent log
-      const svg = this.deps.diagram.getRoot();
-      const viewBoxBeforeActions = svg.getAttribute("viewBox");
-      const logSkipReset = {location:'controller.ts:110',message:'skipping camera.reset - first action is camera',data:{stepId:stepDef.id,viewBoxBeforeActions,firstActionType:stepDef.actions[0]?.type},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[DEBUG]', logSkipReset);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logSkipReset)}).catch(()=>{});
-      // #endregion
     }
     // Clear highlights by running the style.clear action
     await this.actionEngine.run(
@@ -139,13 +108,6 @@ export class MermaidController implements Controller {
     });
 
     try {
-      // #region agent log
-      const svgBeforeActions = this.deps.diagram.getRoot();
-      const viewBoxBeforeActions = svgBeforeActions.getAttribute("viewBox");
-      const log5 = {location:'controller.ts:107',message:'before running actions',data:{stepId:stepDef.id,viewBoxBeforeActions,actionCount:stepDef.actions.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'};
-      console.log('[DEBUG]', log5);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log5)}).catch(()=>{});
-      // #endregion
       const errors = await this.actionEngine.run(
         stepDef.actions,
         {
@@ -156,20 +118,6 @@ export class MermaidController implements Controller {
         },
         errorPolicy
       );
-      // #region agent log
-      const svgAfterActions = this.deps.diagram.getRoot();
-      const viewBoxAfterActions = svgAfterActions.getAttribute("viewBox");
-      // Check again after a short delay to see if viewBox persists
-      setTimeout(() => {
-        const viewBoxLater = svgAfterActions.getAttribute("viewBox");
-        const log6 = {location:'controller.ts:117',message:'after running actions delayed',data:{stepId:stepDef.id,viewBoxAfterActions,viewBoxLater,errorCount:errors.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'};
-        console.log('[DEBUG]', log6);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log6)}).catch(()=>{});
-      }, 200);
-      const log6 = {location:'controller.ts:117',message:'after running actions',data:{stepId:stepDef.id,viewBoxAfterActions,errorCount:errors.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'};
-      console.log('[DEBUG]', log6);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(log6)}).catch(()=>{});
-      // #endregion
       for (const error of errors) {
         this.emitActionError(error);
       }

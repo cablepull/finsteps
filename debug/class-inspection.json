@@ -1,0 +1,46 @@
+{
+  "svgInfo": {
+    "viewBox": "0 0 2412 512",
+    "width": "100%",
+    "height": null,
+    "rootDataId": null
+  },
+  "allIds": {
+    "total": 0,
+    "ids": []
+  },
+  "classGroups": {
+    "total": 0,
+    "groups": []
+  },
+  "classMatches": {
+    "Vehicle": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "Car": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "Motorcycle": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    },
+    "Wheel": {
+      "exactId": null,
+      "containsId": [],
+      "textContains": [],
+      "containingGroups": []
+    }
+  },
+  "dataIdElements": {
+    "total": 0,
+    "elements": []
+  }
+}

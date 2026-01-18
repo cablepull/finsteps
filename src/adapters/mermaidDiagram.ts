@@ -1,85 +1,66 @@
 import { MPFError } from "../errors.js";
 import { DiagramAdapter, DiagramHandle, TargetDescriptor } from "../types.js";
 import { resolveTarget } from "../targetResolver.js";
+import { detectDiagramType } from "./diagramTypeDetector.js";
+import { DiagramStrategy } from "./diagramStrategies.js";
+import { strategyRegistry } from "./diagramStrategyRegistry.js";
+import { FlowchartStrategy } from "./strategies/flowchartStrategy.js";
+import { GanttStrategy } from "./strategies/ganttStrategy.js";
+import { SequenceDiagramStrategy } from "./strategies/sequenceDiagramStrategy.js";
+import { ClassDiagramStrategy } from "./strategies/classDiagramStrategy.js";
+import { StateDiagramStrategy } from "./strategies/stateDiagramStrategy.js";
+import { ERDiagramStrategy } from "./strategies/erDiagramStrategy.js";
+import { PieChartStrategy } from "./strategies/pieChartStrategy.js";
+import { JourneyStrategy } from "./strategies/journeyStrategy.js";
+import { GitGraphStrategy } from "./strategies/gitGraphStrategy.js";
+import { TimelineStrategy } from "./strategies/timelineStrategy.js";
+import { QuadrantChartStrategy } from "./strategies/quadrantChartStrategy.js";
+import { RequirementStrategy } from "./strategies/requirementStrategy.js";
+import { C4Strategy } from "./strategies/c4Strategy.js";
+import { BlockDiagramStrategy } from "./strategies/blockDiagramStrategy.js";
+
+// Register default strategies
+strategyRegistry.register('flowchart', new FlowchartStrategy());
+strategyRegistry.register('gantt', new GanttStrategy());
+strategyRegistry.register('sequenceDiagram', new SequenceDiagramStrategy());
+strategyRegistry.register('classDiagram', new ClassDiagramStrategy());
+strategyRegistry.register('stateDiagram', new StateDiagramStrategy());
+strategyRegistry.register('stateDiagram-v2', new StateDiagramStrategy());
+strategyRegistry.register('erDiagram', new ERDiagramStrategy());
+strategyRegistry.register('pie', new PieChartStrategy());
+strategyRegistry.register('journey', new JourneyStrategy());
+strategyRegistry.register('gitGraph', new GitGraphStrategy());
+// Experimental types
+strategyRegistry.register('timeline', new TimelineStrategy());
+strategyRegistry.register('quadrantChart', new QuadrantChartStrategy());
+strategyRegistry.register('requirement', new RequirementStrategy());
+strategyRegistry.register('c4Context', new C4Strategy('c4Context'));
+strategyRegistry.register('c4Container', new C4Strategy('c4Container'));
+strategyRegistry.register('c4Component', new C4Strategy('c4Component'));
+strategyRegistry.register('block', new BlockDiagramStrategy());
+// Set flowchart as default fallback
+strategyRegistry.setDefault(new FlowchartStrategy());
 
 /**
  * Mermaid puts node ids in the element's `id` (e.g. flowchart-PM-0, flowchart-ENG-0).
  * We copy the node id into data-id so that target: { dataId: "PM" } works.
  */
-function ensureDataIdFromMermaidIds(svg: SVGSVGElement): void {
-  const nodeIdMap = new Map<string, SVGElement>();
+function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrategy): void {
+  // Use strategy to extract node IDs
+  const nodeIdMap = strategy.extractNodeIds(svg);
   
-  // First pass: find all elements with ids and extract node ids
-  // Then find the corresponding node groups for each nodeId
-  for (const el of Array.from(svg.querySelectorAll<SVGElement>("[id]"))) {
-    const id = el.getAttribute("id");
-    if (!id) continue;
-    
-    // Match Mermaid node id patterns:
-    // - flowchart-{nodeId}-{digit}
-    // - flowchart-{digit}-{nodeId}
-    // - flowcharts-{nodeId}-{digit}
-    // - node-{nodeId} or similar
-    let nodeId: string | null = null;
-    
-    const patterns = [
-      /^[a-zA-Z0-9-]+-([A-Za-z0-9_]+)-\d+$/,  // prefix-nodeId-digit
-      /^[a-zA-Z0-9-]+-\d+-([A-Za-z0-9_]+)$/,  // prefix-digit-nodeId
-      /^node-([A-Za-z0-9_]+)$/,                // node-nodeId
-      /^flowchart-([A-Za-z0-9_]+)-/,           // flowchart-nodeId- (partial match)
-    ];
-    
-    for (const pattern of patterns) {
-      const m = id.match(pattern);
-      if (m && m[1]) {
-        nodeId = m[1];
-        break;
-      }
-    }
-    
-    if (nodeId && !nodeIdMap.has(nodeId)) {
-      // Find the node group (<g class="node">) that contains this element
-      let current: Element | null = el;
-      let nodeGroup: SVGElement | null = null;
-      
-      // Walk up the tree to find the node group
-      while (current && current !== svg) {
-        if (current instanceof SVGElement && current.tagName === "g") {
-          const className = typeof current.className === 'string' ? current.className : current.className.baseVal;
-          if (className && className.includes('node')) {
-            nodeGroup = current;
-            break;
-          }
-        }
-        current = current.parentElement;
-      }
-      
-      // If we found a node group, use it; otherwise use the element itself if it's a graphics element
-      if (nodeGroup) {
-        nodeIdMap.set(nodeId, nodeGroup);
-      } else if (el.tagName === "g" && el.classList.contains("node")) {
-        nodeIdMap.set(nodeId, el);
-      }
-    }
-  }
-  
-  // Second pass: set data-id attributes ONLY on node groups
+  // Second pass: set data-id attributes on the extracted elements
   for (const [nodeId, el] of nodeIdMap) {
-    // Double-check it's a node group before setting data-id
-    if (el.tagName === "g") {
-      const className = typeof el.className === 'string' ? el.className : el.className.baseVal;
-      if (className && className.includes('node')) {
-        el.setAttribute("data-id", nodeId);
-      }
-    }
+    el.setAttribute("data-id", nodeId);
   }
 }
 
-const createDiagramHandle = (container: HTMLElement, svg: SVGSVGElement): DiagramHandle => {
+const createDiagramHandle = (container: HTMLElement, svg: SVGSVGElement, strategy: DiagramStrategy): DiagramHandle => {
   return {
     getRoot: () => svg,
     getContainer: () => container,
-    resolveTarget: (target: TargetDescriptor) => resolveTarget({ getRoot: () => svg } as DiagramHandle, target),
+    resolveTarget: (target: TargetDescriptor) => resolveTarget({ getRoot: () => svg, getStrategy: () => strategy } as DiagramHandle, target),
+    getStrategy: () => strategy,
     destroy: () => {
       container.innerHTML = "";
     }
@@ -109,28 +90,9 @@ export const createMermaidDiagramAdapter = (): DiagramAdapter => {
           "MPF_MERMAID_RENDER_FAILED"
         );
       }
-      ensureDataIdFromMermaidIds(svgElement);
-      
-      // #region agent log - verify data-id was set correctly
-      const nodeGroups = Array.from(svgElement.querySelectorAll('g.node[data-id]'));
-      const dataIdMap: Record<string, any> = {};
-      for (const nodeGroup of nodeGroups) {
-        if (nodeGroup instanceof SVGElement) {
-          const dataId = nodeGroup.getAttribute('data-id');
-          if (dataId) {
-            const className = typeof nodeGroup.className === 'string' ? nodeGroup.className : nodeGroup.className.baseVal;
-            dataIdMap[dataId] = {
-              tagName: nodeGroup.tagName,
-              id: nodeGroup.id,
-              className
-            };
-          }
-        }
-      }
-      const logDataId = {location:'mermaidDiagram.ts:92',message:'data-id setup',data:{nodeGroupsWithDataId:Object.keys(dataIdMap).length,dataIdMap},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-      console.log('[DEBUG]', logDataId);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataId)}).catch(()=>{});
-      // #endregion
+      const diagramType = detectDiagramType(mermaidText);
+      const strategy = strategyRegistry.getOrDefault(diagramType);
+      ensureDataIdFromMermaidIds(svgElement, strategy);
       
       // Ensure SVG has width/height attributes for proper rendering with viewBox
       // Remove any existing width/height so viewBox can control scaling
@@ -173,7 +135,7 @@ export const createMermaidDiagramAdapter = (): DiagramAdapter => {
         }
       }
       
-      return createDiagramHandle(container, svgElement);
+      return createDiagramHandle(container, svgElement, strategy);
     }
   };
 };
