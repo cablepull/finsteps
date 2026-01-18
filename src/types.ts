@@ -59,14 +59,22 @@ export interface DiagramAdapter {
 }
 
 export interface CameraHandle {
-  fit(target: Element, options?: { padding?: number }): Promise<void> | void;
+  fit(target: Element, options?: { 
+    padding?: number;
+    duration?: number;  // Animation duration in milliseconds
+    easing?: string;    // Easing function name (e.g., "linear", "easeInOut", "cubicOut")
+  }): Promise<void> | void;
   reset(): void;
+  zoom?(factor: number, center?: { x: number; y: number }): void;
+  pan?(deltaX: number, deltaY: number): void;
+  fitAll?(padding?: number): void;
   destroy(): void;
 }
 
 export interface OverlayHandle {
   showBubble(options: { id?: string; target: Element; text: string }): void;
   hideBubble(id?: string): void;
+  clear?(): void;
   destroy(): void;
 }
 

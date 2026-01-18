@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Large Diagram Walkthrough</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 0;
+        height: 100vh;
+      }
+      header {
+        grid-column: 1 / -1;
+        padding: 0.75rem 1rem;
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+        font-size: 0.9rem;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      .sidebar {
+        padding: 1rem 0.75rem;
+        background: #1e293b;
+        border-right: 1px solid #334155;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .sidebar h2 {
+        margin: 0 0 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+      }
+      .sidebar-note {
+        font-size: 0.7rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: #0f172a;
+        border-radius: 4px;
+        line-height: 1.4;
+      }
+      .control-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem;
+      }
+      .jump-btn {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.8rem;
+        text-align: left;
+        background: #334155;
+        color: #e2e8f0;
+        border: 1px solid #475569;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .jump-btn:hover {
+        background: #475569;
+        border-color: #64748b;
+      }
+      .jump-btn.active {
+        background: #3b82f6;
+        border-color: #60a5fa;
+        color: #fff;
+      }
+      .stage-wrap {
+        padding: 1rem;
+        overflow: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .diagram-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        width: 100%;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram svg {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        max-width: 100%;
+        display: block;
+      }
+      .finsteps-highlight rect,
+      .finsteps-highlight path {
+        stroke: #f59e0b !important;
+        stroke-width: 2.5px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header>
+        <h1>Large diagram walkthrough — zoom, highlight, jump to areas</h1>
+      </header>
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h2>Navigation</h2>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-prev">← Prev</button>
+            <button class="jump-btn" id="btn-next">Next →</button>
+          </div>
+          <button class="jump-btn" id="btn-reset">Reset</button>
+        </div>
+        
+        <div class="sidebar-section">
+          <h2>Zoom & Pan</h2>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-zoom-in">Zoom In</button>
+            <button class="jump-btn" id="btn-zoom-out">Zoom Out</button>
+          </div>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-pan-left">← Pan</button>
+            <button class="jump-btn" id="btn-pan-right">Pan →</button>
+          </div>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-pan-up">↑ Pan</button>
+            <button class="jump-btn" id="btn-pan-down">Pan ↓</button>
+          </div>
+          <button class="jump-btn" id="btn-fit-all">Fit All</button>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Jump to</h2>
+          <button class="jump-btn" data-goto="overview">Overview</button>
+          <button class="jump-btn" data-goto="product">Product</button>
+          <button class="jump-btn" data-goto="engineering">Engineering</button>
+          <button class="jump-btn" data-goto="backend">Backend</button>
+          <button class="jump-btn" data-goto="design">Design</button>
+          <button class="jump-btn" data-goto="data">Data</button>
+          <button class="jump-btn" data-goto="pipelines">Pipelines</button>
+          <button class="jump-btn" data-goto="launch">Launch</button>
+          <div class="sidebar-note">
+            ✨ Transitions are animated with configurable easing functions. See code for examples of different durations and easing options.
+          </div>
+        </div>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const mermaidText = `flowchart TB
+  PM[Product] --> ENG
+  PM --> DESIGN
+  PM --> DATA
+
+  ENG[Engineering] --> BE
+  ENG --> FE
+  ENG --> INFRA
+  BE[Backend] --> API
+  BE --> WORKERS
+  FE[Frontend] --> WEB
+  FE --> MOBILE
+  INFRA[Infra] --> K8S
+  INFRA --> CDN
+
+  DESIGN[Design] --> UX
+  DESIGN --> RESEARCH
+  UX[UX] --> PROTO
+  RESEARCH[Research] --> INSIGHTS
+
+  DATA[Data] --> PIPE
+  DATA --> ML
+  PIPE[Pipelines] --> WAREHOUSE
+  ML[ML] --> MODELS
+
+  API[API] --> LAUNCH
+  WORKERS[Workers] --> LAUNCH
+  WEB[Web] --> LAUNCH
+  MOBILE[Mobile] --> LAUNCH
+  K8S[K8s] --> LAUNCH
+  CDN[CDN] --> LAUNCH
+  PROTO[Prototype] --> LAUNCH
+  INSIGHTS[Insights] --> LAUNCH
+  WAREHOUSE[Warehouse] --> LAUNCH
+  MODELS[Models] --> LAUNCH
+  LAUNCH[Launch]
+`;
+
+      const ast = {
+        steps: [
+          {
+            id: "overview",
+            actions: [
+              // Use fitAll action if available, otherwise reset
+              // Note: We'll handle fitAll in the action handler or use reset which now fits all
+              { type: "camera.reset" },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "PM" },
+                  text: "Full diagram. Use the sidebar to jump to any area. Use zoom/pan controls to explore manually."
+                }
+              }
+            ]
+          },
+          {
+            id: "product",
+            actions: [
+              // Animated transition: 500ms with cubicOut easing
+              { type: "camera.fit", payload: { target: { dataId: "PM" }, padding: 40, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "PM" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "PM" },
+                  text: "Product: defines roadmap and priorities for Engineering, Design, and Data."
+                }
+              }
+            ]
+          },
+          {
+            id: "engineering",
+            actions: [
+              // Animated transition: 500ms with cubicOut easing
+              { type: "camera.fit", payload: { target: { dataId: "ENG" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "ENG" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "ENG" },
+                  text: "Engineering: Backend, Frontend, and Infra. Central to delivery."
+                }
+              }
+            ]
+          },
+          {
+            id: "backend",
+            actions: [
+              // Animated transition: 500ms with cubicOut easing
+              { type: "camera.fit", payload: { target: { dataId: "BE" }, padding: 50, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "BE" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "BE" },
+                  text: "Backend: API and async Workers. Feeds into the launch path."
+                }
+              }
+            ]
+          },
+          {
+            id: "design",
+            actions: [
+              // Animated transition: 500ms with cubicOut easing
+              { type: "camera.fit", payload: { target: { dataId: "DESIGN" }, padding: 50, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "DESIGN" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "DESIGN" },
+                  text: "Design: UX and Research. Prototypes and insights feed Launch."
+                }
+              }
+            ]
+          },
+          {
+            id: "data",
+            actions: [
+              // Animated transition: 500ms with cubicOut easing
+              { type: "camera.fit", payload: { target: { dataId: "DATA" }, padding: 50, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "DATA" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "DATA" },
+                  text: "Data: Pipelines and ML. Warehouse and models converge at Launch."
+                }
+              }
+            ]
+          },
+          {
+            id: "pipelines",
+            actions: [
+              // Animated transition: 600ms with easeInOut easing (demonstrates different duration and easing)
+              { type: "camera.fit", payload: { target: { dataId: "PIPE" }, padding: 40, duration: 600, easing: "easeInOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "PIPE" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "PIPE" },
+                  text: "Pipelines: ETL and ingestion into the Data Warehouse."
+                }
+              }
+            ]
+          },
+          {
+            id: "launch",
+            actions: [
+              // Animated transition: 700ms with easeOut easing (demonstrates longer duration)
+              { type: "camera.fit", payload: { target: { dataId: "LAUNCH" }, padding: 80, duration: 700, easing: "easeOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "LAUNCH" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "LAUNCH" },
+                  text: "Launch: all streams (API, Workers, Web, Mobile, K8s, CDN, Prototype, Insights, Warehouse, Models) converge here."
+                }
+              }
+            ]
+          }
+        ],
+        bindings: [
+          { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+          { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] }
+        ]
+      };
+
+      const mountEl = document.getElementById("diagram-mount");
+      const controller = await presentMermaid({
+        mountEl: mountEl,
+        mermaidText,
+        ast
+      });
+
+      // Get camera handle by recreating it from the rendered diagram
+      // We access the diagram from the DOM since presentMermaid creates it internally
+      const { createBasicCameraHandle } = await import("../../dist/adapters/basicCamera.js");
+      const diagramContainer = document.querySelector(".finsteps-diagram");
+      const svgElement = diagramContainer ? diagramContainer.querySelector("svg") : null;
+      let cameraHandle = null;
+      
+      if (svgElement && diagramContainer) {
+        const diagramHandle = {
+          getRoot: () => svgElement,
+          getContainer: () => diagramContainer,
+          resolveTarget: () => null,
+          destroy: () => {}
+        };
+        cameraHandle = createBasicCameraHandle(diagramHandle);
+        // The controller already has its own camera, but we'll use ours for manual controls
+      }
+
+      const buttons = document.querySelectorAll(".jump-btn");
+      const updateActive = () => {
+        const id = controller.getState().stepId ?? "overview";
+        buttons.forEach((btn) => {
+          if (btn.dataset.goto) {
+            btn.classList.toggle("active", btn.dataset.goto === id);
+          }
+        });
+      };
+
+      controller.on("stepchange", updateActive);
+      updateActive();
+
+      // Wire up jump buttons
+      buttons.forEach((btn) => {
+        if (btn.dataset.goto) {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.goto;
+            if (id) controller.goto(id);
+          });
+        }
+      });
+
+      // Navigation controls
+      document.getElementById("btn-prev")?.addEventListener("click", () => {
+        controller.prev();
+      });
+      document.getElementById("btn-next")?.addEventListener("click", () => {
+        controller.next();
+      });
+      document.getElementById("btn-reset")?.addEventListener("click", () => {
+        controller.goto("overview");
+      });
+
+      // Zoom & Pan controls - use the camera handle we created
+      const panAmount = 100;
+      const zoomFactor = 1.2;
+
+      document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
+        if (cameraHandle?.zoom) {
+          cameraHandle.zoom(zoomFactor);
+        }
+      });
+
+      document.getElementById("btn-zoom-out")?.addEventListener("click", () => {
+        if (cameraHandle?.zoom) {
+          cameraHandle.zoom(1 / zoomFactor);
+        }
+      });
+
+      document.getElementById("btn-pan-left")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(panAmount, 0);
+        }
+      });
+
+      document.getElementById("btn-pan-right")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(-panAmount, 0);
+        }
+      });
+
+      document.getElementById("btn-pan-up")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(0, panAmount);
+        }
+      });
+
+      document.getElementById("btn-pan-down")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(0, -panAmount);
+        }
+      });
+
+      document.getElementById("btn-fit-all")?.addEventListener("click", () => {
+        if (cameraHandle?.fitAll) {
+          cameraHandle.fitAll(40);
+          controller.goto("overview");
+        } else if (cameraHandle?.reset) {
+          cameraHandle.reset();
+          controller.goto("overview");
+        }
+      });
+    </script>
+  </body>
+</html>
