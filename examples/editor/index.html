@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Mermaid Live Editor</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="editor-layout">
+      <!-- Left Panel: Inputs -->
+      <aside class="input-panel" id="input-panel">
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+          <span class="toggle-icon">◀</span>
+        </button>
+        <div class="panel-content">
+          <div class="panel-section">
+            <h2>Mermaid Diagram</h2>
+            <textarea id="mermaid-input" placeholder="Enter your Mermaid diagram text here...">flowchart TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
+    D --> E</textarea>
+            <div class="error-message" id="mermaid-error"></div>
+          </div>
+
+        <div class="panel-section">
+          <div class="dsl-tabs">
+            <button class="tab-btn active" data-tab="json">JSON</button>
+            <button class="tab-btn" data-tab="visual">Visual</button>
+          </div>
+          
+          <div class="tab-content active" id="json-tab">
+            <div class="editor-toolbar">
+              <button id="generate-dsl" class="toolbar-btn">Generate Starter DSL</button>
+              <button id="format-json" class="toolbar-btn">Format JSON</button>
+            </div>
+            <div id="json-editor"></div>
+            <div class="error-message" id="dsl-error"></div>
+          </div>
+
+          <div class="tab-content" id="visual-tab">
+            <div id="visual-builder"></div>
+          </div>
+        </div>
+        </div>
+      </aside>
+
+      <!-- Right Panel: Preview -->
+      <main class="preview-panel">
+        <div class="preview-header">
+          <h1>Live Preview</h1>
+          <div class="preview-controls">
+            <button class="control-btn" id="export-btn">Export</button>
+            <button class="control-btn" id="import-btn">Import</button>
+            <button class="control-btn" id="zoom-in">Zoom In</button>
+            <button class="control-btn" id="zoom-out">Zoom Out</button>
+            <button class="control-btn" id="reset">Reset</button>
+            <button class="control-btn" id="fit-all">Fit All</button>
+          </div>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display: none;">
+
+        <div class="diagram-preview" id="diagram-mount"></div>
+
+        <div class="dataids-panel">
+          <h3>Available Targets</h3>
+          <div id="dataids-list" class="dataids-list">
+            <p class="empty-state">Render a diagram to see available targets</p>
+          </div>
+        </div>
+
+        <div class="navigation-sidebar">
+          <h3>Navigation</h3>
+          <div id="nav-buttons" class="nav-buttons">
+            <p class="empty-state">No steps defined</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/json/json.min.js"></script>
+    <script type="module" src="editor.js"></script>
+  </body>
+</html>

@@ -100,15 +100,6 @@ function findAdjacentNodes(targetNode: SVGGraphicsElement, svg: SVGSVGElement, s
 }
 
 const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): string | null => {
-  // Check if there's a stored initial viewBox on the SVG (set by mermaidDiagram)
-  const storedInitialViewBox = svg.getAttribute('data-initial-viewbox');
-  
-  // If we have a stored initial viewBox, prefer it for fitAll (it represents the full diagram)
-  // This is especially important for sequence diagrams where root group bbox might only capture visible parts
-  if (storedInitialViewBox) {
-    return storedInitialViewBox;
-  }
-  
   // Try to get bounds from the root group first (Mermaid wraps everything in a g element)
   let rootGroup: SVGGElement | null = null;
   for (const child of Array.from(svg.children)) {
@@ -148,24 +139,10 @@ const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): str
     }
   }
   
-  // Parse initial viewBox size if available (already checked above, but need size for comparison)
-  let initialViewBoxSize = { width: 0, height: 0 };
-  if (storedInitialViewBox) {
-    const parts = storedInitialViewBox.split(" ").map(Number);
-    if (parts.length === 4) {
-      initialViewBoxSize = { width: parts[2], height: parts[3] };
-    }
-  }
-  
-  // For sequence diagrams and similar, the root group bbox might only capture visible parts
-  // Use initial viewBox if available, otherwise calculate from all elements if root group bbox seems too small
-  const shouldUseElementCalculation = !isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY) || 
-      calculatedWidth < 10 || calculatedHeight < 10 ||
-      (existingViewBoxSize.width > 0 && calculatedWidth < existingViewBoxSize.width * 0.1) ||
-      (initialViewBoxSize.width > 0 && calculatedWidth < initialViewBoxSize.width * 0.5);
-  
   // If root group bbox is too small or invalid, try calculating from elements
-  if (shouldUseElementCalculation) {
+  if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY) || 
+      calculatedWidth < 10 || calculatedHeight < 10 ||
+      (existingViewBoxSize.width > 0 && calculatedWidth < existingViewBoxSize.width * 0.1)) {
     
     // Find all top-level groups and graphical elements
     const topLevelElements: SVGGraphicsElement[] = [];
@@ -213,19 +190,11 @@ const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): str
   const finalWidth = maxX - minX;
   const finalHeight = maxY - minY;
 
-  // If calculation failed or result is too small, use stored initial viewBox or existing viewBox
-  // Also check if calculated size is significantly smaller than the initial viewBox (which represents full diagram)
-  const isSignificantlySmallerThanInitial = initialViewBoxSize.width > 0 && finalWidth < initialViewBoxSize.width * 0.7;
-  
+  // If calculation failed or result is too small, use existing viewBox
   if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY) || 
       finalWidth < 10 || finalHeight < 10 ||
-      (existingViewBoxSize.width > 0 && finalWidth < existingViewBoxSize.width * 0.1) ||
-      isSignificantlySmallerThanInitial) {
-    // First try: use stored initial viewBox (the original full diagram bounds)
-    if (storedInitialViewBox && initialViewBoxSize.width > 0 && initialViewBoxSize.height > 0) {
-      return storedInitialViewBox;
-    }
-    // Second try: use the SVG's existing viewBox
+      (existingViewBoxSize.width > 0 && finalWidth < existingViewBoxSize.width * 0.1)) {
+    // Last resort: use the SVG's existing viewBox or dimensions
     if (existingViewBox) {
       return existingViewBox;
     }
@@ -312,98 +281,7 @@ function animateViewBox(
 
 export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle => {
   const svg = diagram.getRoot();
-  let container = diagram.getContainer();
   const originalViewBox = getSvgViewBox(svg);
-  
-  // Setup drag-to-pan functionality
-  let isDragging = false;
-  let startX = 0;
-  let startY = 0;
-  
-  // Define pan function first so it can be referenced
-  const pan = (deltaX: number, deltaY: number) => {
-    const baseVal = svg.viewBox?.baseVal;
-    if (!baseVal || !baseVal.width || !baseVal.height) {
-      return;
-    }
-
-    const currentViewBox = {
-      x: baseVal.x,
-      y: baseVal.y,
-      width: baseVal.width,
-      height: baseVal.height
-    };
-
-    // Calculate scale factor to adjust pan delta
-    const svgWidth = svg.clientWidth || baseVal.width;
-    const svgHeight = svg.clientHeight || baseVal.height;
-    const scaleX = currentViewBox.width / svgWidth;
-    const scaleY = currentViewBox.height / svgHeight;
-
-    // When dragging the diagram (like grabbing and pulling):
-    // - Drag right = pull diagram right = content on left moves into view = decrease viewBox.x
-    // - Drag down = pull diagram down = content on top moves into view = decrease viewBox.y
-    // The viewBox moves opposite to the drag direction
-    const newX = currentViewBox.x - deltaX * scaleX;
-    const newY = currentViewBox.y - deltaY * scaleY;
-
-    svg.setAttribute("viewBox", `${newX} ${newY} ${currentViewBox.width} ${currentViewBox.height}`);
-  };
-  
-  const handleMouseDown = (e: MouseEvent) => {
-    // Only start dragging on left mouse button and if not clicking on interactive elements
-    if (e.button !== 0) return;
-    if ((e.target as Element)?.closest("button") || 
-        (e.target as Element)?.closest(".nav-btn") || 
-        (e.target as Element)?.closest(".dataid-chip") ||
-        (e.target as Element)?.closest("a")) return;
-    
-    isDragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    container.style.cursor = "grabbing";
-    container.style.userSelect = "none";
-    e.preventDefault();
-  };
-  
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    const deltaX = e.clientX - startX;
-    const deltaY = e.clientY - startY;
-    
-    // Pan the camera
-    pan(deltaX, deltaY);
-    
-    startX = e.clientX;
-    startY = e.clientY;
-    e.preventDefault();
-  };
-  
-  const handleMouseUp = () => {
-    if (isDragging) {
-      isDragging = false;
-      container.style.cursor = "grab";
-      container.style.userSelect = "";
-    }
-  };
-  
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      isDragging = false;
-      container.style.cursor = "grab";
-      container.style.userSelect = "";
-    }
-  };
-  
-  // Initialize cursor style
-  container.style.cursor = "grab";
-  
-  // Attach event listeners
-  container.addEventListener("mousedown", handleMouseDown);
-  document.addEventListener("mousemove", handleMouseMove);
-  document.addEventListener("mouseup", handleMouseUp);
-  container.addEventListener("mouseleave", handleMouseLeave);
 
   return {
     fit(target, options) {
@@ -459,32 +337,12 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
         
         const padding = options?.padding ?? 16;
         
-        // Ensure minimum dimensions for line elements (they have width or height 0)
-        // For horizontal lines, add a minimum height; for vertical lines, add a minimum width
-        const minDimension = 40; // Minimum dimension for fitting line elements
-        if (bbox.height < minDimension) {
-          bbox = new DOMRect(
-            bbox.x,
-            bbox.y - minDimension / 2,
-            bbox.width || minDimension,
-            minDimension
-          );
-        }
-        if (bbox.width < minDimension) {
-          bbox = new DOMRect(
-            bbox.x - minDimension / 2,
-            bbox.y,
-            minDimension,
-            bbox.height || minDimension
-          );
-        }
-        
         // Find adjacent nodes using the diagram strategy
         const strategy = diagram.getStrategy?.() || new FlowchartStrategy();
         const adjacentNodes = findAdjacentNodes(target, svg, strategy);
         
         // Calculate union bounding box including adjacent nodes
-        let unionBbox = bbox; // Start with target bbox (already adjusted for min size)
+        let unionBbox = bbox; // Start with target bbox
         for (const adjacentNode of adjacentNodes) {
           try {
             const adjBboxLocal = adjacentNode.getBBox();
@@ -561,32 +419,11 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
           // Ignore errors
         }
         
-        // For ER diagrams, elements might be positioned outside the root group's bbox
-        // If the target bbox is outside the root group, we should still show it
-        // But we need to ensure the viewBox includes both the root group and the target
-        if (rootGroupBBox && (bbox.x < rootGroupBBox.x || bbox.y < rootGroupBBox.y || 
-            bbox.x + bbox.width > rootGroupBBox.x + rootGroupBBox.width ||
-            bbox.y + bbox.height > rootGroupBBox.y + rootGroupBBox.height)) {
-          // Target is outside root group - expand union bbox to include both
-          const minX = Math.min(unionBbox.x, rootGroupBBox.x);
-          const minY = Math.min(unionBbox.y, rootGroupBBox.y);
-          const maxX = Math.max(unionBbox.x + unionBbox.width, rootGroupBBox.x + rootGroupBBox.width);
-          const maxY = Math.max(unionBbox.y + unionBbox.height, rootGroupBBox.y + rootGroupBBox.height);
-          unionBbox = new DOMRect(
-            minX,
-            minY,
-            maxX - minX,
-            maxY - minY
-          );
-        }
-        
-        // Use unionBbox (which includes adjacent nodes) instead of just bbox
-        const finalBbox = unionBbox;
         const viewBox = {
-          x: finalBbox.x - padding,
-          y: finalBbox.y - padding,
-          width: finalBbox.width + padding * 2,
-          height: finalBbox.height + padding * 2
+          x: bbox.x - padding,
+          y: bbox.y - padding,
+          width: bbox.width + padding * 2,
+          height: bbox.height + padding * 2
         };
         
         const viewBoxString = `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`;
@@ -680,14 +517,6 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
       }
     },
     destroy() {
-      // Remove drag-to-pan event listeners
-      container.removeEventListener("mousedown", handleMouseDown);
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      container.removeEventListener("mouseleave", handleMouseLeave);
-      container.style.cursor = "";
-      container.style.userSelect = "";
-      
       const fullViewBox = calculateFullBoundingBox(svg);
       if (fullViewBox) {
         svg.setAttribute("viewBox", fullViewBox);

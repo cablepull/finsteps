@@ -76,6 +76,8 @@ export class SequenceDiagramStrategy extends BaseDiagramStrategy {
       `g.message[data-id="${escapedId}"]`,
       `g.activation[data-id="${escapedId}"]`,
       `g.note[data-id="${escapedId}"]`,
+      `line[data-id="${escapedId}"]`,
+      `text[data-id="${escapedId}"]`,
       `g[class*="participant"][data-id="${escapedId}"]`,
       `g[class*="actor"][data-id="${escapedId}"]`,
       `g[class*="message"][data-id="${escapedId}"]`,

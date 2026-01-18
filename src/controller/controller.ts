@@ -118,6 +118,7 @@ export class MermaidController implements Controller {
         },
         errorPolicy
       );
+      
       for (const error of errors) {
         this.emitActionError(error);
       }

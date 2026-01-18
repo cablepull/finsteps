@@ -16,6 +16,19 @@ This directory contains runnable demos for the Finsteps presentation runtime.
 
 > Tip: You can use `npx serve -p 5173` directly if you prefer. The `serve` package handles ES modules better than Python's HTTP server.
 
+## Live Editor
+
+<http://localhost:5173/examples/editor/>
+
+Interactive live editor for creating and testing Finsteps presentations. Features:
+
+- **Mermaid Input**: Edit your Mermaid diagram text with live preview
+- **DSL Editor**: Edit the PresentationAst DSL in JSON format or use the visual builder
+- **Auto-Generation**: Automatically generate a starter DSL from your diagram
+- **Available Targets**: See all `data-id` values from your rendered diagram
+- **Live Preview**: See your presentation in real-time as you edit
+- **Export/Import**: Save and load your presentations
+
 ## Reveal.js multi-chart demo
 
 <http://localhost:5173/examples/revealjs/>

@@ -172,10 +172,31 @@ try {
   
   console.log('\n=== Testing Navigation ===');
   
+  // Check controller state before clicking
+  const controllerBefore = await page.evaluate(() => {
+    if (window.__controller) {
+      return window.__controller.getState();
+    }
+    return null;
+  });
+  console.log('Controller state before click:', JSON.stringify(controllerBefore, null, 2));
+  
+  // Check if button exists
+  const buttonExists = await page.evaluate(() => {
+    const btn = document.querySelector('button[data-goto="idle"]');
+    return {
+      exists: !!btn,
+      text: btn?.textContent,
+      onclick: !!btn?.onclick,
+      hasListener: btn ? (btn.onclick !== null || btn.getAttribute('onclick') !== null) : false
+    };
+  });
+  console.log('Button check:', JSON.stringify(buttonExists, null, 2));
+  
   // Test clicking the "Idle" button
   console.log('\nClicking "Idle" button...');
-  await page.click('button[data-goto="idle"]');
-  await page.waitForTimeout(1500);
+  await page.click('button[data-goto="idle"]', { timeout: 5000 });
+  await page.waitForTimeout(2000); // Wait longer for actions to complete
   
   const afterIdle = await page.evaluate(() => {
     const svg = document.querySelector('svg');
@@ -204,22 +225,31 @@ try {
     console.log('    ❌ No elements highlighted!');
   }
   
-  // Get console logs
+  // Get console logs - set up BEFORE clicking button
   const logs = [];
   page.on('console', msg => {
     const text = msg.text();
-    if (text.includes('[StateDiagram]') || text.includes('[MermaidDiagram]') || 
-        text.includes('[TargetResolver]') || text.includes('[ActionHandler]') || 
-        text.includes('[Controller]')) {
-      logs.push(text);
-    }
+    logs.push(`[${msg.type()}] ${text}`);
   });
   
-  console.log('\n=== Console Logs ===');
+  console.log('\n=== Console Logs (all) ===');
   if (logs.length > 0) {
     logs.forEach(log => console.log(log));
   } else {
-    console.log('No relevant console logs captured');
+    console.log('No console logs captured');
+  }
+  
+  // Filter for debug logs
+  const debugLogs = logs.filter(log => 
+    log.includes('[StateDiagram]') || log.includes('[MermaidDiagram]') || 
+    log.includes('[TargetResolver]') || log.includes('[ActionHandler]') || 
+    log.includes('[Controller]')
+  );
+  console.log('\n=== Debug Logs (filtered) ===');
+  if (debugLogs.length > 0) {
+    debugLogs.forEach(log => console.log(log));
+  } else {
+    console.log('No debug console logs found');
   }
   
   // Save full state to file

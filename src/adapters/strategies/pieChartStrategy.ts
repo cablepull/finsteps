@@ -83,9 +83,9 @@ export class PieChartStrategy extends BaseDiagramStrategy {
   }
   
   findAdjacentElements(target: SVGGraphicsElement, svg: SVGSVGElement): SVGGraphicsElement[] {
-    // For pie charts, all slices are adjacent (they form a complete circle)
-    // Return all other slices for context
-    const allSlices = Array.from(svg.querySelectorAll<SVGGraphicsElement>('g[class*="slice"][data-id], g[class*="pie"][data-id], path[class*="slice"][data-id], path[class*="pie"][data-id]'));
-    return allSlices.filter(slice => slice !== target);
+    // For pie charts, don't include adjacent slices when focusing on a single slice
+    // This allows camera.fit to zoom in on just the target slice, not the entire chart
+    // Return empty array to focus only on the target slice
+    return [];
   }
 }

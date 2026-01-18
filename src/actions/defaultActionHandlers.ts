@@ -62,6 +62,7 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       }
       const target = action.payload?.target as TargetDescriptor | undefined;
       const resolved = resolveTarget(context.diagram, target);
+      
       if (!resolved) {
         throw new ActionError("camera.fit missing target", "MPF_ACTION_INVALID_ARGS");
       }
@@ -119,6 +120,7 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       const className =
         typeof action.payload?.className === "string" ? action.payload.className : "finsteps-highlight";
       const elements = getTargets(context, target);
+      
       ensureHighlight(highlightState, elements, className);
     },
     "style.clear": () => {

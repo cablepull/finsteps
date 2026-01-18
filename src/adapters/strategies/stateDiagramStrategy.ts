@@ -21,10 +21,6 @@ export class StateDiagramStrategy extends BaseDiagramStrategy {
   extractNodeIds(svg: SVGSVGElement): Map<string, SVGElement> {
     const nodeIdMap = new Map<string, SVGElement>();
     
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'stateDiagramStrategy.ts:21',message:'extractNodeIds entry',data:{totalElements:svg.querySelectorAll('[id]').length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    
     // Patterns for state diagram IDs - Mermaid v10 uses various formats
     const patterns = [
       /^stateDiagram-([A-Za-z0-9_]+)-\d+$/,  // stateDiagram-name-digit (Mermaid v10)
@@ -60,9 +56,6 @@ export class StateDiagramStrategy extends BaseDiagramStrategy {
           if (parentClasses && !parentClasses.includes('edgeLabel') && !parentClasses.includes('label')) {
             if (!nodeIdMap.has(textContent)) {
               nodeIdMap.set(textContent, group);
-              // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'stateDiagramStrategy.ts:52',message:'extracted from text content',data:{nodeId:textContent,className:className,textContent:textContent},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-              // #endregion
             }
           }
         }
@@ -77,14 +70,6 @@ export class StateDiagramStrategy extends BaseDiagramStrategy {
       allIds.push(id);
       
       let nodeId: string | null = this.extractIdFromPatterns(id, patterns);
-      
-      // #region agent log
-      if (nodeId) {
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'stateDiagramStrategy.ts:67',message:'extracted nodeId',data:{mermaidId:id,nodeId:nodeId,className:this.getElementClassName(el),tagName:el.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      } else {
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'stateDiagramStrategy.ts:69',message:'failed to extract nodeId',data:{mermaidId:id,className:this.getElementClassName(el),tagName:el.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      }
-      // #endregion
       
       if (nodeId && !nodeIdMap.has(nodeId)) {
         // Find the group that contains this element
@@ -112,10 +97,6 @@ export class StateDiagramStrategy extends BaseDiagramStrategy {
         }
       }
     }
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'stateDiagramStrategy.ts:94',message:'extractNodeIds exit',data:{extractedCount:nodeIdMap.size,extractedIds:Array.from(nodeIdMap.keys()),sampleIds:allIds.slice(0,10)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     
     return nodeIdMap;
   }
