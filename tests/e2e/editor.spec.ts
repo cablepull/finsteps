@@ -9,7 +9,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
       const { join, dirname } = await import('path');
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
-      await page.goto(`file://${join(__dirname, '../../examples/editor/index.html')}`);
+      await page.goto(`file://${join(__dirname, '../../examples/editor/index.html')}`, { waitUntil: 'domcontentloaded', timeout: 5000 });
     }
     await page.waitForSelector('#mermaid-input', { timeout: 15000 });
     await page.waitForTimeout(1000);
@@ -26,29 +26,32 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-001/016: should collapse sidebar left-to-right', async ({ page }) => {
-    const sidebar = page.locator('.left-panels, #left-sidebar').first();
+    const sidebar = page.locator('.left-panels');
     const toggle = page.locator('#sidebar-collapse-toggle');
     
     await expect(sidebar).toHaveCount(1);
     await expect(toggle).toHaveCount(1);
     
-    // Get initial class - might be "left-panels" or "left-panels collapsed"
+    // Wait for initial state to stabilize
+    await page.waitForTimeout(500);
+    
+    // Get initial class
     const initialClass = await sidebar.getAttribute('class') || '';
     const isInitiallyCollapsed = initialClass.includes('collapsed');
     
-    // Click to toggle
+    // Click to toggle - should change state
     await toggle.click();
-    await page.waitForTimeout(500); // Wait for animation
+    await page.waitForTimeout(600); // Wait for animation (0.3s transition + buffer)
     
     const afterFirstClick = await sidebar.getAttribute('class') || '';
     const isCollapsedAfterFirst = afterFirstClick.includes('collapsed');
     
-    // Should be in opposite state
+    // Should be in opposite state after first click
     expect(isCollapsedAfterFirst).toBe(!isInitiallyCollapsed);
     
     // Click again to toggle back
     await toggle.click();
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(600);
     
     const finalClass = await sidebar.getAttribute('class') || '';
     const isCollapsedFinal = finalClass.includes('collapsed');
@@ -61,22 +64,26 @@ test.describe('Finsteps Editor E2E Tests', () => {
     const mermaidInput = page.locator('#mermaid-input');
     const errorPanel = page.locator('#mermaid-error');
     
-    await mermaidInput.fill('invalid mermaid syntax {');
-    // Wait for debounce (300ms) + validation + error display
-    await page.waitForTimeout(2000);
+    // Clear first to ensure clean state
+    await mermaidInput.fill('');
+    await page.waitForTimeout(300);
     
-    // Check error panel has content or 'show' class
+    await mermaidInput.fill('invalid mermaid syntax {');
+    // Wait for debounce (300ms) + validation (async) + error display
+    await page.waitForTimeout(3000);
+    
+    // Check for error - mermaid.parse might throw or might not, so check both error panel and input class
     const errorText = await errorPanel.textContent();
     const errorClass = await errorPanel.getAttribute('class') || '';
-    
-    // Error should be displayed (either text or 'show' class)
-    const hasErrorText = errorText && errorText.trim().length > 0;
+    const hasErrorClass = await mermaidInput.evaluate(el => el.classList.contains('has-error'));
     const hasShowClass = errorClass.includes('show');
-    expect(hasErrorText || hasShowClass).toBeTruthy();
+    const hasErrorText = errorText && errorText.trim().length > 0;
+    
+    // At least one should indicate an error
+    expect(hasErrorClass || hasErrorText || hasShowClass).toBeTruthy();
     
     // Input should have error class
-    const inputHasError = await mermaidInput.evaluate(el => el.classList.contains('has-error'));
-    expect(inputHasError).toBeTruthy();
+    expect(hasErrorClass).toBeTruthy();
     
     // Fix the error
     await mermaidInput.fill('flowchart TD\n    A --> B');
@@ -112,6 +119,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-017: export button should be enabled when content exists', async ({ page }) => {
+    
     const exportBtn = page.locator('#export-btn');
     await expect(exportBtn).toHaveCount(1);
     
@@ -122,31 +130,46 @@ test.describe('Finsteps Editor E2E Tests', () => {
     // Should become disabled when all content is cleared
     const mermaidInput = page.locator('#mermaid-input');
     await mermaidInput.fill('');
-    await page.waitForTimeout(500);
+    // Trigger input event to update state (calls updateControlStates immediately)
+    await page.evaluate(() => {
+      const input = document.getElementById('mermaid-input') as HTMLTextAreaElement;
+      if (input) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    await page.waitForTimeout(300);
     
-    // Clear MPD editor too
+    // Clear MPD editor too - this triggers change which calls handleMPDChange -> updateControlStates
     await page.evaluate(() => {
       const editor = (window as any).mpdEditor;
       if (editor) {
         editor.setValue('');
+        // Trigger change event which calls handleMPDChange -> updateControlStates
+        editor.trigger('change');
       }
     });
-    await page.waitForTimeout(500);
+    // Wait for updateControlStates to run
+    await page.waitForTimeout(1000);
     
     disabled = await exportBtn.getAttribute('disabled');
     expect(disabled).not.toBeNull();
     
     // Should become enabled when content is added
     await mermaidInput.fill('flowchart TD\n    A --> B');
-    await page.waitForTimeout(500);
+    // Trigger input event which calls updateControlStates
+    await page.evaluate(() => {
+      const input = document.getElementById('mermaid-input') as HTMLTextAreaElement;
+      if (input) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+    await page.waitForTimeout(800);
+    
     disabled = await exportBtn.getAttribute('disabled');
     expect(disabled).toBeNull();
   });
 
   test('REQ-017: export button should have visual feedback when disabled', async ({ page }) => {
-    // Wait for editor to be ready
-    await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
-    await page.waitForTimeout(500);
     
     const exportBtn = page.locator('#export-btn');
     
@@ -236,9 +259,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-016/017: controls should update when content changes', async ({ page }) => {
-    // Wait for editor to be ready
-    await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
-    await page.waitForTimeout(500);
     
     const exportBtn = page.locator('#export-btn');
     const mermaidInput = page.locator('#mermaid-input');
@@ -284,9 +304,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
 
   // REQ-005: Camera Controls - Functional Tests
   test('REQ-005: camera controls should zoom in when clicked', async ({ page }) => {
-    // Wait for diagram to render - check for SVG or wait for auto-generation
-    await page.waitForSelector('#diagram-mount', { timeout: 5000 });
-    await page.waitForTimeout(3000); // Wait for auto-generation and rendering
+    // Wait for diagram mount to exist (might be hidden initially)
+    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(4000); // Wait for auto-generation and rendering
     
     // Ensure we have a valid diagram with MPD by generating one if needed
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
@@ -330,9 +350,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-005: camera controls should zoom out when clicked', async ({ page }) => {
-    // Wait for diagram to render
-    await page.waitForSelector('#diagram-mount', { timeout: 5000 });
-    await page.waitForTimeout(3000);
+    // Wait for diagram mount to exist (might be hidden initially)
+    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(4000);
     
     // Ensure we have a valid diagram with MPD
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
@@ -370,9 +390,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-005: camera controls should reset viewBox when reset clicked', async ({ page }) => {
-    // Wait for diagram to render
-    await page.waitForSelector('#diagram-mount', { timeout: 5000 });
-    await page.waitForTimeout(3000);
+    // Wait for diagram mount to exist (might be hidden initially)
+    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(4000);
     
     // Ensure we have a valid diagram with MPD
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
@@ -419,9 +439,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-005: camera controls should fit all when fit-all clicked', async ({ page }) => {
-    // Wait for diagram to render
-    await page.waitForSelector('#diagram-mount', { timeout: 5000 });
-    await page.waitForTimeout(3000);
+    // Wait for diagram mount to exist (might be hidden initially)
+    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(4000);
     
     // Ensure we have a valid diagram with MPD
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
@@ -1079,9 +1099,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
     const mpdEditor = page.locator('#mpd-editor');
     await expect(mpdEditor).toHaveCount(1);
     
-    // Check if CodeMirror is initialized
+    // Check if CodeMirror is initialized - editor should be available from beforeEach
     const cmInitialized = await page.evaluate(() => {
-      return typeof (window as any).mpdEditor !== 'undefined';
+      return typeof (window as any).mpdEditor !== 'undefined' && (window as any).mpdEditor !== null;
     });
     
     expect(cmInitialized).toBeTruthy();

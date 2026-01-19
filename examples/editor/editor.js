@@ -586,6 +586,8 @@ function handleMPDChange() {
   const mpdText = mpdEditor.getValue();
   if (!mpdText.trim()) {
     clearError("mpd-error");
+    // Update control states when content is cleared
+    updateControlStates();
     return;
   }
 
