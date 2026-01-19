@@ -128,6 +128,15 @@ function updateControlStates() {
   if (reset) reset.disabled = !cameraEnabled;
   if (fitAll) fitAll.disabled = !cameraEnabled;
 
+  // Export button - enabled when content exists
+  const exportBtn = document.getElementById('export-btn');
+  if (exportBtn) {
+    const mermaidInput = document.getElementById('mermaid-input');
+    const hasMermaid = mermaidInput && mermaidInput.value.trim().length > 0;
+    const hasMpd = mpdEditor && mpdEditor.getValue().trim().length > 0;
+    exportBtn.disabled = !(hasMermaid || hasMpd);
+  }
+
   console.log('[Controls] Presentation controls enabled:', presentationEnabled);
   console.log('[Controls] Camera controls enabled:', cameraEnabled);
 }
@@ -174,6 +183,9 @@ deck {
     cursorBlinkRate: 530  // Standard blink rate
   });
 
+  // Expose mpdEditor on window for tests
+  window.mpdEditor = mpdEditor;
+
   // Refresh CodeMirror to ensure it renders properly
   requestAnimationFrame(() => {
     if (mpdEditor) {
@@ -184,6 +196,8 @@ deck {
   // Handle content changes
   mpdEditor.on("change", () => {
     handleMPDChange();
+    // Update export button state when MPD changes
+    updateControlStates();
   });
 
   // Add syntax validation
@@ -615,6 +629,9 @@ function setupMermaidInput() {
     mermaidInput.addEventListener("input", () => {
       clearError("mermaid-error");
       mermaidInput.classList.remove("has-error");
+
+      // Update export button state when Mermaid changes
+      updateControlStates();
 
       // Validate Mermaid syntax
       clearTimeout(mermaidValidationTimeout);

@@ -53,6 +53,10 @@ graph LR
 - All panels MUST support scrolling when content overflows
 - Sidebar collapse MUST animate horizontally (left-to-right direction)
 
+**Tests:**
+- [`REQ-001: should have left sidebar with two input sections`](../../tests/e2e/editor.spec.ts#L18-L26) - Verifies sidebar structure with Mermaid and DSL input sections
+- [`REQ-001/016: should collapse sidebar left-to-right`](../../tests/e2e/editor.spec.ts#L28-L48) - Tests sidebar collapse/expand animation and toggle functionality
+
 ### REQ-002: Mermaid Diagram Input
 
 The editor MUST provide a textarea for entering Mermaid diagram syntax.
@@ -77,6 +81,9 @@ sequenceDiagram
 - Default example diagram MUST be provided on page load
 - Validation MUST use Mermaid's `mermaid.parse()` function
 
+**Tests:**
+- [`REQ-002: should validate Mermaid syntax`](../../tests/e2e/editor.spec.ts#L50-L63) - Tests syntax validation with error display for invalid Mermaid code
+- [`REQ-002: should have default example diagram`](../../tests/e2e/editor.spec.ts#L65-L69) - Verifies default Mermaid diagram is loaded on page initialization
 
 ### REQ-003: MPD DSL Input (Simplified)
 
@@ -99,6 +106,9 @@ stateDiagram-v2
 - Help text explaining MPD editing
 - Error messages displayed below editor
 
+**Tests:**
+- [`REQ-003: should have MPD editor (no tabs)`](../../tests/e2e/editor.spec.ts#L71-L78) - Verifies MPD editor exists without tab interface
+
 ### REQ-007: Navigation Controls
 
 The editor MUST provide navigation buttons for all defined steps.
@@ -119,6 +129,11 @@ flowchart LR
 - Clicking a button MUST navigate to that step
 - Active step button MUST be visually highlighted
 - Navigation MUST update when DSL is modified
+
+**Tests:**
+- [`REQ-007: navigation buttons should be generated from steps`](../../tests/e2e/editor.spec.ts#L424-L442) - Verifies navigation buttons are created from DSL step definitions
+- [`REQ-007: navigation buttons should navigate to step when clicked`](../../tests/e2e/editor.spec.ts#L443-L466) - Tests step navigation when clicking navigation buttons
+- [`REQ-007: navigation buttons should highlight active step`](../../tests/e2e/editor.spec.ts#L467-L489) - Verifies active step button highlighting
 
 ### REQ-005: Camera Controls
 
@@ -142,6 +157,13 @@ stateDiagram-v2
 - "Reset" button MUST call `camera.reset()`
 - "Fit All" button MUST call `camera.fitAll()`
 - Controls MUST be disabled when no diagram is rendered
+
+**Tests:**
+- [`REQ-005: camera controls should zoom in when clicked`](../../tests/e2e/editor.spec.ts#L217-L245) - Tests zoom in functionality and viewBox changes
+- [`REQ-005: camera controls should zoom out when clicked`](../../tests/e2e/editor.spec.ts#L246-L268) - Tests zoom out functionality
+- [`REQ-005: camera controls should reset viewBox when reset clicked`](../../tests/e2e/editor.spec.ts#L269-L296) - Verifies reset button restores initial view
+- [`REQ-005: camera controls should fit all when fit-all clicked`](../../tests/e2e/editor.spec.ts#L297-L320) - Tests fit all functionality
+- [`REQ-017: camera controls should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L179-L194) - Verifies disabled state visual feedback
 
 ### REQ-006: Presentation Playback Controls
 
@@ -168,6 +190,13 @@ stateDiagram-v2
 - Step indicator MUST show "Step X / Y"
 - Playback MUST stop when reaching last step
 - Manual navigation MUST stop playback
+
+**Tests:**
+- [`REQ-006: playback controls should advance to next step`](../../tests/e2e/editor.spec.ts#L321-L343) - Tests next button navigation
+- [`REQ-006: playback controls should go to previous step`](../../tests/e2e/editor.spec.ts#L344-L372) - Tests previous button navigation
+- [`REQ-006: playback controls should show step indicator`](../../tests/e2e/editor.spec.ts#L373-L383) - Verifies step indicator format (Step X / Y)
+- [`REQ-006: playback controls should play and pause`](../../tests/e2e/editor.spec.ts#L384-L423) - Tests auto-advance play/pause functionality
+- [`REQ-017: playback controls should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L162-L177) - Verifies disabled state visual feedback
 
 ### REQ-007: DSL Generation
 
@@ -197,6 +226,9 @@ flowchart TD
 - Generation MUST create click bindings for navigation buttons
 - Generated DSL MUST be converted to MPD format and inserted into editor
 
+**Tests:**
+- [`REQ-007: generate presentation button should create MPD from diagram`](../../tests/e2e/editor.spec.ts#L490-L522) - Tests DSL generation from diagram data-ids and MPD conversion
+
 ### REQ-005: Export Functionality
 
 The editor MUST allow exporting the current Mermaid diagram and DSL.
@@ -218,6 +250,11 @@ flowchart LR
   - Version number
   - Export timestamp
 - File MUST be downloaded as JSON with filename: `finsteps-presentation-{timestamp}.json`
+
+**Tests:**
+- [`REQ-005: export should download JSON file with correct content`](../../tests/e2e/editor.spec.ts#L523-L565) - Tests file download with correct JSON structure and filename format
+- [`REQ-017: export button should be enabled when content exists`](../../tests/e2e/editor.spec.ts#L87-L117) - Verifies export button enablement logic
+- [`REQ-017: export button should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L119-L140) - Tests disabled state visual feedback
 
 ### REQ-009: Import Functionality
 
@@ -241,6 +278,11 @@ flowchart LR
 - Import MUST fallback to converting DSL AST to MPD if MPD not present
 - Import MUST trigger diagram rendering after successful load
 - Import errors MUST be displayed to user
+
+**Tests:**
+- [`REQ-009: import should load MPD and Mermaid from JSON file`](../../tests/e2e/editor.spec.ts#L566-L611) - Tests importing JSON file with MPD and Mermaid content
+- [`REQ-009: import should fallback to DSL AST if MPD not present`](../../tests/e2e/editor.spec.ts#L612-L658) - Verifies fallback to DSL AST conversion when MPD missing
+- [`REQ-017: import button should always be enabled`](../../tests/e2e/editor.spec.ts#L80-L85) - Verifies import button is always enabled
 
 ### REQ-010: Error Handling and Display
 
@@ -271,6 +313,11 @@ flowchart TD
 - Editor lines with errors MUST be visually highlighted
 - Errors MUST clear when fixed
 
+**Tests:**
+- [`REQ-010: should display Mermaid syntax errors with line numbers`](../../tests/e2e/editor.spec.ts#L659-L679) - Tests Mermaid error display with line numbers and error class
+- [`REQ-010: should display MPD syntax errors with formatted diagnostics`](../../tests/e2e/editor.spec.ts#L680-L701) - Verifies MPD error formatting using formatDiagnostics
+- [`REQ-010: errors should clear when fixed`](../../tests/e2e/editor.spec.ts#L702-L721) - Tests error clearing when syntax is corrected
+
 ### REQ-012: Drag-to-Pan
 
 The diagram MUST support drag-to-pan functionality by default.
@@ -296,6 +343,9 @@ sequenceDiagram
 - Panning MUST update SVG `viewBox` dynamically
 - Panning direction MUST match drag direction (right drag = right pan)
 
+**Tests:**
+- [`REQ-012: should support drag-to-pan on diagram`](../../tests/e2e/editor.spec.ts#L722-L761) - Tests mouse drag-to-pan functionality and viewBox updates
+
 ### REQ-016: Sidebar Collapse
 
 The left sidebar MUST be collapsible with smooth horizontal animation (collapsing left-to-right).
@@ -317,6 +367,9 @@ stateDiagram-v2
 - When collapsed, sidebar content MUST be hidden
 - Preview area MUST expand to fill space when collapsed
 - Toggle button MUST remain accessible when collapsed
+
+**Tests:**
+- [`REQ-001/016: should collapse sidebar left-to-right`](../../tests/e2e/editor.spec.ts#L28-L48) - Tests sidebar collapse/expand animation and toggle functionality
 
 ### REQ-013: Real-time Updates
 
@@ -340,6 +393,10 @@ flowchart TD
 - MPD updates: 300ms debounce for validation, 500ms for rendering
 - Only valid inputs MUST trigger diagram rendering
 - Invalid inputs MUST display errors but not block editing
+
+**Tests:**
+- [`REQ-013: should debounce Mermaid validation (300ms)`](../../tests/e2e/editor.spec.ts#L762-L778) - Tests debouncing prevents excessive validation calls
+- [`REQ-013: should update diagram in real-time when valid`](../../tests/e2e/editor.spec.ts#L779-L794) - Verifies real-time diagram updates with valid input
 
 ### REQ-014: Initialization
 
@@ -367,6 +424,11 @@ sequenceDiagram
 - Initial presentation MUST be auto-generated if Mermaid text exists
 - Diagram MUST render after initialization completes
 
+**Tests:**
+- [`REQ-014: should initialize Mermaid with dark theme`](../../tests/e2e/editor.spec.ts#L795-L809) - Verifies Mermaid initialization
+- [`REQ-014: should initialize CodeMirror editor`](../../tests/e2e/editor.spec.ts#L810-L821) - Tests CodeMirror MPD editor initialization
+- [`REQ-014: should auto-generate initial presentation`](../../tests/e2e/editor.spec.ts#L822-L836) - Verifies auto-generation of presentation on page load
+
 ### REQ-015: Step Change Event Handling
 
 The editor MUST update UI state when presentation steps change.
@@ -384,6 +446,11 @@ flowchart LR
 - Active navigation button MUST update on step change
 - Step indicator display MUST update on step change
 - Current step index MUST be tracked for playback controls
+
+**Tests:**
+- [`REQ-015: should update active nav button on step change`](../../tests/e2e/editor.spec.ts#L837-L857) - Tests navigation button updates on step change
+- [`REQ-015: should update step indicator on step change`](../../tests/e2e/editor.spec.ts#L858-L879) - Verifies step indicator updates reflect current step
+- [`REQ-015: should track current step index for playback`](../../tests/e2e/editor.spec.ts#L880-L908) - Tests step index tracking for playback controls
 
 ### REQ-016: Reactive State Tracking
 
@@ -423,6 +490,8 @@ stateDiagram-v2
 - State update function: [`examples/editor/editor.js:74-95`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L74-L95)
 - State tracking in render: [`examples/editor/editor.js:1042-1050`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L1042-L1050)
 
+**Tests:**
+- [`REQ-016/017: controls should update when content changes`](../../tests/e2e/editor.spec.ts#L196-L214) - Verifies reactive state updates trigger UI changes
 
 ### REQ-017: Control Enablement Based on State
 
@@ -460,6 +529,15 @@ flowchart TD
 - Control enablement function: [`examples/editor/editor.js:100-157`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L100-L157)
 - Control state initialization: [`examples/editor/editor.js:254`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L254)
 - Navigation button updates trigger control state: [`examples/editor/editor.js:1244`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L1244)
+
+**Tests:**
+- [`REQ-017: import button should always be enabled`](../../tests/e2e/editor.spec.ts#L80-L85) - Verifies import button is always enabled
+- [`REQ-017: export button should be enabled when content exists`](../../tests/e2e/editor.spec.ts#L87-L117) - Tests export button enablement based on content
+- [`REQ-017: export button should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L119-L140) - Verifies disabled state visual feedback
+- [`REQ-017: navigation buttons should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L142-L160) - Tests navigation buttons disabled state
+- [`REQ-017: playback controls should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L162-L177) - Verifies playback controls disabled state
+- [`REQ-017: camera controls should have visual feedback when disabled`](../../tests/e2e/editor.spec.ts#L179-L194) - Tests camera controls disabled state
+- [`REQ-016/017: controls should update when content changes`](../../tests/e2e/editor.spec.ts#L196-L214) - Verifies control state updates reactively
 
 
 ## Implementation Notes
