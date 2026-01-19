@@ -418,6 +418,12 @@ stateDiagram-v2
 - Invalid state MUST prevent presentation controls from being enabled
 - Valid state MUST enable presentation controls automatically
 
+**Implementation:**
+- State object: [`examples/editor/editor.js:27-54`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L27-L54)
+- State update function: [`examples/editor/editor.js:74-95`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L74-L95)
+- State tracking in render: [`examples/editor/editor.js:1042-1050`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L1042-L1050)
+
+
 ### REQ-017: Control Enablement Based on State
 
 The editor MUST enable/disable controls based on the current application state.
@@ -449,6 +455,12 @@ flowchart TD
 - Import button MUST always be enabled
 - Disabled controls MUST provide visual feedback (grayed out, cursor not-allowed)
 - Control state MUST update immediately when state changes
+
+**Implementation:**
+- Control enablement function: [`examples/editor/editor.js:100-157`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L100-L157)
+- Control state initialization: [`examples/editor/editor.js:254`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L254)
+- Navigation button updates trigger control state: [`examples/editor/editor.js:1244`](https://github.com/cablepull/finsteps/blob/4b5997cf80c5128503a412de6aace2d597b39c48/examples/editor/editor.js#L1244)
+
 
 ## Implementation Notes
 
