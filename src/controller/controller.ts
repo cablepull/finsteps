@@ -200,14 +200,14 @@ export class MermaidController implements Controller {
       }
       
       for (const error of errors) {
-        this.emitActionError(error, stepDef, stepDef.actions);
+        this.emitActionError(error, stepDef);
       }
     } catch (error) {
       actionFailed = true;
       const actionError = error instanceof Error ? error : new Error(String(error));
       this.lastError = actionError;
       this.failedStepIndex = index;
-      this.emitActionError(actionError, stepDef, stepDef.actions);
+      this.emitActionError(actionError, stepDef);
       if (errorPolicy === "haltOnError") {
         // Still update stepIndex to indicate attempted step (for error recovery)
         this.currentStepIndex = index;
