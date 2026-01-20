@@ -4,7 +4,7 @@
 
 console.log('[Editor] Starting module load...');
 
-import { presentMermaid, parseMPD, formatDiagnostics, createBasicCameraHandle } from "../../dist/index.js";
+import { presentMermaid, parseMPD, formatDiagnostics, createBasicCameraHandle } from "https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js";
 
 console.log('[Editor] Imports successful');
 console.log('[Editor] createBasicCameraHandle type:', typeof createBasicCameraHandle);
@@ -809,7 +809,7 @@ async function autoGenerateInitialPresentation() {
     tempMount.style.left = "-9999px";
     document.body.appendChild(tempMount);
 
-    const { createMermaidDiagramAdapter } = await import("../../dist/adapters/mermaidDiagram.js");
+    const { createMermaidDiagramAdapter } = await import("https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js");
     const adapter = createMermaidDiagramAdapter();
     const diagramHandle = await adapter.render({
       mountEl: tempMount,
@@ -868,7 +868,7 @@ function setupButtonListeners() {
         tempMount.style.left = "-9999px";
         document.body.appendChild(tempMount);
 
-        const { createMermaidDiagramAdapter } = await import("../../dist/adapters/mermaidDiagram.js");
+        const { createMermaidDiagramAdapter } = await import("https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js");
         const adapter = createMermaidDiagramAdapter();
         const diagramHandle = await adapter.render({
           mountEl: tempMount,
