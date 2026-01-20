@@ -52,7 +52,8 @@
               >
                 Get started
               </a>
-              <a class="fs-btn fs-btn-secondary" href="/examples/walkthrough/">
+              <!-- Use a relative link so it works under /finsteps/ on GitHub Pages -->
+              <a class="fs-btn fs-btn-secondary" href="examples/walkthrough/">
                 View live examples
               </a>
             </div>
@@ -222,34 +223,17 @@ deck {
 
       <!-- Getting started -->
       <section id="getting-started" class="fs-section fs-section-alt">
-        <div class="fs-container fs-arch-grid">
-          <div>
-            <h2>Getting started</h2>
-            <ol class="fs-list fs-list-ordered">
-              <li>Install Finsteps from npm.</li>
-              <li>Render your Mermaid diagram into a container.</li>
-              <li>Add MPD to describe your steps and actions.</li>
-              <li>Bind the controller to your own controls or editor.</li>
-            </ol>
-          </div>
-          <div class="fs-code-card">
-            <pre><code># Install
-npm install finsteps
-
-// Basic usage (ES module)
-import { presentMermaid } from \"finsteps\";
-
-const controller = await presentMermaid({
-  mountEl: document.getElementById(\"diagram-mount\")!,
-  mermaidText,
-  mpdText
-});
-
-// Listen for step changes
-controller.on(\"stepchange\", (payload) => {
-  console.log(\"Step changed\", payload);
-});</code></pre>
-          </div>
+        <div class="fs-container">
+          <h2>Getting started</h2>
+          <p class="fs-section-intro">
+            Finsteps is currently a repo-only project. To experiment locally:
+          </p>
+          <ol class="fs-list fs-list-ordered">
+            <li>Clone the repository from GitHub.</li>
+            <li>Run the local examples (see README for <code>run-example.sh</code>).</li>
+            <li>Open the editor example and tweak Mermaid + MPD side-by-side.</li>
+            <li>Explore the ADRs and requirements to understand the architecture.</li>
+          </ol>
         </div>
       </section>
 
@@ -285,24 +269,6 @@ controller.on(\"stepchange\", (payload) => {
                 </a>
               </li>
             </ul>
-          </div>
-          <div>
-            <h2>GitHub Pages setup</h2>
-            <ol class="fs-list fs-list-ordered">
-              <li>Push this <code>docs/</code> folder to <code>main</code>.</li>
-              <li>
-                In GitHub &rarr; Settings &rarr; Pages, set:
-                <code>Branch: main</code>, <code>Folder: /docs</code>.
-              </li>
-              <li>
-                Wait for GitHub Pages to build, then open:
-                <code>https://&lt;your-username&gt;.github.io/finsteps/</code>.
-              </li>
-              <li>
-                Place your hero image at
-                <code>docs/assets/finsteps-hero.png</code> in the repo.
-              </li>
-            </ol>
           </div>
         </div>
       </section>
