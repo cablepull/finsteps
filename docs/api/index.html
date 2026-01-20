@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Finsteps Public API Contract</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <header class="fs-nav">
+      <div class="fs-container fs-nav-inner">
+        <div class="fs-nav-left">
+          <span class="fs-logo">Finsteps</span>
+          <span class="fs-tagline">Public API Contract</span>
+        </div>
+        <nav class="fs-nav-links">
+          <a href="../index.html">Home</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="fs-section">
+      <div class="fs-container">
+        <h1>Public API Contract</h1>
+        <p class="fs-section-intro">
+          This page documents the stable public API surface of the Finsteps
+          presentation runtime. Changes to this contract follow semantic
+          versioning rules.
+        </p>
+
+        <section class="fs-section">
+          <h2>Entry point</h2>
+          <p>
+            The main entry is <code>presentMermaid(options)</code>, which
+            returns a <code>Controller</code> instance.
+          </p>
+
+          <pre class="fs-code-card"><code>presentMermaid({
+  mountEl,
+  mermaidText,
+  mpdText | ast,
+  options
+}) =&gt; Controller</code></pre>
+
+          <h3>Required</h3>
+          <ul class="fs-list">
+            <li><code>mountEl</code>: <code>HTMLElement</code> that hosts the SVG.</li>
+            <li><code>mermaidText</code>: Mermaid source string.</li>
+            <li>
+              <code>ast</code> or <code>mpdText</code> + <code>options.parseMpd</code>:
+              presentation AST derived from MPD.
+            </li>
+          </ul>
+
+          <h3>Optional (options)</h3>
+          <ul class="fs-list">
+            <li><code>diagram</code>: custom <code>DiagramAdapter</code>.</li>
+            <li><code>camera</code>: custom <code>CameraHandle</code>.</li>
+            <li><code>overlay</code>: custom <code>OverlayHandle</code>.</li>
+            <li><code>actionHandlers</code>: additional action handlers.</li>
+            <li>
+              <code>errorPolicy</code>: default error policy
+              (<code>haltOnError</code> or <code>continueOnError</code>).
+            </li>
+            <li>
+              <code>hooks</code>: lifecycle hooks for editor / host integration:
+              <ul class="fs-list">
+                <li><code>onInit(controller)</code></li>
+                <li><code>onStepChange(state, step)</code></li>
+                <li><code>onActionStart(action, step)</code></li>
+                <li><code>onActionComplete(action, result)</code></li>
+                <li><code>onError(error, context)</code></li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section class="fs-section">
+          <h2>Controller</h2>
+          <p>
+            The <code>Controller</code> drives navigation and exposes state and
+            lifecycle events.
+          </p>
+
+          <h3>Methods</h3>
+          <ul class="fs-list">
+            <li><code>next()</code></li>
+            <li><code>prev()</code></li>
+            <li><code>goto(stepIndex | stepId)</code></li>
+            <li><code>reset()</code></li>
+            <li><code>destroy()</code></li>
+            <li>
+              <code>getState()</code> – returns
+              <code>{ stepIndex, stepId?, stepCount, errorState? }</code>
+            </li>
+            <li>
+              <code>setState(partial)</code> – currently supports
+              <code>stepIndex</code> and <code>stepId</code>.
+            </li>
+            <li>
+              <code>getDeps()</code> – read-only access to
+              <code>{ diagram, camera, overlay }</code>.
+            </li>
+            <li><code>getSteps()</code> – copy of the steps array.</li>
+            <li><code>getCurrentStep()</code> – current step or <code>null</code>.</li>
+            <li>
+              <code>getExecutionContext()</code> – execution context:
+              <code>{ currentAction?, currentStep?, previousStep? }</code>.
+            </li>
+            <li>
+              <code>updateAst(newAst, options?)</code> – update AST dynamically.
+              <ul class="fs-list">
+                <li>
+                  <code>options.preserveState</code> – if true, attempts to keep
+                  the current step after update.
+                </li>
+              </ul>
+            </li>
+            <li><code>retry()</code> – retries last failed step/action.</li>
+            <li><code>clearError()</code> – clears error state.</li>
+          </ul>
+
+          <h3>Events</h3>
+          <p>
+            The controller emits events via <code>on(event, handler)</code>:
+          </p>
+          <ul class="fs-list">
+            <li>
+              <code>stepchange</code> – payload
+              <code>{ state, previousState, step, previousStep }</code>
+            </li>
+            <li>
+              <code>actionerror</code> – payload
+              <code>{ error, step, action, context }</code>; preferred for action
+              failures.
+            </li>
+            <li>
+              <code>error</code> – legacy alias for <code>actionerror</code>.
+            </li>
+            <li>
+              <code>render</code> – emitted when the diagram is rendered.
+            </li>
+            <li>
+              <code>actionstart</code> – payload
+              <code>{ action, step, context }</code>.
+            </li>
+            <li>
+              <code>actioncomplete</code> – payload
+              <code>{ action, result: { success, error? }, step, context }</code>.
+            </li>
+            <li>
+              <code>astchange</code> – payload
+              <code>{ previousState, newState, previousSteps, newSteps }</code>.
+            </li>
+          </ul>
+        </section>
+
+        <section class="fs-section">
+          <h2>Interfaces</h2>
+
+          <h3>DiagramHandle</h3>
+          <ul class="fs-list">
+            <li><code>getRoot() =&gt; SVGSVGElement</code></li>
+            <li><code>getContainer() =&gt; HTMLElement</code></li>
+            <li><code>resolveTarget(target) =&gt; Element | null</code></li>
+            <li><code>destroy()</code></li>
+          </ul>
+
+          <h3>CameraHandle</h3>
+          <ul class="fs-list">
+            <li>
+              <code>fit(target, { padding?, duration?, easing? })</code>
+            </li>
+            <li><code>reset()</code></li>
+            <li><code>zoom?(factor, center?)</code></li>
+            <li><code>pan?(deltaX, deltaY)</code></li>
+            <li><code>fitAll?(padding?)</code></li>
+            <li><code>destroy()</code></li>
+          </ul>
+
+          <h3>OverlayHandle</h3>
+          <ul class="fs-list">
+            <li>
+              <code>showBubble({ id?, target, text })</code>
+            </li>
+            <li><code>hideBubble(id?)</code></li>
+            <li><code>clear?()</code></li>
+            <li><code>destroy()</code></li>
+          </ul>
+        </section>
+
+        <section class="fs-section">
+          <h2>Semantic versioning discipline</h2>
+          <ul class="fs-list">
+            <li>Backwards compatible additions: <strong>minor</strong> version.</li>
+            <li>
+              Breaking changes in public interfaces or behavior:
+              <strong>major</strong> version.
+            </li>
+            <li>
+              Bug fixes and non‑breaking internal changes:
+              <strong>patch</strong> version.
+            </li>
+          </ul>
+        </section>
+      </div>
+    </main>
+
+    <footer class="fs-footer">
+      <div class="fs-container fs-footer-inner">
+        <span>&copy; <span id="fs-year"></span> Finsteps.</span>
+        <span>Public API contract.</span>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById("fs-year").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+  </html>
+

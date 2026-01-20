@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Finsteps Examples</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <header class="fs-nav">
+      <div class="fs-container fs-nav-inner">
+        <div class="fs-nav-left">
+          <span class="fs-logo">Finsteps</span>
+          <span class="fs-tagline">Examples</span>
+        </div>
+        <nav class="fs-nav-links">
+          <a href="../index.html">Home</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="fs-section">
+      <div class="fs-container">
+        <h1>Examples</h1>
+        <p class="fs-section-intro">
+          All runnable Finsteps demos hosted in this project. Click any example
+          to open it.
+        </p>
+
+        <div class="fs-example-grid">
+          <a class="fs-card fs-card-link" href="editor/">
+            <h3>Live editor</h3>
+            <p>Interactive editor for Mermaid + MPD with full controls.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="walkthrough/">
+            <h3>Architecture walkthrough</h3>
+            <p>Large system diagram walkthrough with camera + overlays.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="timeline/">
+            <h3>Timeline</h3>
+            <p>Walk through a Mermaid gantt chart with horizontal panning.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="sequence/">
+            <h3>Sequence</h3>
+            <p>Sequence diagram showing request/response flows.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="class/">
+            <h3>Class diagram</h3>
+            <p>Highlight classes and relationships in an OO model.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="state/">
+            <h3>State diagram</h3>
+            <p>State machine with transitions and nested states.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="er/">
+            <h3>ER diagram</h3>
+            <p>Entity-relationship walkthrough for an e-commerce schema.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="pie/">
+            <h3>Pie chart</h3>
+            <p>Walkthrough of device usage distribution across slices.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="journey/">
+            <h3>User journey</h3>
+            <p>Highlight stages of a user funnel across multiple steps.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="gitgraph/">
+            <h3>Git graph</h3>
+            <p>Branch and merge visualization with focused steps.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="timeline-experimental/">
+            <h3>Timeline (experimental)</h3>
+            <p>Experimental timeline interactions and layouts.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="requirement/">
+            <h3>Requirement diagram</h3>
+            <p>Requirement relationships backed by the MPD DSL.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="c4context/">
+            <h3>C4 context</h3>
+            <p>High-level system context with navigation across elements.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="c4container/">
+            <h3>C4 container</h3>
+            <p>Container-level view for services and data stores.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="c4component/">
+            <h3>C4 component</h3>
+            <p>Component-level view with focused highlights.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="block/">
+            <h3>Block diagram</h3>
+            <p>Block-style diagram with camera moves between regions.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="quadrant/">
+            <h3>Quadrant chart</h3>
+            <p>Quadrant-style layout with step-by-step focus.</p>
+          </a>
+
+          <a class="fs-card fs-card-link" href="revealjs/">
+            <h3>Reveal.js deck</h3>
+            <p>Multiple diagrams in a Reveal.js presentation.</p>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="fs-footer">
+      <div class="fs-container fs-footer-inner">
+        <span>&copy; <span id="fs-year"></span> Finsteps.</span>
+        <span>Examples powered by Mermaid and MPD.</span>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById("fs-year").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+  </html>
+
