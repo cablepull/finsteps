@@ -490,7 +490,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     // Check if enabled (should be enabled after waitForDiagramRender)
     const disabled = await zoomIn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Zoom in button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Zoom in button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -529,7 +529,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await zoomOut.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Zoom out button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Zoom out button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -565,7 +565,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await reset.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Reset button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Reset button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -639,7 +639,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     // If it's "Step 0 / 0", we don't have a valid presentation yet
     if (initialStepText === 'Step 0 / 0') {
-      test.skip('No steps available, diagram may not be rendered correctly');
+      test.skip(true, 'No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -648,7 +648,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await nextBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Next button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Next button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -670,7 +670,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     const initialStepText = await stepDisplay.textContent();
     
     if (initialStepText === 'Step 0 / 0') {
-      test.skip('No steps available, diagram may not be rendered correctly');
+      test.skip(true, 'No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -681,7 +681,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await prevBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Previous button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Previous button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -723,8 +723,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     }
     
     const stepDisplay = page.locator('#current-step-display');
-    const initialStep = await stepDisplay.textContent();
-    
+        
     // Click play
     await playPauseBtn.click();
     await page.waitForTimeout(1000);
@@ -1129,7 +1128,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
     expect(hasErrorAfter).toBeFalsy();
     
     // Error panel should also be cleared
-    const errorTextAfter = await errorPanel.textContent();
     const errorClassAfter = await errorPanel.getAttribute('class') || '';
     const hasShowAfter = errorClassAfter.includes('show');
     expect(hasShowAfter).toBeFalsy();
@@ -1319,7 +1317,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     const initialStepText = await stepDisplay.textContent();
     
     if (initialStepText === 'Step 0 / 0') {
-      test.skip('No steps available, diagram may not be rendered correctly');
+      test.skip(true, 'No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -1327,7 +1325,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await nextBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Next button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Next button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -1350,7 +1348,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     const initialStepText = await stepDisplay.textContent();
     
     if (initialStepText === 'Step 0 / 0') {
-      test.skip('No steps available, diagram may not be rendered correctly');
+      test.skip(true, 'No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -1359,7 +1357,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await nextBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip('Next button is disabled, diagram may not be rendered correctly');
+      test.skip(true, 'Next button is disabled, diagram may not be rendered correctly');
       return;
     }
     

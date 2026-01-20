@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { parseMPD, formatDiagnostics } from "../../src/index";
 
 describe("Editor MPD Validation Unit Tests", () => {

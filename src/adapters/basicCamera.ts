@@ -410,8 +410,6 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
       
       try {
         // getBBox() returns coordinates in SVG's local coordinate system (after transforms)
-        // Get the current viewBox to understand the coordinate space
-        const currentViewBoxStr = svg.getAttribute("viewBox");
         // getBBox() returns coordinates in the element's LOCAL coordinate space (before transforms)
         // If the element has a transform, we need to account for it to get the actual position in SVG user space
         // IMPORTANT: getCTM() includes viewBox scaling, so we need to use getScreenCTM() or parse transform attribute
