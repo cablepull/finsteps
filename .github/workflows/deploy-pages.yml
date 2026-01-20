@@ -1,0 +1,59 @@
+name: Deploy examples to GitHub Pages docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  build-and-sync-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library (dist/)
+        run: npm run build
+
+      - name: Prepare docs/examples and docs/dist
+        run: |
+          mkdir -p docs
+          rm -rf docs/examples docs/dist
+          mkdir -p docs/examples docs/dist
+
+      - name: Copy examples into docs/examples
+        run: |
+          cp -R examples/* docs/examples/
+
+      - name: Copy dist into docs/dist
+        run: |
+          cp -R dist/* docs/dist/
+
+      # Optional: commit changes back to main so docs/ stays in sync
+      - name: Commit and push updated docs
+        if: github.ref == 'refs/heads/main'
+        env:
+          GIT_AUTHOR_NAME: github-actions
+          GIT_AUTHOR_EMAIL: github-actions@github.com
+          GIT_COMMITTER_NAME: github-actions
+          GIT_COMMITTER_EMAIL: github-actions@github.com
+        run: |
+          if git status --porcelain docs | grep .; then
+            git add docs
+            git commit -m "chore(docs): sync examples and dist for GitHub Pages"
+            git push
+          else
+            echo "No docs changes to commit."
+          fi
+
