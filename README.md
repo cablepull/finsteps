@@ -53,3 +53,73 @@ console.log(result.ast);
 
 - [Grammar summary](docs/mpd-parser/grammar.md)
 - [Compatibility contract](docs/mpd-parser/compatibility-contract.md)
+
+## CDN Usage (jsDelivr)
+
+Finsteps is available via [jsDelivr CDN](https://www.jsdelivr.com/) for easy integration in HTML pages, CodePen, and other environments without npm.
+
+### Quick Start
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <div id="diagram"></div>
+  
+  <script type="module">
+    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js';
+    
+    const mermaidText = `graph LR
+      A[Start] --> B[End]`;
+    
+    const mpdText = `mpd 1.0
+scene intro {
+  step one {
+    focus node(A);
+    do camera.fit(node(A));
+  }
+}`;
+    
+    const controller = await presentMermaid({
+      mermaidText,
+      mpdText,
+      mountEl: document.getElementById('diagram'),
+      options: { parseMpd }
+    });
+  </script>
+</body>
+</html>
+```
+
+### CDN URLs
+
+**Latest version:**
+```javascript
+import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js';
+```
+
+**Specific version:**
+```javascript
+import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.3.0/dist/finsteps.esm.min.js';
+```
+
+**Unminified (for debugging):**
+```javascript
+import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.js';
+```
+
+### Important Notes
+
+- **Mermaid is required**: You must load Mermaid.js separately before using Finsteps. See the example above.
+- **ES modules**: The CDN bundle uses ES module syntax (`import`/`export`), so use `<script type="module">` tags.
+- **Version pinning**: For production, pin to a specific version (e.g., `@v0.3.0`) rather than `@latest`.
+
+### GitHub Pages Alternative
+
+The bundled files are also available via GitHub Pages:
+```javascript
+import { presentMermaid, parseMPD } from 'https://cablepull.github.io/finsteps/dist/finsteps.esm.min.js';
+```

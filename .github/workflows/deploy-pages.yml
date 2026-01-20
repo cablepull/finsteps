@@ -24,7 +24,7 @@ jobs:
         run: npm ci
 
       - name: Build library (dist/)
-        run: npm run build
+        run: npm run build:cdn
 
       - name: Prepare docs/examples and docs/dist
         run: |

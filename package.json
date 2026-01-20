@@ -18,6 +18,9 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "bundle": "esbuild src/index.ts --bundle --format=esm --outfile=dist/finsteps.esm.js --external:mermaid --platform=browser --target=es2020",
+    "bundle:min": "esbuild src/index.ts --bundle --format=esm --minify --outfile=dist/finsteps.esm.min.js --external:mermaid --platform=browser --target=es2020",
+    "build:cdn": "npm run build && npm run bundle && npm run bundle:min",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:unit": "vitest run",
@@ -29,6 +32,7 @@
     "@types/node": "^22.19.7",
     "@typescript-eslint/eslint-plugin": "8.8.1",
     "@typescript-eslint/parser": "8.8.1",
+    "esbuild": "^0.19.0",
     "eslint": "9.6.0",
     "jsdom": "^25.0.1",
     "typescript": "^5.9.3",
