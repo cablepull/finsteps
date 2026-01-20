@@ -49,33 +49,11 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
   // Use strategy to extract node IDs
   let nodeIdMap = strategy.extractNodeIds(svg);
   
-  // #region agent log
-  const diagramTypeEntry = strategy.getDiagramType();
-  if (diagramTypeEntry === 'classDiagram') {
-    const logDataEntry = {location:'mermaidDiagram.ts:49',message:'ensureDataIdFromMermaidIds entry',data:{diagramType:diagramTypeEntry,extractedCount:nodeIdMap.size,hasMermaidText:!!mermaidText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataEntry.message, logDataEntry.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataEntry)}).catch(()=>{});
-  }
-  // #endregion
   
-  // #region agent log
-  if (diagramTypeEntry === 'c4Component') {
-    const logDataAfter = {location:'mermaidDiagram.ts:71',message:'after extractNodeIds',data:{diagramType:strategy.getDiagramType(),nodeCount:nodeIdMap.size,nodeIds:Array.from(nodeIdMap.keys())},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-    console.log('[MermaidDiagram]', logDataAfter.message, logDataAfter.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataAfter)}).catch(()=>{});
-  }
-  // #endregion
   
   // For C4 diagrams, if extraction failed or incomplete, try extracting aliases from text and finding elements by ID
   const diagramType = strategy.getDiagramType();
   
-  // #region agent log
-  const logDataStart = {location:'mermaidDiagram.ts:60',message:'checking for fallback',data:{diagramType:diagramType,extractedCount:nodeIdMap.size,hasMermaidText:!!mermaidText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-  if (diagramType === 'classDiagram' || diagramType === 'erDiagram' || diagramType === 'gitGraph' || diagramType === 'journey') {
-    console.log('[MermaidDiagram]', logDataStart.message, logDataStart.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataStart)}).catch(()=>{});
-  }
-  // #endregion
   
   const aliases = mermaidText ? extractC4AliasesFromText(mermaidText) : new Set<string>();
   
@@ -95,11 +73,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       classAliases.add(classMatch[1]);
     }
     
-    // #region agent log
-    const logDataClassExtract = {location:'mermaidDiagram.ts:78',message:'extracted class names',data:{diagramType:diagramType,classAliases:Array.from(classAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataClassExtract.message, logDataClassExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataClassExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For ER diagrams, extract entity names from text
@@ -125,11 +98,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       erAliases.add(erMatch[1]);
     }
     
-    // #region agent log
-    const logDataErExtract = {location:'mermaidDiagram.ts:103',message:'extracted ER entity names',data:{diagramType:diagramType,erAliases:Array.from(erAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataErExtract.message, logDataErExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataErExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For git graph diagrams, extract branch names and commit IDs from text
@@ -168,11 +136,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
     // This will map to commits that are the result of merges
     gitAliases.add('merge');
     
-    // #region agent log
-    const logDataGitExtract = {location:'mermaidDiagram.ts:141',message:'extracted git graph names',data:{diagramType:diagramType,gitAliases:Array.from(gitAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataGitExtract.message, logDataGitExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataGitExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For journey diagrams, extract step names from text
@@ -198,11 +161,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-    // #region agent log
-    const logDataJourneyExtract = {location:'mermaidDiagram.ts:177',message:'extracted journey step names',data:{diagramType:diagramType,journeyAliases:Array.from(journeyAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataJourneyExtract.message, logDataJourneyExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataJourneyExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For pie chart diagrams, extract slice names from text
@@ -220,11 +178,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-    // #region agent log
-    const logDataPieExtract = {location:'mermaidDiagram.ts:199',message:'extracted pie chart slice names',data:{diagramType:diagramType,pieAliases:Array.from(pieAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataPieExtract.message, logDataPieExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataPieExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For quadrant chart diagrams, extract item names from text
@@ -242,11 +195,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-    // #region agent log
-    const logDataQuadrantExtract = {location:'mermaidDiagram.ts:227',message:'extracted quadrant chart item names',data:{diagramType:diagramType,quadrantAliases:Array.from(quadrantAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataQuadrantExtract.message, logDataQuadrantExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataQuadrantExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For requirement diagrams, extract requirement and element names from text
@@ -274,11 +222,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-    // #region agent log
-    const logDataRequirementExtract = {location:'mermaidDiagram.ts:252',message:'extracted requirement diagram names',data:{diagramType:diagramType,requirementAliases:Array.from(requirementAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataRequirementExtract.message, logDataRequirementExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataRequirementExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For sequence diagrams, extract participant names from text
@@ -307,11 +250,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-    // #region agent log
-    const logDataSequenceExtract = {location:'mermaidDiagram.ts:282',message:'extracted sequence diagram names',data:{diagramType:diagramType,sequenceAliases:Array.from(sequenceAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataSequenceExtract.message, logDataSequenceExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataSequenceExtract)}).catch(()=>{});
-    // #endregion
   }
   
   // For timeline diagrams, extract section names from text
@@ -328,11 +266,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-    // #region agent log
-    const logDataTimelineExtract = {location:'mermaidDiagram.ts:318',message:'extracted timeline diagram names',data:{diagramType:diagramType,timelineAliases:Array.from(timelineAliases),mermaidTextPreview:mermaidText.slice(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataTimelineExtract.message, logDataTimelineExtract.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataTimelineExtract)}).catch(()=>{});
-    // #endregion
   }
   
   const shouldUseFallback = mermaidText && (
@@ -349,36 +282,8 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
     (diagramType === 'timeline' && (nodeIdMap.size === 0 || nodeIdMap.size < timelineAliases.size))
   );
   
-  // #region agent log
-  if (diagramType === 'classDiagram' || diagramType === 'erDiagram' || diagramType === 'gitGraph' || diagramType === 'journey' || diagramType === 'pie' || diagramType === 'quadrantChart' || diagramType === 'requirement' || diagramType === 'sequenceDiagram' || diagramType === 'timeline') {
-    const aliasCount = diagramType === 'classDiagram' ? classAliases.size : 
-                       diagramType === 'erDiagram' ? erAliases.size :
-                       diagramType === 'gitGraph' ? gitAliases.size :
-                       diagramType === 'journey' ? journeyAliases.size :
-                       diagramType === 'pie' ? pieAliases.size :
-                       diagramType === 'quadrantChart' ? quadrantAliases.size :
-                       diagramType === 'requirement' ? requirementAliases.size :
-                       diagramType === 'sequenceDiagram' ? sequenceAliases.size :
-                       diagramType === 'timeline' ? timelineAliases.size : 0;
-    const logDataFallbackCheck = {location:'mermaidDiagram.ts:200',message:'fallback check',data:{diagramType:diagramType,shouldUseFallback:shouldUseFallback,extractedCount:nodeIdMap.size,aliasCount:aliasCount},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataFallbackCheck.message, logDataFallbackCheck.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataFallbackCheck)}).catch(()=>{});
-  }
-  // #endregion
   
   if (shouldUseFallback) {
-    // #region agent log
-    const logDataFallback = {location:'mermaidDiagram.ts:78',message:'extractNodeIds incomplete, trying fallback from text',data:{diagramType:diagramType,extractedCount:nodeIdMap.size,aliasCount:aliases.size,missingAliases:Array.from(aliases).filter(a => !nodeIdMap.has(a))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    console.log('[MermaidDiagram]', logDataFallback.message, logDataFallback.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataFallback)}).catch(()=>{});
-    // #endregion
-    // #region agent log
-    if (diagramType === 'c4Component' || diagramType === 'c4Container' || diagramType === 'c4Context') {
-      const logDataAliases = {location:'mermaidDiagram.ts:85',message:'extracted aliases from text',data:{diagramType:diagramType,aliases:Array.from(aliases)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[MermaidDiagram]', logDataAliases.message, logDataAliases.data);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataAliases)}).catch(()=>{});
-    }
-    // #endregion
     
     // Extract all boundaries once (for Container and Context diagrams)
     const boundaryChildren: Record<string, string[]> = {};
@@ -407,13 +312,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
         }
       }
       
-      // #region agent log
-      if (Object.keys(boundaryChildren).length > 0) {
-        const logDataBoundaries = {location:'mermaidDiagram.ts:163',message:'extracted boundary children',data:{diagramType:diagramType,boundaryChildren:boundaryChildren},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[MermaidDiagram]', logDataBoundaries.message, logDataBoundaries.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataBoundaries)}).catch(()=>{});
-      }
-      // #endregion
     }
     
     // First pass: find all non-boundary aliases by text search
@@ -613,13 +511,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
         return false;
       });
       
-      // #region agent log
-      if (diagramType === 'c4Component' && ['controller','service','repo','api','db'].includes(alias)) {
-        const logDataSearch = {location:'mermaidDiagram.ts:90',message:'searching for alias in text',data:{alias:alias,textElementsFound:textElements.length,textElements:textElements.slice(0,5).map(el=>({tagName:el.tagName,textContent:el.textContent?.trim().slice(0,50),parentTagName:el.parentElement?.tagName}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[MermaidDiagram]', logDataSearch.message, logDataSearch.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataSearch)}).catch(()=>{});
-      }
-      // #endregion
       
       // For each text element, walk up to find the containing group
       let found = false;
@@ -673,11 +564,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
                   nodeIdMap.set(aliasStr, slicePath);
                   found = true;
                   
-                  // #region agent log
-                  const logDataPieSlice = {location:'mermaidDiagram.ts:445',message:'found pie slice path for legend',data:{diagramType:diagramType,alias:aliasStr,legendIndex:legendIndex,slicePathTag:slicePath.tagName,slicePathHasD:!!slicePath.getAttribute('d')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-                  console.log('[MermaidDiagram]', logDataPieSlice.message, logDataPieSlice.data);
-                  fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataPieSlice)}).catch(()=>{});
-                  // #endregion
                   
                   continue; // Skip the normal text-based group finding
                 }
@@ -781,11 +667,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
                 if (!nodeIdMap.has(aliasStr)) {
                   nodeIdMap.set(aliasStr, nodeGroup);
                   
-                  // #region agent log
-                  const logDataSequenceMessage = {location:'mermaidDiagram.ts:645',message:'found sequence message label',data:{diagramType:diagramType,alias:aliasStr,elementTag:nodeGroup.tagName,className:(typeof nodeGroup.className==='string'?nodeGroup.className:(nodeGroup.className as unknown as SVGAnimatedString).baseVal).slice(0,50)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-                  console.log('[MermaidDiagram]', logDataSequenceMessage.message, logDataSequenceMessage.data);
-                  fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataSequenceMessage)}).catch(()=>{});
-                  // #endregion
                 }
                 
                 continue; // Skip the normal text-based group finding
@@ -827,11 +708,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
                       // Remove the old mapping to the parent container
                       nodeIdMap.delete(aliasStr);
                       
-                      // #region agent log
-                      const logDataReplace = {location:'mermaidDiagram.ts:572',message:'replacing parent container mapping with data-point',data:{diagramType:diagramType,alias:aliasStr,oldElementTag:existingElement.tagName,oldClassName:existingClassName,newElementTag:nodeGroup.tagName,newClassName:className},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'};
-                      console.log('[MermaidDiagram]', logDataReplace.message, logDataReplace.data);
-                      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataReplace)}).catch(()=>{});
-                      // #endregion
                     }
                   }
                   
@@ -857,11 +733,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
                   // Set the mapping to the correct data-point element
                   nodeIdMap.set(aliasStr, nodeGroup);
                   
-                  // #region agent log
-                  const logDataQuadrantPoint = {location:'mermaidDiagram.ts:610',message:'found quadrant data-point group',data:{diagramType:diagramType,alias:aliasStr,elementTag:nodeGroup.tagName,className:className,hasCircle:!!nodeGroup.querySelector('circle'),replacedParent:!!existingElement},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-                  console.log('[MermaidDiagram]', logDataQuadrantPoint.message, logDataQuadrantPoint.data);
-                  fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataQuadrantPoint)}).catch(()=>{});
-                  // #endregion
                   
                   break; // Found the specific data-point, stop searching
                 }
@@ -988,56 +859,17 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
             nodeIdMap.set(aliasStr, nodeGroup);
             found = true;
           }
-          // #region agent log
-          const targetAliasesFound = diagramType === 'c4Component' ? ['controller','service','repo','api','db'] : 
-                                     diagramType === 'c4Container' ? ['user','webapp','web','api','db'] : 
-                                     diagramType === 'c4Context' ? ['user','webapp','auth'] :
-                                     diagramType === 'erDiagram' ? ['CUSTOMER','ORDER','ORDER_ITEM','PRODUCT'] :
-                                     diagramType === 'gitGraph' ? ['main','develop','feature','Initial','Setup','Feature A','Feature B','Update','Feature C','Release','Tag v1.0','merge'] :
-                                     diagramType === 'journey' ? ['Landing Page','Pricing Page','Signup Form','Email Verification','Welcome Tour','Dashboard'] :
-                                     diagramType === 'pie' ? ['Desktop','Mobile','Tablet','Other'] :
-                                     diagramType === 'quadrantChart' ? ['Leader','Challenger','Niche','Innovator'] : [];
-          if ((diagramType === 'c4Component' || diagramType === 'c4Container' || diagramType === 'c4Context' || diagramType === 'erDiagram' || diagramType === 'gitGraph' || diagramType === 'journey' || diagramType === 'pie' || diagramType === 'quadrantChart') && targetAliasesFound.includes(aliasStr)) {
-            const className = nodeGroup instanceof SVGElement ? (typeof nodeGroup.className === 'string' ? nodeGroup.className : (nodeGroup.className as unknown as SVGAnimatedString).baseVal) : '';
-            const logDataFound = {location:'mermaidDiagram.ts:148',message:'found element by text fallback',data:{diagramType:diagramType,alias:alias,elementTag:nodeGroup.tagName,groupId:nodeGroup.id,className:className,hasShapes:!!nodeGroup.querySelector('rect, circle, ellipse, polygon, path')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-            console.log('[MermaidDiagram]', logDataFound.message, logDataFound.data);
-            fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataFound)}).catch(()=>{});
-          }
-          // #endregion
           break;
         }
       }
       
       
-      // #region agent log
-      const aliasStrNotFound = String(alias);
-      const targetAliasesNotFound = diagramType === 'c4Component' ? ['controller','service','repo','api','db'] : 
-                                    diagramType === 'c4Container' ? ['user','webapp','web','api','db'] : 
-                                    diagramType === 'c4Context' ? ['user','webapp','auth'] :
-                                    diagramType === 'erDiagram' ? ['CUSTOMER','ORDER','ORDER_ITEM','PRODUCT'] :
-                                    diagramType === 'gitGraph' ? ['main','develop','feature','Initial','Setup','Feature A','Feature B','Update','Feature C','Release','Tag v1.0','merge'] :
-                                    diagramType === 'journey' ? ['Landing Page','Pricing Page','Signup Form','Email Verification','Welcome Tour','Dashboard'] :
-                                    diagramType === 'pie' ? ['Desktop','Mobile','Tablet','Other'] :
-                                    diagramType === 'quadrantChart' ? ['Leader','Challenger','Niche','Innovator'] : [];
-      if ((diagramType === 'c4Component' || diagramType === 'c4Container' || diagramType === 'c4Context' || diagramType === 'erDiagram' || diagramType === 'gitGraph' || diagramType === 'journey' || diagramType === 'pie' || diagramType === 'quadrantChart') && !found && targetAliasesNotFound.includes(aliasStrNotFound)) {
-        const logDataNotFound = {location:'mermaidDiagram.ts:207',message:'alias NOT found by text search',data:{diagramType:diagramType,alias:aliasStrNotFound,textElementsFound:textElements.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[MermaidDiagram]', logDataNotFound.message, logDataNotFound.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataNotFound)}).catch(()=>{});
-      }
-      // #endregion
     }
     
     // Second pass: process boundaries (after all child elements have been found)
     for (const [boundaryAlias, childAliases] of Object.entries(boundaryChildren)) {
       if (nodeIdMap.has(boundaryAlias)) continue; // Already found
       
-      // #region agent log
-      if (diagramType === 'c4Container' && ['webapp'].includes(boundaryAlias)) {
-        const logDataBoundaryStart = {location:'mermaidDiagram.ts:249',message:'searching for boundary by children (second pass)',data:{alias:boundaryAlias,childAliases:childAliases},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[MermaidDiagram]', logDataBoundaryStart.message, logDataBoundaryStart.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataBoundaryStart)}).catch(()=>{});
-      }
-      // #endregion
       
       // Find all child elements (they should already be found and have data-id set)
       const childElements: SVGElement[] = [];
@@ -1054,13 +886,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
         }
       }
       
-      // #region agent log
-      if (diagramType === 'c4Container' && ['webapp'].includes(boundaryAlias)) {
-        const logDataChildElements = {location:'mermaidDiagram.ts:264',message:'found child elements for boundary (second pass)',data:{alias:boundaryAlias,childAliases:childAliases,childElementsFound:childElements.length,childElementTags:childElements.map(el=>el.tagName)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[MermaidDiagram]', logDataChildElements.message, logDataChildElements.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataChildElements)}).catch(()=>{});
-      }
-      // #endregion
       
       // Find common ancestor groups that contain ALL child elements
       if (childElements.length >= Math.min(2, childAliases.length)) {
@@ -1083,13 +908,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
           }
         }
         
-        // #region agent log
-        if (diagramType === 'c4Container' && ['webapp'].includes(boundaryAlias)) {
-          const logDataAncestors = {location:'mermaidDiagram.ts:288',message:'found ancestor candidates (second pass)',data:{alias:boundaryAlias,ancestorCount:ancestorCandidates.length,ancestors:ancestorCandidates.map(g=>({tagName:g.tagName,id:g.id || null,className:g instanceof SVGElement ? (typeof g.className==='string'?g.className:g.className.baseVal):'',hasShapes:!!g.querySelector('rect, circle, ellipse, polygon, path')}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-          console.log('[MermaidDiagram]', logDataAncestors.message, logDataAncestors.data);
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataAncestors)}).catch(()=>{});
-        }
-        // #endregion
         
         // Prefer the most specific (deepest) ancestor, but prefer ones with shapes or boundary classes
         let selectedGroup: SVGElement | null = null;
@@ -1127,14 +945,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
         
         if (selectedGroup && !nodeIdMap.has(boundaryAlias)) {
           nodeIdMap.set(boundaryAlias, selectedGroup);
-          // #region agent log
-          if (diagramType === 'c4Container' && ['webapp'].includes(boundaryAlias)) {
-            const className = selectedGroup instanceof SVGElement ? (typeof selectedGroup.className === 'string' ? selectedGroup.className : (selectedGroup.className as unknown as SVGAnimatedString).baseVal) : '';
-            const logDataBoundary = {location:'mermaidDiagram.ts:315',message:'found boundary by child elements (second pass)',data:{alias:boundaryAlias,childAliases:childAliases,containsChildren:childElements.length,className:className,hasShapes:!!selectedGroup.querySelector('rect, circle, ellipse, polygon, path'),groupId:selectedGroup.id || null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-            console.log('[MermaidDiagram]', logDataBoundary.message, logDataBoundary.data);
-            fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataBoundary)}).catch(()=>{});
-          }
-          // #endregion
         }
       }
     }
@@ -1167,18 +977,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
   
   for (const [nodeId, el] of nodeIdMap) {
     el.setAttribute("data-id", nodeId);
-    // #region agent log
-    const diagramType = strategy.getDiagramType();
-    const targetNodeIds = diagramType === 'c4Component' ? ['controller','service','repo','api','db'] : 
-                         diagramType === 'c4Container' ? ['user','webapp','web','api','db'] : 
-                         diagramType === 'c4Context' ? ['user','webapp','auth'] : [];
-    if ((diagramType === 'c4Component' || diagramType === 'c4Container' || diagramType === 'c4Context') && targetNodeIds.includes(nodeId)) {
-      const elementClass = el instanceof SVGElement ? (typeof el.className === 'string' ? el.className : (el.className as unknown as SVGAnimatedString).baseVal) : '';
-      const logDataSet = {location:'mermaidDiagram.ts:325',message:'set data-id',data:{diagramType:diagramType,nodeId:nodeId,elementTag:el.tagName,elementClass:elementClass},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-      console.log('[MermaidDiagram]', logDataSet.message, logDataSet.data);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataSet)}).catch(()=>{});
-    }
-    // #endregion
   }
   
   // Set data-id for special mappings (e.g., "merge" in git graphs)
@@ -1188,13 +986,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       // Map "merge" to the merge commit element
       nodeIdMap.set(specialAlias, mappedEl);
       mappedEl.setAttribute("data-id", specialAlias);
-      // #region agent log
-      if (diagramType === 'gitGraph') {
-        const logDataMergeMap = {location:'mermaidDiagram.ts:650',message:'mapped merge to commit',data:{diagramType:diagramType,specialAlias:specialAlias,mappedNodeId:mappedNodeId,elementTag:mappedEl.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-        console.log('[MermaidDiagram]', logDataMergeMap.message, logDataMergeMap.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataMergeMap)}).catch(()=>{});
-      }
-      // #endregion
     }
   }
     
@@ -1214,21 +1005,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
       }
     }
     
-      // #region agent log
-      const diagramTypeFinal = strategy.getDiagramType();
-      if (diagramTypeFinal === 'c4Component' || diagramTypeFinal === 'c4Container' || diagramTypeFinal === 'c4Context' || diagramTypeFinal === 'classDiagram' || diagramTypeFinal === 'erDiagram' || diagramTypeFinal === 'gitGraph' || diagramTypeFinal === 'journey' || diagramTypeFinal === 'pie' || diagramTypeFinal === 'quadrantChart') {
-    const elementsWithDataId = Array.from(svg.querySelectorAll('[data-id]'));
-    // Also check if the SVG root itself has a data-id
-    const rootDataId = svg.getAttribute('data-id');
-    const allDataIds = elementsWithDataId.map(el=>el.getAttribute('data-id')).filter(id=>id);
-    if (rootDataId && !allDataIds.includes(rootDataId)) {
-      allDataIds.push(rootDataId);
-    }
-    const logDataFinal = {location:'mermaidDiagram.ts:456',message:'after setting data-id',data:{diagramType:diagramTypeFinal,totalElementsWithDataId:elementsWithDataId.length,rootHasDataId:!!rootDataId,rootDataId:rootDataId,dataIds:allDataIds.slice(0,20)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'};
-    console.log('[MermaidDiagram]', logDataFinal.message, logDataFinal.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataFinal)}).catch(()=>{});
-  }
-  // #endregion
 }
 
 const createDiagramHandle = (container: HTMLElement, svg: SVGSVGElement, strategy: DiagramStrategy): DiagramHandle => {
@@ -1277,31 +1053,12 @@ export const createMermaidDiagramAdapter = (): DiagramAdapter => {
         throw new MPFError("Mermaid is not available on window.mermaid", "MPF_MERMAID_UNAVAILABLE");
       }
       const renderId = `finsteps-${Math.random().toString(36).slice(2, 8)}`;
-      // #region agent log
-      const logDataRender = {location:'mermaidDiagram.ts:77',message:'attempting mermaid render',data:{mermaidTextPreview:mermaidText.trim().substring(0,100),firstLine:mermaidText.trim().split('\n')[0].trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      if (mermaidText.trim().toLowerCase().includes('c4component')) {
-        console.log('[MermaidDiagram]', logDataRender.message, logDataRender.data, 'full text:', mermaidText);
-      }
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataRender)}).catch(()=>{});
-      // #endregion
       let renderResult;
       try {
         renderResult = await mermaid.render(renderId, mermaidText);
       } catch (error) {
-        // #region agent log
-        const logDataRenderError = {location:'mermaidDiagram.ts:84',message:'mermaid render failed',data:{errorMessage:error instanceof Error ? error.message : String(error),errorName:error instanceof Error ? error.name : typeof error,mermaidTextPreview:mermaidText.trim().substring(0,100),firstLine:mermaidText.trim().split('\n')[0].trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.error('[MermaidDiagram]', logDataRenderError.message, logDataRenderError.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataRenderError)}).catch(()=>{});
-        // #endregion
         throw new MPFError(`Failed to render Mermaid diagram: ${error}`, "MPF_MERMAID_RENDER_FAILED");
       }
-      // #region agent log
-      const logDataRenderSuccess = {location:'mermaidDiagram.ts:91',message:'mermaid render succeeded',data:{hasSvg:!!renderResult?.svg},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      if (mermaidText.trim().toLowerCase().includes('c4component')) {
-        console.log('[MermaidDiagram]', logDataRenderSuccess.message, logDataRenderSuccess.data);
-      }
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataRenderSuccess)}).catch(()=>{});
-      // #endregion
       const { svg } = renderResult;
       mountEl.innerHTML = "";
       const container = document.createElement("div");
@@ -1318,13 +1075,6 @@ export const createMermaidDiagramAdapter = (): DiagramAdapter => {
         );
       }
       const diagramType = detectDiagramType(mermaidText);
-      // #region agent log
-      const logDataDetect = {location:'mermaidDiagram.ts:107',message:'diagram type detected',data:{diagramType:diagramType,firstLine:mermaidText.trim().split('\n')[0].trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-      if (diagramType === 'c4Component' || mermaidText.trim().toLowerCase().includes('c4component')) {
-        console.log('[MermaidDiagram]', logDataDetect.message, logDataDetect.data);
-      }
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataDetect)}).catch(()=>{});
-      // #endregion
       const strategy = strategyRegistry.getOrDefault(diagramType);
       ensureDataIdFromMermaidIds(svgElement, strategy, mermaidText);
       

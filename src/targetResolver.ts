@@ -35,26 +35,11 @@ export const resolveTarget = (
     const strategy = diagram.getStrategy?.() || new FlowchartStrategy();
     const selectors = strategy.getTargetSelectors(target.dataId);
     
-    // #region agent log
-    const logDataEntry = {location:'targetResolver.ts:35',message:'resolving target by dataId',data:{dataId:target.dataId,diagramType:strategy.getDiagramType(),selectors:selectors},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-    const diagramType = strategy.getDiagramType();
-    if (diagramType === 'c4Component' || (target.dataId && ['controller','service','repo','api','db'].includes(target.dataId))) {
-      console.log('[TargetResolver]', logDataEntry.message, logDataEntry.data);
-    }
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataEntry)}).catch(()=>{});
-    // #endregion
     
     // Try each selector in order until one matches
     for (const selector of selectors) {
       element = root.querySelector(selector);
       if (element) {
-        // #region agent log
-        const logDataFound = {location:'targetResolver.ts:46',message:'target found',data:{dataId:target.dataId,diagramType:diagramType,selector:selector,elementTag:element.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-        if (diagramType === 'c4Component' || (target.dataId && ['controller','service','repo','api','db'].includes(target.dataId))) {
-          console.log('[TargetResolver]', logDataFound.message, logDataFound.data);
-        }
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataFound)}).catch(()=>{});
-        // #endregion
         break;
       }
     }
@@ -63,25 +48,8 @@ export const resolveTarget = (
     // (querySelector doesn't include the element itself, only descendants)
     if (!element && root instanceof Element && root.getAttribute('data-id') === target.dataId) {
       element = root;
-      // #region agent log
-      const logDataFoundRoot = {location:'targetResolver.ts:62',message:'target found on root element',data:{dataId:target.dataId,diagramType:diagramType,elementTag:element.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-      if (diagramType === 'c4Component' || diagramType === 'c4Container' || diagramType === 'c4Context' || (target.dataId && ['controller','service','repo','api','db','webapp','web','user'].includes(target.dataId))) {
-        console.log('[TargetResolver]', logDataFoundRoot.message, logDataFoundRoot.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataFoundRoot)}).catch(()=>{});
-      }
-      // #endregion
     }
     
-    // #region agent log
-    if (!element) {
-      const availableDataIds = Array.from(root.querySelectorAll('[data-id]')).map((el:Element)=>el.getAttribute('data-id')).filter((id:string|null)=>id);
-      const logDataNotFound = {location:'targetResolver.ts:56',message:'target NOT found',data:{dataId:target.dataId,diagramType:diagramType,selectors:selectors,availableDataIds:availableDataIds.slice(0,20)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-      if (diagramType === 'c4Component' || (target.dataId && ['controller','service','repo','api','db'].includes(target.dataId))) {
-        console.log('[TargetResolver]', logDataNotFound.message, logDataNotFound.data);
-      }
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataNotFound)}).catch(()=>{});
-    }
-    // #endregion
   }
   
   if (!element) {

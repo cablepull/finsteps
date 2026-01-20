@@ -76,13 +76,6 @@ export function detectDiagramType(mermaidText: string): DiagramType {
   if (firstLine.startsWith('C4Container') || firstLine.startsWith('c4container')) {
     return 'c4Container';
   }
-  // #region agent log
-  if (firstLine.includes('c4component') || firstLine.includes('C4Component')) {
-    const logData = {location:'diagramTypeDetector.ts:79',message:'checking C4Component',data:{firstLine:firstLine,startsWithC4Component:firstLine.startsWith('C4Component'),startsWithC4component:firstLine.startsWith('c4component')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'};
-    console.log('[DiagramTypeDetector]', logData.message, logData.data);
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
-  }
-  // #endregion
   if (firstLine.startsWith('C4Component') || firstLine.startsWith('c4component')) {
     return 'c4Component';
   }

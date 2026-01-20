@@ -28,13 +28,6 @@ export class C4Strategy extends BaseDiagramStrategy {
   extractNodeIds(svg: SVGSVGElement): Map<string, SVGElement> {
     const nodeIdMap = new Map<string, SVGElement>();
     
-    // #region agent log
-    const logDataEntry = {location:'c4Strategy.ts:29',message:'extractNodeIds entry',data:{diagramType:this.diagramType,totalElements:svg.querySelectorAll('[id]').length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-    if (this.diagramType === 'c4Component') {
-      console.log('[C4Strategy]', logDataEntry.message, logDataEntry.data);
-    }
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataEntry)}).catch(()=>{});
-    // #endregion
     
     // Patterns for C4 diagram IDs - Mermaid C4 uses various ID formats
     const patterns = [
@@ -48,32 +41,7 @@ export class C4Strategy extends BaseDiagramStrategy {
     
     // First pass: find all elements with ids and extract node ids
     const allIds: string[] = [];
-    // #region agent log
     const allIdElements = Array.from(svg.querySelectorAll<SVGElement>("[id]"));
-    if (this.diagramType === 'c4Component') {
-      const allIds = allIdElements.map(el => ({
-        id: el.getAttribute("id"),
-        tagName: el.tagName,
-        className: this.getElementClassName(el),
-        parentTagName: el.parentElement?.tagName,
-        parentClassName: el.parentElement instanceof SVGElement ? this.getElementClassName(el.parentElement) : ''
-      }));
-      // Also check all groups and elements with classes
-      const allGroups = Array.from(svg.querySelectorAll<SVGElement>("g"));
-      const groupsWithClasses = allGroups.filter(g => {
-        const className = this.getElementClassName(g);
-        return className && (className.includes('c4') || className.includes('element') || className.includes('component') || className.includes('container') || className.includes('boundary'));
-      }).slice(0, 20).map(g => ({
-        tagName: g.tagName,
-        className: this.getElementClassName(g),
-        id: g.id,
-        textContent: g.textContent?.trim().slice(0, 50)
-      }));
-      const logDataIds = {location:'c4Strategy.ts:52',message:'all IDs found',data:{totalIds:allIdElements.length,allIds:allIds,groupsWithClasses:groupsWithClasses},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[C4Strategy]', logDataIds.message, logDataIds.data);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataIds)}).catch(()=>{});
-    }
-    // #endregion
     
     for (const el of allIdElements) {
       const id = el.getAttribute("id");
@@ -82,18 +50,6 @@ export class C4Strategy extends BaseDiagramStrategy {
       
       let nodeId: string | null = this.extractIdFromPatterns(id, patterns);
       
-      // #region agent log
-      if (this.diagramType === 'c4Component' && nodeId && ['controller','service','repo','api','db'].includes(nodeId)) {
-        const logData = {location:'c4Strategy.ts:65',message:'extracted nodeId',data:{mermaidId:id,nodeId:nodeId,className:this.getElementClassName(el),tagName:el.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[C4Strategy]', logData.message, logData.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
-      }
-      if (this.diagramType === 'c4Component' && !nodeId && (id.includes('controller') || id.includes('service') || id.includes('repo') || id.includes('api') || id.includes('db'))) {
-        const logDataNoMatch = {location:'c4Strategy.ts:71',message:'ID did not match patterns',data:{mermaidId:id,patterns:patterns.map(p=>p.toString()),className:this.getElementClassName(el),tagName:el.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-        console.log('[C4Strategy]', logDataNoMatch.message, logDataNoMatch.data);
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataNoMatch)}).catch(()=>{});
-      }
-      // #endregion
       
       if (nodeId && !nodeIdMap.has(nodeId)) {
         // Find the group that contains this element
@@ -122,13 +78,6 @@ export class C4Strategy extends BaseDiagramStrategy {
       }
     }
     
-    // #region agent log
-    if (this.diagramType === 'c4Component') {
-      const logDataExit = {location:'c4Strategy.ts:74',message:'extractNodeIds exit',data:{extractedCount:nodeIdMap.size,extractedIds:Array.from(nodeIdMap.keys()),sampleIds:allIds.slice(0,20)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'};
-      console.log('[C4Strategy]', logDataExit.message, logDataExit.data);
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logDataExit)}).catch(()=>{});
-    }
-    // #endregion
     
     return nodeIdMap;
   }

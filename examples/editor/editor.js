@@ -470,9 +470,6 @@ function mpdToAST(mpdAst) {
                     payload: Object.keys(payload || {}).length > 0 ? payload : undefined
                   });
                   console.log('[mpdToAST] Added action:', actionName, 'with payload:', payload);
-                  // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:452',message:'Action extracted with full payload',data:{actionName,payload,payloadKeys:payload?Object.keys(payload):[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                  // #endregion
                 }
               }
               // Handle CallExpr (old syntax - for backward compatibility)
@@ -488,9 +485,6 @@ function mpdToAST(mpdAst) {
 
             const stepId = step.name?.value || `step-${steps.length + 1}`;
             console.log('[mpdToAST] Adding step:', stepId, 'with', actions.length, 'actions');
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:471',message:'Step extracted from MPD',data:{stepId,actionCount:actions.length,actions:actions.map(a=>({type:a.type,hasPayload:!!a.payload}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
 
             steps.push({
               id: stepId,
@@ -504,9 +498,6 @@ function mpdToAST(mpdAst) {
   }
 
   console.log('[mpdToAST] Extracted', steps.length, 'steps');
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:446',message:'Final AST structure',data:{stepCount:steps.length,steps:steps.map(s=>({id:s.id,actionCount:s.actions?.length||0,actions:s.actions?.map(a=>({type:a.type,hasPayload:!!a.payload}))||[]}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
 
   // Extract bindings
   if (mpdAst.bindings) {
@@ -1213,9 +1204,6 @@ async function renderDiagram() {
         actionCount: s.actions?.length || 0,
         actions: s.actions?.map(a => ({ type: a.type, hasPayload: !!a.payload, payloadKeys: a.payload ? Object.keys(a.payload) : [] }))
       })));
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1155',message:'parseMpdWrapper result',data:{stepCount:ast.steps?.length||0,steps:ast.steps?.map(s=>({id:s.id,actionCount:s.actions?.length||0,actions:s.actions?.map(a=>({type:a.type,hasPayload:!!a.payload,payloadKeys:a.payload?Object.keys(a.payload):[]}))}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       return ast;
     };
 
@@ -1223,9 +1211,6 @@ async function renderDiagram() {
     // If MPD text exists (even if minimal), it MUST define all interactivity
     // If MPD text is empty, pass the minimal AST we created
     console.log('[Render] AST being passed to presentMermaid:', JSON.stringify(ast, null, 2));
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1087',message:'AST passed to presentMermaid',data:{hasMpdText:!!mpdText.trim(),stepCount:ast.steps?.length||0,steps:ast.steps?.map(s=>({id:s.id,actionCount:s.actions?.length||0,actionTypes:s.actions?.map(a=>a.type)||[]}))||[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     const newController = await presentMermaid({
       mountEl,
       mermaidText,
@@ -1284,9 +1269,6 @@ async function renderDiagram() {
       console.warn('[Render] Could not get controller steps:', e);
     }
     
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1179',message:'Controller created - initial state',data:{initialState,stepCount:initialState.stepCount,stepIndex:initialState.stepIndex,stepId:initialState.stepId,expectedStepIds:ast.steps?.map(s=>s.id),controllerStepIds},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     
     // Get camera handle for manual controls (zoom/pan buttons)
     // Use new accessor pattern to get camera from controller
@@ -1333,9 +1315,6 @@ async function renderDiagram() {
       renderStatus: editorState.renderStatus
     });
     
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1307',message:'State updated after render',data:{controllerState:controllerStateAfterInit,editorState:{hasController:!!editorState.controller,hasValidSteps:!!(editorState.currentAst?.steps&&editorState.currentAst.steps.length>0),isReady:editorState.renderStatus==='ready',renderStatus:editorState.renderStatus}},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
 
     // Update available dataIds
     updateAvailableDataIds(newController);
@@ -1349,9 +1328,6 @@ async function renderDiagram() {
     } else {
       console.log('[Render] No steps in MPD, clearing navigation buttons');
       updateNavigationButtons([]);
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1342',message:'updateNavigationButtons called with empty array',data:{hasAst:!!ast,hasSteps:!!ast?.steps,stepCount:ast?.steps?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
     }
 
     // Setup camera controls
@@ -1375,15 +1351,9 @@ async function renderDiagram() {
           overlayBubblesCount: document.querySelectorAll('.finsteps-bubble, [class*="bubble"]').length
         };
         
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1287',message:'stepchange event fired',data:{stepIndex:state.stepIndex,stepId:state.stepId,stepCount:state.stepCount,domState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
       const currentStep = ast.steps[state.stepIndex];
       if (currentStep) {
           console.log('[Render] Current step actions:', currentStep.actions);
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1287',message:'Current step details',data:{stepId:currentStep.id,actionCount:currentStep.actions?.length||0,actions:currentStep.actions},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-          // #endregion
         updateActiveNavButton(currentStep.id);
         updateState({ currentStepIndex: state.stepIndex });
           
@@ -1398,15 +1368,9 @@ async function renderDiagram() {
               highlightsChanged: domState.highlightedCount !== document.querySelectorAll('.finsteps-highlight').length
             };
             console.log('[Render] DOM state after stepchange (delayed):', domStateAfter);
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1287',message:'DOM state after stepchange delay',data:{stepId:currentStep.id,domStateAfter,viewBoxChanged:domStateAfter.viewBoxChanged,highlightsChanged:domStateAfter.highlightsChanged},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-            // #endregion
           }, 700);
         } else {
           console.warn('[Render] No step found at index:', state.stepIndex);
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1287',message:'No step found at index',data:{stepIndex:state.stepIndex,astStepCount:ast.steps.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-          // #endregion
       }
     });
 
@@ -1414,18 +1378,9 @@ async function renderDiagram() {
       try {
         console.log('[Render] Going to first step:', ast.steps[0].id);
         console.log('[Render] First step actions:', ast.steps[0].actions);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1289',message:'Calling goto for first step',data:{stepId:ast.steps[0].id,actionCount:ast.steps[0].actions?.length||0,actions:ast.steps[0].actions},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
         await newController.goto(ast.steps[0].id);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1289',message:'goto for first step completed',data:{stepId:ast.steps[0].id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
       } catch (e) {
         console.warn('[Render] Could not goto first step:', e);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1289',message:'goto for first step failed',data:{stepId:ast.steps[0].id,error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
       }
     }
 
@@ -1571,17 +1526,11 @@ function updateNavigationButtons(steps) {
   console.log('[updateNavigationButtons] navButtons element:', navButtons);
   if (!navButtons) {
     console.error('[updateNavigationButtons] nav-buttons element not found!');
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1555',message:'nav-buttons element not found',data:{stepCount:steps?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     return;
   }
   if (!steps || steps.length === 0) {
     console.log('[updateNavigationButtons] No steps, clearing buttons');
     navButtons.innerHTML = '<p class="empty-state">No steps defined</p>';
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1555',message:'No steps, clearing buttons',data:{stepCount:0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     return;
   }
 
@@ -1597,9 +1546,6 @@ function updateNavigationButtons(steps) {
   console.log('[updateNavigationButtons] Buttons in DOM after innerHTML:', buttonsAfter.length);
   console.log('[updateNavigationButtons] navButtons.innerHTML after setting:', navButtons.innerHTML.substring(0, 200));
   
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1555',message:'Navigation buttons created',data:{stepCount:steps.length,stepIds:steps.map(s=>s.id),buttonHTML,buttonsInDOM:buttonsAfter.length,innerHTMLPreview:navButtons.innerHTML.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
   
   // Check again after a delay to see if they're still there
   setTimeout(() => {
@@ -1607,9 +1553,6 @@ function updateNavigationButtons(steps) {
     const innerHTMLLater = navButtons.innerHTML;
     console.log('[updateNavigationButtons] Buttons in DOM after 500ms:', buttonsLater.length);
     console.log('[updateNavigationButtons] innerHTML after 500ms:', innerHTMLLater.substring(0, 200));
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1555',message:'Navigation buttons check after delay',data:{buttonsInDOM:buttonsLater.length,innerHTMLPreview:innerHTMLLater.substring(0,200),innerHTMLChanged:innerHTMLLater!==buttonHTML},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
   }, 500);
 
   // Add click handlers
@@ -1630,24 +1573,15 @@ function updateNavigationButtons(steps) {
         overlayBubbles: Array.from(document.querySelectorAll('.finsteps-bubble, [class*="bubble"]')).length
       };
       
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1443',message:'Navigation button clicked - BEFORE',data:{stepId,hasController:!!controller,beforeState},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       console.log('[Nav] Button clicked, stepId:', stepId, 'controller:', controller);
       console.log('[Nav] DOM state BEFORE:', beforeState);
       
       if (controller) {
         console.log('[Nav] Calling controller.goto(', stepId, ')');
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1446',message:'Calling controller.goto',data:{stepId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         
         // Check controller state before goto
         const controllerStateBefore = controller.getState();
         console.log('[Nav] Controller state BEFORE goto:', controllerStateBefore);
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1529',message:'Controller state before goto',data:{stepId,controllerState:controllerStateBefore},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
         
         controller.goto(stepId).then(() => {
           console.log('[Nav] controller.goto completed for stepId:', stepId);
@@ -1655,9 +1589,6 @@ function updateNavigationButtons(steps) {
           // Check controller state after goto
           const controllerStateAfter = controller.getState();
           console.log('[Nav] Controller state AFTER goto:', controllerStateAfter);
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1529',message:'Controller state after goto',data:{stepId,controllerState:controllerStateAfter,stepIndexChanged:controllerStateBefore.stepIndex!==controllerStateAfter.stepIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-          // #endregion
           
           // Capture DOM state AFTER navigation (wait a bit for animations)
           setTimeout(() => {
@@ -1680,25 +1611,13 @@ function updateNavigationButtons(steps) {
             };
             
             console.log('[Nav] DOM state AFTER:', afterState);
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1446',message:'controller.goto completed - AFTER DOM check',data:{stepId,afterState,viewBoxChanged:afterState.viewBoxChanged,highlightsChanged:afterState.highlightsChanged},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            // #endregion
           }, 600); // Wait 600ms for animations to complete
           
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1446',message:'controller.goto completed',data:{stepId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-          // #endregion
         }).catch((err) => {
           console.error('[Nav] controller.goto failed:', err);
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1446',message:'controller.goto error',data:{stepId,error:err.message,stack:err.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-          // #endregion
         });
       } else {
         console.error('[Nav] No controller available!');
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'editor.js:1446',message:'No controller available',data:{stepId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
       }
     });
   });
