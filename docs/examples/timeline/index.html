@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Timeline Walkthrough</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        grid-template-rows: auto 1fr;
+        gap: 0;
+        height: 100vh;
+      }
+      header {
+        grid-column: 1 / -1;
+        padding: 0.75rem 1rem;
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+        font-size: 0.9rem;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      .sidebar {
+        padding: 1rem 0.75rem;
+        background: #1e293b;
+        border-right: 1px solid #334155;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .sidebar-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .sidebar h2 {
+        margin: 0 0 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+      }
+      .control-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem;
+      }
+      .jump-btn {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.8rem;
+        text-align: left;
+        background: #334155;
+        color: #e2e8f0;
+        border: 1px solid #475569;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .jump-btn:hover {
+        background: #475569;
+        border-color: #64748b;
+      }
+      .jump-btn.active {
+        background: #3b82f6;
+        border-color: #60a5fa;
+        color: #fff;
+      }
+      .sidebar-note {
+        font-size: 0.7rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: #0f172a;
+        border-radius: 4px;
+        line-height: 1.4;
+      }
+      .stage-wrap {
+        padding: 1rem;
+        overflow: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+      .diagram-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        width: 100%;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram svg {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        max-width: 100%;
+        display: block;
+      }
+      .finsteps-highlight {
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+      }
+      /* Style elements that have the highlight class directly applied */
+      rect.finsteps-highlight,
+      polygon.finsteps-highlight,
+      path.finsteps-highlight,
+      g.finsteps-highlight {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      /* Also style descendants when highlight is on a group */
+      .finsteps-highlight rect,
+      .finsteps-highlight polygon,
+      .finsteps-highlight path {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      /* Highlight task groups and milestone groups */
+      .finsteps-highlight g[class*="task"] rect,
+      .finsteps-highlight g[class*="milestone"] polygon {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header>
+        <h1>Timeline Walkthrough: Project v0.2.0 Development</h1>
+      </header>
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h2>Navigation</h2>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-prev">← Prev</button>
+            <button class="jump-btn" id="btn-next">Next →</button>
+          </div>
+          <button class="jump-btn" id="btn-reset">Reset</button>
+        </div>
+        
+        <div class="sidebar-section">
+          <h2>Zoom & Pan</h2>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-zoom-in">Zoom In</button>
+            <button class="jump-btn" id="btn-zoom-out">Zoom Out</button>
+          </div>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-pan-left">← Pan</button>
+            <button class="jump-btn" id="btn-pan-right">Pan →</button>
+          </div>
+          <div class="control-group">
+            <button class="jump-btn" id="btn-pan-up">↑ Pan</button>
+            <button class="jump-btn" id="btn-pan-down">Pan ↓</button>
+          </div>
+          <button class="jump-btn" id="btn-fit-all">Fit All</button>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Jump to Phase</h2>
+          <button class="jump-btn" data-goto="overview">Overview</button>
+          <button class="jump-btn" data-goto="planning">Planning</button>
+          <button class="jump-btn" data-goto="development">Development</button>
+          <button class="jump-btn" data-goto="testing">Testing</button>
+          <button class="jump-btn" data-goto="deployment">Deployment</button>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Key Events</h2>
+          <button class="jump-btn" data-goto="design-review">Design Review</button>
+          <button class="jump-btn" data-goto="first-integration">First Integration</button>
+          <button class="jump-btn" data-goto="feature-freeze">Feature Freeze</button>
+          <button class="jump-btn" data-goto="qa-signoff">QA Sign-off</button>
+          <button class="jump-btn" data-goto="release">Production Release</button>
+          <button class="jump-btn" data-goto="launch-event">Launch Event</button>
+          <div class="sidebar-note">
+            🎯 Navigate to key milestones and events that mark project progress.
+          </div>
+        </div>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const mermaidText = `gantt
+    title Project v0.2.0 Development Timeline
+    dateFormat  YYYY-MM-DD
+    excludes    weekends
+
+    section Planning
+    Requirements Gathering    :done, req1, 2025-01-01, 10d
+    Design & Architecture     :done, design1, after req1, 7d
+    Design Review Complete    :milestone, design-review, after design1, 0d
+    Initial Planning Complete :milestone, planning-done, after design-review, 0d
+
+    section Development
+    Core Implementation       :crit, dev1, after design-review, 14d
+    API Development           :dev-api, after design-review, 12d
+    Frontend Development      :dev-frontend, after design-review, 10d
+    Database Setup            :dev-db, after design-review, 8d
+    Feature Refinement        :active, dev2, after dev1, 7d
+    Integration Work          :dev3, after dev2, 5d
+    First Integration Test    :milestone, first-integration, after dev-api, 0d
+    Feature Freeze            :milestone, feature-freeze, after dev3, 0d
+
+    section Testing
+    Unit Testing              :test1, after feature-freeze, 5d
+    Integration Testing       :test2, after test1, 5d
+    Performance Testing       :test-perf, after first-integration, 8d
+    Security Audit            :test-security, after feature-freeze, 4d
+    User Acceptance Testing   :test3, after test2, 7d
+    QA Sign-off               :milestone, qa-signoff, after test3, 0d
+
+    section Deployment
+    Staging Deployment        :deploy1, after qa-signoff, 3d
+    Staging Validation        :deploy-validate, after deploy1, 2d
+    Production Deployment     :deploy-prod, after deploy-validate, 1d
+    Production Release        :milestone, release, after deploy-prod, 0d
+    Launch Event              :milestone, launch-event, after release, 0d
+`;
+
+      const ast = {
+        steps: [
+          {
+            id: "overview",
+            actions: [
+              { type: "camera.reset" },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "req1" },
+                  text: "Full project timeline with overlapping activities and key milestones. Navigate through phases or jump to specific events."
+                }
+              }
+            ]
+          },
+          {
+            id: "planning",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "req1" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "req1" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "req1" },
+                  text: "Planning Phase: Requirements gathering and design. Foundation for the entire project."
+                }
+              }
+            ]
+          },
+          {
+            id: "design-review",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "design-review" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "design-review" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "design-review" },
+                  text: "🎯 Design Review Complete: Key milestone marking the completion of architecture and design phase. Development can now begin."
+                }
+              }
+            ]
+          },
+          {
+            id: "development",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "dev1" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "dev1" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "dev1" },
+                  text: "Development Phase: Multiple parallel activities - Core implementation (critical path), API development, Frontend work, and Database setup running concurrently."
+                }
+              }
+            ]
+          },
+          {
+            id: "first-integration",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "first-integration" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "first-integration" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "first-integration" },
+                  text: "🎯 First Integration Test: Critical milestone when API and Frontend are first integrated. Enables early performance testing."
+                }
+              }
+            ]
+          },
+          {
+            id: "feature-freeze",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "feature-freeze" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "feature-freeze" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "feature-freeze" },
+                  text: "🎯 Feature Freeze: No new features after this point. Focus shifts to bug fixes, testing, and polish. Security audit begins."
+                }
+              }
+            ]
+          },
+          {
+            id: "testing",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "test1" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "test1" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "test1" },
+                  text: "Testing Phase: Comprehensive testing including unit tests, integration tests, performance testing (running in parallel), and security audit."
+                }
+              }
+            ]
+          },
+          {
+            id: "qa-signoff",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "qa-signoff" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "qa-signoff" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "qa-signoff" },
+                  text: "🎯 QA Sign-off: Quality assurance team approves the release. Ready for deployment to staging environment."
+                }
+              }
+            ]
+          },
+          {
+            id: "deployment",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "deploy1" }, padding: 60, duration: 600, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "deploy1" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "deploy1" },
+                  text: "Deployment Phase: Staging deployment, validation, and then production deployment."
+                }
+              }
+            ]
+          },
+          {
+            id: "release",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "release" }, padding: 80, duration: 700, easing: "easeOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "release" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "release" },
+                  text: "🎯 Production Release: The official release milestone. Version 0.2.0 is now live in production!"
+                }
+              }
+            ]
+          },
+          {
+            id: "launch-event",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "launch-event" }, padding: 80, duration: 700, easing: "easeOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "launch-event" } } },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "launch-event" },
+                  text: "🎯 Launch Event: Public announcement and celebration of the successful release!"
+                }
+              }
+            ]
+          }
+        ],
+        bindings: [
+          { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+          { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] }
+        ]
+      };
+
+      const mountEl = document.getElementById("diagram-mount");
+      const controller = await presentMermaid({
+        mountEl: mountEl,
+        mermaidText,
+        ast
+      });
+
+      // Get camera handle for manual controls
+      const { createBasicCameraHandle } = await import("../../dist/adapters/basicCamera.js");
+      const diagramContainer = document.querySelector(".finsteps-diagram");
+      const svgElement = diagramContainer ? diagramContainer.querySelector("svg") : null;
+      let cameraHandle = null;
+      
+      if (svgElement && diagramContainer) {
+        const diagramHandle = {
+          getRoot: () => svgElement,
+          getContainer: () => diagramContainer,
+          resolveTarget: () => null,
+          destroy: () => {}
+        };
+        cameraHandle = createBasicCameraHandle(diagramHandle);
+      }
+
+      const buttons = document.querySelectorAll(".jump-btn");
+      const updateActive = () => {
+        const id = controller.getState().stepId ?? "overview";
+        buttons.forEach((btn) => {
+          if (btn.dataset.goto) {
+            btn.classList.toggle("active", btn.dataset.goto === id);
+          }
+        });
+      };
+
+      controller.on("stepchange", updateActive);
+      updateActive();
+
+      // Wire up jump buttons
+      buttons.forEach((btn) => {
+        if (btn.dataset.goto) {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.goto;
+            if (id) controller.goto(id);
+          });
+        }
+      });
+
+      // Navigation controls
+      document.getElementById("btn-prev")?.addEventListener("click", () => {
+        controller.prev();
+      });
+      document.getElementById("btn-next")?.addEventListener("click", () => {
+        controller.next();
+      });
+      document.getElementById("btn-reset")?.addEventListener("click", () => {
+        controller.goto("overview");
+      });
+
+      // Zoom & Pan controls
+      const panAmount = 100;
+      const zoomFactor = 1.2;
+
+      document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
+        if (cameraHandle?.zoom) {
+          cameraHandle.zoom(zoomFactor);
+        }
+      });
+
+      document.getElementById("btn-zoom-out")?.addEventListener("click", () => {
+        if (cameraHandle?.zoom) {
+          cameraHandle.zoom(1 / zoomFactor);
+        }
+      });
+
+      document.getElementById("btn-pan-left")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(-panAmount, 0);
+        }
+      });
+
+      document.getElementById("btn-pan-right")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(panAmount, 0);
+        }
+      });
+
+      document.getElementById("btn-pan-up")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(0, -panAmount);
+        }
+      });
+
+      document.getElementById("btn-pan-down")?.addEventListener("click", () => {
+        if (cameraHandle?.pan) {
+          cameraHandle.pan(0, panAmount);
+        }
+      });
+
+      document.getElementById("btn-fit-all")?.addEventListener("click", () => {
+        if (cameraHandle?.fitAll) {
+          cameraHandle.fitAll();
+        } else if (cameraHandle?.reset) {
+          cameraHandle.reset();
+        }
+      });
+    </script>
+  </body>
+</html>

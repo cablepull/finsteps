@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Mermaid Live Editor</title>
+    <link rel="stylesheet" href="https://unpkg.com/mermaid@10/dist/mermaid.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="editor-layout">
+      <!-- Left Panel: Inputs -->
+      <aside class="left-panels">
+        <!-- Mermaid Input Pane -->
+        <div class="input-pane" id="mermaid-pane">
+          <div class="pane-header">
+            <h2>Mermaid Diagram</h2>
+            <button class="pane-toggle" id="mermaid-pane-toggle" aria-label="Toggle Mermaid pane">
+              <span class="toggle-icon">▼</span>
+            </button>
+          </div>
+          <div class="pane-content">
+            <textarea id="mermaid-input" placeholder="Enter your Mermaid diagram text here...">flowchart TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
+    D --> E</textarea>
+            <div class="error-message" id="mermaid-error"></div>
+          </div>
+        </div>
+
+        <!-- Presentation DSL Pane -->
+        <div class="input-pane" id="dsl-pane">
+          <div class="pane-header">
+            <h2>Presentation Steps</h2>
+            <button class="pane-toggle" id="dsl-pane-toggle" aria-label="Toggle presentation pane">
+              <span class="toggle-icon">▼</span>
+            </button>
+          </div>
+          <div class="pane-content">
+            <div class="editor-toolbar">
+              <button id="generate-mpd" class="toolbar-btn primary">Generate Presentation</button>
+            </div>
+            <div id="mpd-editor"></div>
+            <div class="error-message" id="mpd-error"></div>
+            <div class="editor-help">
+              <p>Edit the MPD code above to customize your presentation, or click "Generate Presentation" to auto-create from your diagram.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Panel: Preview -->
+      <main class="preview-panel">
+        <div class="preview-header">
+          <h1>Live Preview</h1>
+          <div class="preview-controls">
+            <button class="control-btn" id="export-btn">Export</button>
+            <button class="control-btn" id="import-btn">Import</button>
+            <button class="control-btn" id="zoom-in">Zoom In</button>
+            <button class="control-btn" id="zoom-out">Zoom Out</button>
+            <button class="control-btn" id="reset">Reset</button>
+            <button class="control-btn" id="fit-all">Fit All</button>
+          </div>
+        </div>
+        <input type="file" id="import-file" accept=".json" style="display: none;">
+
+        <!-- Presentation Controls -->
+        <div class="presentation-controls">
+          <button class="pres-btn" id="prev-step" title="Previous Step">
+            <span class="btn-icon">◀</span>
+          </button>
+          <button class="pres-btn primary" id="play-pause" title="Play/Pause Presentation">
+            <span class="btn-icon">▶</span>
+          </button>
+          <button class="pres-btn" id="next-step" title="Next Step">
+            <span class="btn-icon">▶</span>
+          </button>
+          <div class="step-indicator">
+            <span id="current-step-display">Step 0 / 0</span>
+          </div>
+        </div>
+
+        <div class="diagram-preview" id="diagram-mount"></div>
+
+        <div class="dataids-panel">
+          <h3>Available Targets</h3>
+          <div id="dataids-list" class="dataids-list">
+            <p class="empty-state">Render a diagram to see available targets</p>
+          </div>
+        </div>
+
+        <div class="navigation-sidebar">
+          <h3>Navigation</h3>
+          <div id="nav-buttons" class="nav-buttons">
+            <p class="empty-state">No steps defined</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/json/json.min.js"></script>
+    <script type="module" src="editor.js"></script>
+  </body>
+</html>
