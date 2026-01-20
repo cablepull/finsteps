@@ -1,4 +1,7 @@
 dist/
+# Allow publishing built artifacts for GitHub Pages under docs/dist
+!docs/dist/
+!docs/dist/**
 node_modules/
 test-results/
 playwright-report/
