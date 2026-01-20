@@ -1,6 +1,9 @@
 # Finsteps Editor Requirements
 # This file contains all requirements for the Finsteps Mermaid Live Editor example
 # Domain: editor (example/plugin)
+#
+# Related ADRs:
+# - ADR-0008: Framework Refactoring for Editor Durability (enables dynamic modification and editor integration)
 
 - id: REQ-EDITOR-001
   title: Layout and UI Structure
@@ -77,6 +80,40 @@
     - tests/e2e/editor.spec.ts:118-127
   modified: 2024-01-19
   modified_by: migration
+
+- id: REQ-EDITOR-018
+  title: MPD Controls Diagram Interactivity
+  description: |
+    The MPD (Mermaid Presentation DSL) MUST be the source of truth for diagram 
+    interactivity and presentation behavior. Once an MPD is present (even if minimal 
+    or empty), it MUST define all interactivity for the diagram. The diagram MUST 
+    render with MPD-controlled interactivity regardless of the order in which Mermaid 
+    text or MPD text was added. If MPD is valid (no parse errors), it MUST be applied 
+    to the diagram even if it contains no steps. If MPD is added after Mermaid text 
+    exists, the diagram MUST be re-rendered with the MPD applied. The MPD MUST control 
+    all presentation behavior including steps, bindings, camera actions, overlays, and 
+    navigation.
+  rationale: Ensures MPD is always the authoritative source for interactivity, providing 
+    consistent behavior regardless of editing order
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - MPD controls all diagram interactivity when present
+    - Diagram renders with MPD applied regardless of order (Mermaid first or MPD first)
+    - Valid MPD (no parse errors) is applied even if it has no steps
+    - When MPD is added after Mermaid exists, diagram re-renders with MPD applied
+    - MPD controls steps, bindings, camera actions, overlays, and navigation
+    - presentMermaid is always called with current MPD text when rendering
+  code_links:
+    - examples/editor/editor.js:958-1118
+    - examples/editor/editor.js:1055-1062
+  test_links:
+    - tests/e2e/editor.spec.ts (to be added)
+  dependencies:
+    - REQ-EDITOR-003
+  modified: 2024-01-19
+  modified_by: user-request
 
 - id: REQ-EDITOR-004
   title: Camera Controls

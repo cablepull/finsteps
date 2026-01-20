@@ -33,7 +33,8 @@ export const presentMermaid = async (options: PresentMermaidOptions) => {
     overlay,
     ast,
     actionHandlers: options.options?.actionHandlers,
-    errorPolicy: options.options?.errorPolicy ?? "haltOnError"
+    errorPolicy: options.options?.errorPolicy ?? "haltOnError",
+    hooks: options.options?.hooks
   });
   await controller.init({ diagram });
   return controller;

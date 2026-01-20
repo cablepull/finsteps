@@ -15,6 +15,12 @@ Optional:
 - `options.overlay`: custom OverlayHandle.
 - `options.actionHandlers`: additional action handlers.
 - `options.errorPolicy`: default error policy (`haltOnError` or `continueOnError`).
+- `options.hooks`: lifecycle hooks for editor integration:
+  - `onInit(controller)`: Called after controller initialization
+  - `onStepChange(state, step)`: Called when step changes
+  - `onActionStart(action, step)`: Called when an action starts executing
+  - `onActionComplete(action, result)`: Called when an action completes
+  - `onError(error, context)`: Called when an action error occurs
 
 ## Controller
 
@@ -24,12 +30,25 @@ Methods:
 - `goto(stepIndex | stepId)`
 - `reset()`
 - `destroy()`
-- `getState()`
-- `setState(partial)`
+- `getState()` - Returns current controller state including stepIndex, stepId, stepCount, and optional errorState
+- `setState(partial)` - Updates controller state (currently supports stepIndex and stepId)
+- `getDeps()` - Returns read-only access to { diagram, camera, overlay } dependencies
+- `getSteps()` - Returns a copy of the steps array
+- `getCurrentStep()` - Returns the current step definition or null
+- `getExecutionContext()` - Returns current execution context (currentAction, currentStep, previousStep)
+- `updateAst(newAst, options?)` - Updates the controller's AST dynamically
+  - `options.preserveState` - If true, tries to maintain current step after AST update
+- `retry()` - Retries the last failed step/action
+- `clearError()` - Clears error state
 
 Events:
-- `on("stepchange" | "actionerror" | "error" | "render", handler)`
+- `on("stepchange" | "actionerror" | "error" | "render" | "actionstart" | "actioncomplete" | "astchange", handler)`
   - `actionerror` is the preferred event name for action failures; `error` remains as a legacy alias.
+  - `stepchange` payload includes: `{ state, previousState, step, previousStep }`
+  - `actionerror` payload includes: `{ error, step, action, context }`
+  - `actionstart` payload includes: `{ action, step, context }`
+  - `actioncomplete` payload includes: `{ action, result: { success, error? }, step, context }`
+  - `astchange` payload includes: `{ previousState, newState, previousSteps, newSteps }`
 
 ## Interfaces
 

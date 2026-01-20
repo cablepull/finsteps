@@ -98,6 +98,11 @@ export interface ControllerState {
   stepIndex: number;
   stepId?: string;
   stepCount: number;
+  errorState?: {
+    hasError: boolean;
+    lastError?: Error;
+    failedStep?: number;
+  };
 }
 
 export interface Controller {
@@ -109,9 +114,32 @@ export interface Controller {
   getState(): ControllerState;
   setState(partial: Partial<ControllerState>): Promise<void>;
   on(
-    event: "stepchange" | "actionerror" | "error" | "render",
+    event: "stepchange" | "actionerror" | "error" | "render" | "actionstart" | "actioncomplete" | "astchange",
     handler: (payload: unknown) => void
   ): () => void;
+  // Optional accessor methods for editor and dynamic use cases
+  getDeps?(): { diagram: DiagramHandle; camera?: CameraHandle; overlay?: OverlayHandle };
+  getSteps?(): StepDefinition[];
+  getCurrentStep?(): StepDefinition | null;
+  getActionEngine?(): unknown; // ActionEngine is internal, return as unknown
+  getExecutionContext?(): {
+    currentAction?: ActionDefinition;
+    currentStep?: StepDefinition;
+    previousStep?: StepDefinition;
+  };
+  // Optional error recovery methods
+  retry?(): Promise<void>;
+  clearError?(): void;
+  // Optional dynamic AST update method
+  updateAst?(newAst: PresentationAst, options?: { preserveState?: boolean }): Promise<void>;
+}
+
+export interface ControllerHooks {
+  onInit?: (controller: Controller) => void | Promise<void>;
+  onStepChange?: (state: ControllerState, step: StepDefinition) => void | Promise<void>;
+  onActionStart?: (action: ActionDefinition, step: StepDefinition) => void;
+  onActionComplete?: (action: ActionDefinition, result: { success: boolean; error?: Error }) => void;
+  onError?: (error: Error, context: { step?: StepDefinition; action?: ActionDefinition }) => void;
 }
 
 export interface PresentMermaidOptions {
@@ -126,5 +154,6 @@ export interface PresentMermaidOptions {
     overlay?: OverlayHandle;
     actionHandlers?: ActionHandlerMap;
     errorPolicy?: ErrorPolicy;
+    hooks?: ControllerHooks;
   };
 }

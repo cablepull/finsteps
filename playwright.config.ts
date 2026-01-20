@@ -16,7 +16,7 @@ export default defineConfig({
   // Start a dev server before running tests
   webServer: {
     command: 'npx serve -p 5173',
-    port: 5173,
+    url: 'http://localhost:5173/examples/editor/index.html',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 2 minutes
     stdout: 'ignore',
