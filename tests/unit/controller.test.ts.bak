@@ -118,11 +118,10 @@ describe("MermaidController", () => {
     });
 
     await controller.init();
-    // init() calls goto(0), which always calls overlay.clear() if overlay exists
-    expect(clearSpy).toHaveBeenCalledTimes(1); // First step also clears
+    expect(clearSpy).not.toHaveBeenCalled(); // First step doesn't clear
 
     await controller.goto("step-2");
-    expect(clearSpy).toHaveBeenCalledTimes(2); // Should clear before step 2
+    expect(clearSpy).toHaveBeenCalledTimes(1); // Should clear before step 2
   });
 
   it("resets camera before applying new step actions", async () => {
@@ -141,8 +140,7 @@ describe("MermaidController", () => {
         },
         {
           id: "step-2",
-          // First action is NOT a camera action, so reset will be called
-          actions: [{ type: "style.highlight", payload: { target: { dataId: "B" } } }]
+          actions: [{ type: "camera.fit", payload: { target: { dataId: "B" } } }]
         }
       ]
     };
@@ -161,11 +159,9 @@ describe("MermaidController", () => {
     });
 
     await controller.init();
-    // init() calls goto(0), first action is camera.fit, so reset is skipped
-    expect(resetSpy).not.toHaveBeenCalled(); // First step's first action is camera, so no reset
+    expect(resetSpy).not.toHaveBeenCalled(); // First step doesn't reset
 
     await controller.goto("step-2");
-    // step-2's first action is NOT a camera action, so reset WILL be called
     expect(resetSpy).toHaveBeenCalledTimes(1); // Should reset before step 2
   });
 

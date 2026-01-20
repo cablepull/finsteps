@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { parseMPD } from "../src/index";
-import { performance } from "node:perf_hooks";
 
 const sample = `mpd 1.0
 
@@ -62,9 +61,10 @@ scene demo {
 ${steps}
 }
 `;
-    const start = performance.now();
+    // Use Date.now() instead of performance.now() for jsdom compatibility
+    const start = Date.now();
     const result = parseMPD(source);
-    const duration = performance.now() - start;
+    const duration = Date.now() - start;
     expect(result.diagnostics.filter((diag) => diag.severity === "error").length).toBe(0);
     expect(duration).toBeLessThan(50);
   });

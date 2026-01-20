@@ -813,6 +813,23 @@ class MPDParser {
           break;
       }
     }
+    // Support bare action calls without "do" keyword (new syntax)
+    // e.g., "camera reset()" instead of "do camera.reset()"
+    // Note: Action calls can start with keywords (like "camera") or identifiers
+    if (token.type === "identifier" || token.type === "keyword") {
+      // Don't consume keywords that are step statement keywords
+      if (token.type === "keyword" && (token.value === "focus" || token.value === "let" || token.value === "assert" || token.value === "meta")) {
+        return null;
+      }
+      const action = this.parseActionCall();
+      if (action) {
+        return {
+          type: "DoStmt",
+          action,
+          span: action.span
+        };
+      }
+    }
     return null;
   }
 
@@ -1025,7 +1042,54 @@ class MPDParser {
 
   private parseActionCall(): ActionCallNode | null {
     const start = this.peek();
-    const name = this.parseQualifiedName();
+    // Parse space-separated action names (e.g., "camera reset", "overlay bubble")
+    // Support both old dot notation (camera.reset) and new space notation (camera reset)
+    const nameParts: string[] = [];
+
+    // Parse first part (required)
+    const firstPart = this.consumeNamePart();
+    if (!firstPart) {
+      return null;
+    }
+    nameParts.push(firstPart.value);
+
+    // Parse additional parts separated by dots or spaces
+    while (!this.isAtEnd()) {
+      // Handle dot-separated names (old syntax: camera.reset)
+      if (this.matchPunct(".")) {
+        this.consumePunct(".");
+        const part = this.consumeNamePart();
+        if (part) {
+          nameParts.push(part.value);
+        }
+        continue;
+      }
+
+      // Handle space-separated names (new syntax: camera reset)
+      // Peek at current token to see if it's an identifier or keyword
+      const token = this.peek();
+      if (token.type === "identifier" || token.type === "keyword") {
+        const nextToken = this.peekNext();
+        // If next token is "(", this is the last part of the name
+        if (nextToken.type === "punct" && nextToken.value === "(") {
+          const part = this.consumeNamePart();
+          if (part) {
+            nameParts.push(part.value);
+          }
+          break;
+        }
+        // Otherwise, continue consuming name parts
+        const part = this.consumeNamePart();
+        if (part) {
+          nameParts.push(part.value);
+        }
+        continue;
+      }
+
+      // Stop if we hit anything else
+      break;
+    }
+
     this.consumePunct("(");
     const args: ActionArg[] = [];
     if (!this.matchPunct(")")) {
@@ -1039,7 +1103,7 @@ class MPDParser {
     this.consumePunct(")");
     return {
       type: "ActionCall",
-      name,
+      name: nameParts.join(" "),
       args,
       span: spanFrom(start, this.previous())
     };
@@ -1047,8 +1111,11 @@ class MPDParser {
 
   private parseActionArg(): ActionArg | null {
     const start = this.peek();
-    if (this.peek().type === "identifier" && this.peekNext().type === "punct" && this.peekNext().value === ":") {
-      const key = this.consume("identifier");
+    // Allow both identifiers and keywords as argument names (e.g., target:, text:, padding:)
+    const token = this.peek();
+    if ((token.type === "identifier" || token.type === "keyword") && this.peekNext().type === "punct" && this.peekNext().value === ":") {
+      // Consume the key (identifier or keyword)
+      const key = this.advance();
       this.consumePunct(":");
       const value = this.parseExpr();
       return {
@@ -1261,15 +1328,19 @@ class MPDParser {
     const entries: ObjectEntryNode[] = [];
     if (!this.matchPunct("}")) {
       do {
-        const key = this.consume("identifier");
+        // Allow both identifiers and strings as object keys (for JSON compatibility)
+        const token = this.peek();
+        const key = (token.type === "identifier" || token.type === "keyword") ? this.advance() : this.consume("string");
         if (!key) {
           break;
         }
         this.consumePunct(":");
         const value = this.parseExpr();
+        // For string keys, remove the quotes
+        const keyValue = key.type === "string" ? key.value.slice(1, -1) : key.value;
         entries.push({
           type: "ObjectEntry",
-          key: key.value,
+          key: keyValue,
           value: value ?? this.emptyLiteral(key),
           span: spanFrom(key, this.previous())
         });

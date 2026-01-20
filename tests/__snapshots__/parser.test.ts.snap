@@ -193,12 +193,47 @@ exports[`parseMPD > parses a program into an AST snapshot 1`] = `
         },
         {
           "config": {
-            "entries": [],
+            "entries": [
+              {
+                "key": "theme",
+                "span": {
+                  "end": {
+                    "column": 25,
+                    "line": 14,
+                    "offset": 176,
+                  },
+                  "start": {
+                    "column": 12,
+                    "line": 14,
+                    "offset": 163,
+                  },
+                },
+                "type": "ObjectEntry",
+                "value": {
+                  "literalType": "string",
+                  "raw": "dark",
+                  "span": {
+                    "end": {
+                      "column": 25,
+                      "line": 14,
+                      "offset": 176,
+                    },
+                    "start": {
+                      "column": 19,
+                      "line": 14,
+                      "offset": 170,
+                    },
+                  },
+                  "type": "Literal",
+                  "value": "dark",
+                },
+              },
+            ],
             "span": {
               "end": {
-                "column": 11,
+                "column": 27,
                 "line": 14,
-                "offset": 162,
+                "offset": 178,
               },
               "start": {
                 "column": 10,
@@ -210,9 +245,9 @@ exports[`parseMPD > parses a program into an AST snapshot 1`] = `
           },
           "span": {
             "end": {
-              "column": 11,
+              "column": 28,
               "line": 14,
-              "offset": 162,
+              "offset": 179,
             },
             "start": {
               "column": 3,
@@ -225,9 +260,9 @@ exports[`parseMPD > parses a program into an AST snapshot 1`] = `
       ],
       "span": {
         "end": {
-          "column": 27,
-          "line": 14,
-          "offset": 178,
+          "column": 2,
+          "line": 15,
+          "offset": 181,
         },
         "start": {
           "column": 1,
@@ -237,12 +272,417 @@ exports[`parseMPD > parses a program into an AST snapshot 1`] = `
       },
       "type": "DiagramDecl",
     },
+    {
+      "diagram": {
+        "kind": "identifier",
+        "span": {
+          "end": {
+            "column": 27,
+            "line": 17,
+            "offset": 209,
+          },
+          "start": {
+            "column": 23,
+            "line": 17,
+            "offset": 205,
+          },
+        },
+        "type": "Name",
+        "value": "main",
+      },
+      "items": [
+        {
+          "alias": "start",
+          "name": {
+            "kind": "string",
+            "span": {
+              "end": {
+                "column": 15,
+                "line": 18,
+                "offset": 226,
+              },
+              "start": {
+                "column": 8,
+                "line": 18,
+                "offset": 219,
+              },
+            },
+            "type": "Name",
+            "value": "Start",
+          },
+          "span": {
+            "end": {
+              "column": 4,
+              "line": 23,
+              "offset": 373,
+            },
+            "start": {
+              "column": 3,
+              "line": 18,
+              "offset": 214,
+            },
+          },
+          "statements": [
+            {
+              "options": {
+                "align": "center",
+                "pad": 8,
+              },
+              "span": {
+                "end": {
+                  "column": 30,
+                  "line": 19,
+                  "offset": 267,
+                },
+                "start": {
+                  "column": 5,
+                  "line": 19,
+                  "offset": 242,
+                },
+              },
+              "target": {
+                "ref": {
+                  "kind": "identifier",
+                  "span": {
+                    "end": {
+                      "column": 17,
+                      "line": 19,
+                      "offset": 254,
+                    },
+                    "start": {
+                      "column": 16,
+                      "line": 19,
+                      "offset": 253,
+                    },
+                  },
+                  "type": "Name",
+                  "value": "A",
+                },
+                "span": {
+                  "end": {
+                    "column": 18,
+                    "line": 19,
+                    "offset": 255,
+                  },
+                  "start": {
+                    "column": 11,
+                    "line": 19,
+                    "offset": 248,
+                  },
+                },
+                "type": "TargetNode",
+              },
+              "type": "FocusStmt",
+            },
+            {
+              "action": {
+                "args": [
+                  {
+                    "span": {
+                      "end": {
+                        "column": 47,
+                        "line": 19,
+                        "offset": 284,
+                      },
+                      "start": {
+                        "column": 47,
+                        "line": 19,
+                        "offset": 284,
+                      },
+                    },
+                    "type": "ActionArg",
+                    "value": {
+                      "literalType": "null",
+                      "raw": "null",
+                      "span": {
+                        "end": {
+                          "column": 48,
+                          "line": 19,
+                          "offset": 285,
+                        },
+                        "start": {
+                          "column": 47,
+                          "line": 19,
+                          "offset": 284,
+                        },
+                      },
+                      "type": "Literal",
+                      "value": null,
+                    },
+                  },
+                ],
+                "name": "center lock none",
+                "span": {
+                  "end": {
+                    "column": 47,
+                    "line": 19,
+                    "offset": 284,
+                  },
+                  "start": {
+                    "column": 31,
+                    "line": 19,
+                    "offset": 268,
+                  },
+                },
+                "type": "ActionCall",
+              },
+              "span": {
+                "end": {
+                  "column": 47,
+                  "line": 19,
+                  "offset": 284,
+                },
+                "start": {
+                  "column": 31,
+                  "line": 19,
+                  "offset": 268,
+                },
+              },
+              "type": "DoStmt",
+            },
+            {
+              "action": {
+                "args": [
+                  {
+                    "key": "pad",
+                    "span": {
+                      "end": {
+                        "column": 26,
+                        "line": 20,
+                        "offset": 311,
+                      },
+                      "start": {
+                        "column": 19,
+                        "line": 20,
+                        "offset": 304,
+                      },
+                    },
+                    "type": "ActionArg",
+                    "value": {
+                      "literalType": "number",
+                      "raw": "10",
+                      "span": {
+                        "end": {
+                          "column": 26,
+                          "line": 20,
+                          "offset": 311,
+                        },
+                        "start": {
+                          "column": 24,
+                          "line": 20,
+                          "offset": 309,
+                        },
+                      },
+                      "type": "Literal",
+                      "value": 10,
+                    },
+                  },
+                ],
+                "name": "camera fit",
+                "span": {
+                  "end": {
+                    "column": 27,
+                    "line": 20,
+                    "offset": 312,
+                  },
+                  "start": {
+                    "column": 8,
+                    "line": 20,
+                    "offset": 293,
+                  },
+                },
+                "type": "ActionCall",
+              },
+              "span": {
+                "end": {
+                  "column": 28,
+                  "line": 20,
+                  "offset": 313,
+                },
+                "start": {
+                  "column": 5,
+                  "line": 20,
+                  "offset": 290,
+                },
+              },
+              "type": "DoStmt",
+            },
+            {
+              "name": "count",
+              "span": {
+                "end": {
+                  "column": 19,
+                  "line": 21,
+                  "offset": 332,
+                },
+                "start": {
+                  "column": 5,
+                  "line": 21,
+                  "offset": 318,
+                },
+              },
+              "type": "LetStmt",
+              "value": {
+                "literalType": "number",
+                "raw": "2",
+                "span": {
+                  "end": {
+                    "column": 18,
+                    "line": 21,
+                    "offset": 331,
+                  },
+                  "start": {
+                    "column": 17,
+                    "line": 21,
+                    "offset": 330,
+                  },
+                },
+                "type": "Literal",
+                "value": 2,
+              },
+            },
+            {
+              "condition": {
+                "args": [
+                  {
+                    "span": {
+                      "end": {
+                        "column": 21,
+                        "line": 22,
+                        "offset": 353,
+                      },
+                      "start": {
+                        "column": 18,
+                        "line": 22,
+                        "offset": 350,
+                      },
+                    },
+                    "type": "ActionArg",
+                    "value": {
+                      "left": {
+                        "literalType": "null",
+                        "raw": "null",
+                        "span": {
+                          "end": {
+                            "column": 19,
+                            "line": 22,
+                            "offset": 351,
+                          },
+                          "start": {
+                            "column": 18,
+                            "line": 22,
+                            "offset": 350,
+                          },
+                        },
+                        "type": "Literal",
+                        "value": null,
+                      },
+                      "operator": ">",
+                      "right": {
+                        "literalType": "number",
+                        "raw": "1",
+                        "span": {
+                          "end": {
+                            "column": 21,
+                            "line": 22,
+                            "offset": 353,
+                          },
+                          "start": {
+                            "column": 20,
+                            "line": 22,
+                            "offset": 352,
+                          },
+                        },
+                        "type": "Literal",
+                        "value": 1,
+                      },
+                      "span": {
+                        "end": {
+                          "column": 21,
+                          "line": 22,
+                          "offset": 353,
+                        },
+                        "start": {
+                          "column": 18,
+                          "line": 22,
+                          "offset": 350,
+                        },
+                      },
+                      "type": "BinaryExpr",
+                    },
+                  },
+                ],
+                "name": "count",
+                "span": {
+                  "end": {
+                    "column": 21,
+                    "line": 22,
+                    "offset": 353,
+                  },
+                  "start": {
+                    "column": 12,
+                    "line": 22,
+                    "offset": 344,
+                  },
+                },
+                "type": "CallExpr",
+              },
+              "message": "too low",
+              "span": {
+                "end": {
+                  "column": 37,
+                  "line": 22,
+                  "offset": 369,
+                },
+                "start": {
+                  "column": 5,
+                  "line": 22,
+                  "offset": 337,
+                },
+              },
+              "type": "AssertStmt",
+            },
+          ],
+          "type": "StepDecl",
+        },
+      ],
+      "name": {
+        "kind": "string",
+        "span": {
+          "end": {
+            "column": 14,
+            "line": 17,
+            "offset": 196,
+          },
+          "start": {
+            "column": 7,
+            "line": 17,
+            "offset": 189,
+          },
+        },
+        "type": "Name",
+        "value": "Intro",
+      },
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 24,
+          "offset": 375,
+        },
+        "start": {
+          "column": 1,
+          "line": 17,
+          "offset": 183,
+        },
+      },
+      "type": "SceneDecl",
+    },
   ],
   "span": {
     "end": {
-      "column": 27,
-      "line": 14,
-      "offset": 178,
+      "column": 2,
+      "line": 24,
+      "offset": 375,
     },
     "start": {
       "column": 1,

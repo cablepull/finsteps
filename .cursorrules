@@ -1,0 +1,378 @@
+# Requirements Engineering & Architecture Decision Records
+
+## Overview
+This project uses a dual-tracking system:
+- **Requirements** (`docs/requirements/*.yaml`) - WHAT needs to be built and WHY from a functional perspective
+- **ADRs** (`docs/adr/*.md`) - WHY architectural decisions were made and their consequences
+
+These systems are interconnected: ADRs often implement or constrain requirements, and requirements may trigger ADRs.
+
+---
+
+## Requirements System
+
+### Structure
+All requirements live in `docs/requirements/*.yaml` organized by domain:
+- `docs/requirements/auth.yaml` - Authentication and authorization
+- `docs/requirements/api.yaml` - API contracts and behavior
+- `docs/requirements/security.yaml` - Security controls and compliance
+- `docs/requirements/data.yaml` - Data models and persistence
+- `docs/requirements/performance.yaml` - Performance and scalability
+- (Add domain files as needed)
+
+### Requirement Format
+```yaml
+- id: REQ-DOMAIN-NNN
+  title: Brief requirement title
+  description: Detailed explanation of what is required
+  rationale: Why this requirement exists (business/technical/compliance reason)
+  priority: P0 | P1 | P2  # P0=critical, P1=important, P2=nice-to-have
+  criticality: HIGH | MEDIUM | LOW
+  status: proposed | approved | implemented | deprecated
+  acceptance_criteria:
+    - Testable condition 1
+    - Testable condition 2
+  code_links:
+    - https://github.com/org/repo/blob/SHA/path/file.ext#L10-L50
+  test_links:
+    - https://github.com/org/repo/blob/SHA/tests/test_file.ext#L5-L30
+  dependencies:
+    - REQ-OTHER-001
+  related_adrs:
+    - ADR-0005  # Links to architectural decisions implementing this
+  modified: 2024-01-15
+  modified_by: commit:SHA
+```
+
+### Before Making Code Changes
+1. **Check for requirements directory**: `view docs/requirements/`
+2. **Identify relevant domains**: Based on the task (auth changes → auth.yaml)
+3. **Read applicable requirements**: `view docs/requirements/domain.yaml`
+4. **Review acceptance criteria**: Ensure your changes will satisfy them
+5. **Check dependencies**: Verify no blocking requirements exist
+6. **Note criticality**: High criticality = extra caution, more tests, human review
+
+### During Implementation
+- **Add code comments**: `// Implements: REQ-XXX-NNN` or `# Implements: REQ-XXX-NNN`
+- **Reference criticality**: For critical code, add `// CRITICAL: implements REQ-XXX-NNN (HIGH)`
+- **Write linked tests**: Tests should reference requirement IDs in comments
+- **Consider ADR**: If implementation requires architectural decision, create ADR
+
+### After Implementation
+1. **Update code_links**: Add git permalinks (with commit SHA) to requirement file
+2. **Update test_links**: Link to test files covering acceptance criteria
+3. **Update status**: Change from `approved` to `implemented`
+4. **Link to ADR**: If architectural decision was made, add to `related_adrs`
+5. **Update modified date**: Set to current date and commit SHA
+
+### After Refactoring
+1. **Find old permalinks**: Search requirements files for paths that changed
+2. **Update permalinks**: Point to new file locations with new commit SHAs
+3. **Preserve history**: In commit message, note "Updates permalinks for REQ-XXX-NNN after refactoring"
+4. **Validate**: Ensure acceptance criteria still met after refactor
+
+---
+
+## Architecture Decision Records (ADRs)
+
+### Structure
+ADRs live in `docs/adr/` and are numbered sequentially:
+- `docs/adr/0001-record-architecture-decisions.md` (bootstrapping ADR)
+- `docs/adr/0002-use-postgresql-for-primary-datastore.md`
+- `docs/adr/0003-implement-jwt-authentication.md`
+
+### When to Create an ADR
+Create an ADR when making decisions about:
+- **Technology choices**: Databases, frameworks, libraries, languages
+- **Architectural patterns**: Microservices vs monolith, event-driven, CQRS
+- **Security architecture**: Authentication methods, encryption approaches, secrets management
+- **Data architecture**: Schema design, partitioning strategy, caching layers
+- **Integration patterns**: API design, message queues, sync vs async
+- **Infrastructure**: Deployment models, cloud providers, containerization
+- **Development practices**: Testing strategy, CI/CD approach, branching model
+
+**Rule of thumb**: If the decision will be hard to reverse or affects multiple components, create an ADR.
+
+### ADR Template
+Use this template for all new ADRs:
+
+```markdown
+# ADR-NNNN: [Title - Present Tense Verb Phrase]
+
+## Status
+[proposed | accepted | rejected | deprecated | superseded by ADR-XXXX]
+
+## Context
+[Describe the issue motivating this decision]
+[What is the background? What problem are we solving?]
+[What requirements or constraints exist?]
+[What are the relevant forces at play (technical, business, compliance)?]
+
+## Decision
+[Describe the decision in full declarative sentences]
+[Use "We will..." format]
+[Be specific about what is being chosen and what is being rejected]
+
+## Consequences
+### Positive
+- [Benefit 1]
+- [Benefit 2]
+
+### Negative
+- [Drawback 1]
+- [Drawback 2]
+
+### Neutral
+- [Implication 1]
+- [Implication 2]
+
+## Implementation Notes
+[Optional: Key implementation details, migration path, timeline]
+
+## Related
+- Implements: REQ-XXX-NNN, REQ-YYY-NNN
+- Supersedes: ADR-0005
+- Related to: ADR-0012
+- References: [External docs, RFCs, articles]
+
+## Date
+YYYY-MM-DD
+```
+
+### ADR Workflow
+
+#### Creating a New ADR
+1. **Determine next number**: Check last ADR in `docs/adr/`
+2. **Create file**: `docs/adr/NNNN-descriptive-title.md`
+3. **Fill template**: Use template above
+4. **Link requirements**: Add related requirement IDs to `Related` section
+5. **Set status**: Start with `proposed`
+6. **Commit**: "docs: add ADR-NNNN for [decision]"
+
+#### When Status = Proposed
+- ADR is under discussion
+- Don't implement yet
+- Solicit feedback in PR
+- May need to create alternatives (ADR-NNNN-alt-1, etc.)
+
+#### When Status = Accepted
+- Decision is made, begin implementation
+- Update related requirements with `related_adrs: [ADR-NNNN]`
+- Create tracking issues/tasks if needed
+- Implementation code should reference ADR: `// Per ADR-0023: using JWT for auth`
+
+#### When Reversing a Decision
+- **Never modify the original ADR** (they are historical records)
+- Create new ADR that supersedes: "ADR-0045: Migrate from PostgreSQL to DynamoDB"
+- In original ADR, update status: `superseded by ADR-0045`
+- In new ADR, reference: `Supersedes: ADR-0012`
+
+### ADR Best Practices
+- **Keep them concise**: 1-2 pages max
+- **Write for future you**: Assume reader doesn't have current context
+- **Document alternatives considered**: Show what you rejected and why
+- **Update status only**: Once accepted, never change content
+- **Link evidence**: Reference benchmarks, documentation, RFCs
+- **Include dates**: Decision dates matter for understanding evolution
+
+---
+
+## Integration: Requirements ↔ ADRs
+
+### How They Work Together
+
+**Requirement → ADR**
+When a requirement forces an architectural decision:
+```yaml
+# docs/requirements/security.yaml
+- id: REQ-SEC-003
+  title: All API calls must be authenticated
+  related_adrs:
+    - ADR-0023  # Decision to use JWT
+    - ADR-0024  # Decision on token refresh strategy
+```
+
+**ADR → Requirements**
+When an ADR implements or constrains requirements:
+```markdown
+# docs/adr/0023-use-jwt-authentication.md
+## Related
+- Implements: REQ-SEC-003, REQ-SEC-007
+- Constrains: REQ-API-001 (all APIs must accept Bearer tokens)
+```
+
+### Example Workflow: Adding Authentication
+
+1. **Requirement exists**: REQ-SEC-003 requires API authentication
+2. **Architectural decision needed**: Which auth method?
+3. **Create ADR**: ADR-0023 "Implement JWT-based authentication"
+4. **Document decision**: Consider OAuth, API keys, sessions → choose JWT
+5. **Link bidirectionally**:
+   - ADR-0023 lists `Implements: REQ-SEC-003`
+   - REQ-SEC-003 lists `related_adrs: [ADR-0023]`
+6. **Implement**: Code references both: `// Implements REQ-SEC-003 per ADR-0023`
+7. **Update requirement**: Add code_links, mark implemented
+
+---
+
+## Autonomous Agent Guidelines
+
+### Starting a New Feature/Task
+1. **Identify scope**: What domain(s) does this touch?
+2. **Read requirements**: `view docs/requirements/[domain].yaml`
+3. **Check for ADRs**: `view docs/adr/` - look for relevant architectural decisions
+4. **Understand constraints**: ADRs define architectural boundaries
+5. **Plan implementation**: Must satisfy requirements within ADR constraints
+
+### When You Encounter Architectural Choices
+**STOP and ask**:
+- Is this a significant architectural decision?
+- Does it affect multiple components?
+- Is it hard to reverse?
+- Does it impact security, performance, or scalability?
+
+**If YES → Propose creating an ADR**:
+"This implementation requires choosing between [A] and [B]. This is a significant architectural decision. Should I create ADR-NNNN to document the decision and rationale?"
+
+**Wait for user approval before creating ADR**
+
+### Commit Message Standards
+```bash
+# Feature with requirement
+feat: implement rate limiting per REQ-API-005
+
+# Architectural change with ADR
+arch: migrate to event-driven messaging per ADR-0034
+
+# Updating documentation
+docs: add ADR-0025 for caching strategy
+
+# Refactoring preserving requirements
+refactor: extract auth middleware (maintains REQ-SEC-003, REQ-SEC-007)
+```
+
+---
+
+## Validation Checklist
+
+### Before Submitting PR
+- [ ] All affected requirements identified and reviewed
+- [ ] Acceptance criteria met and tested
+- [ ] Code includes requirement ID references
+- [ ] Tests reference requirement IDs
+- [ ] Permalinks updated in requirement files
+- [ ] If architectural decision made, ADR created/updated
+- [ ] Requirements ↔ ADR links are bidirectional
+- [ ] Commit messages reference REQ-XXX or ADR-NNNN
+- [ ] High criticality requirements have extra test coverage
+
+### For ADR Creation
+- [ ] Next sequential number assigned
+- [ ] Status field set appropriately
+- [ ] Context explains the problem/decision space
+- [ ] Decision is clear and specific
+- [ ] Consequences (positive, negative, neutral) documented
+- [ ] Related requirements linked
+- [ ] Date included
+- [ ] If superseding, both ADRs cross-reference
+
+---
+
+## Directory Structure
+
+Expected project layout:
+```
+project-root/
+├── .cursorrules (this file)
+├── docs/
+│   ├── requirements/
+│   │   ├── auth.yaml
+│   │   ├── api.yaml
+│   │   ├── security.yaml
+│   │   └── [domain].yaml
+│   ├── adr/
+│   │   ├── 0001-record-architecture-decisions.md
+│   │   ├── 0002-use-postgresql.md
+│   │   └── NNNN-decision-title.md
+│   └── requirements-guide.md (optional: human-readable guide)
+├── src/
+│   └── [implementation referencing REQ-XXX and ADR-NNNN]
+└── tests/
+    └── [tests referencing REQ-XXX]
+```
+
+---
+
+## Quick Reference
+
+### View Requirements
+```bash
+# See all requirements files
+view docs/requirements/
+
+# Read specific domain
+view docs/requirements/auth.yaml
+
+# Search for requirement ID
+bash_tool: grep -r "REQ-AUTH-005" docs/requirements/
+```
+
+### View ADRs
+```bash
+# List all ADRs
+view docs/adr/
+
+# Read specific ADR
+view docs/adr/0023-use-jwt-authentication.md
+
+# Find ADRs by topic
+bash_tool: grep -l "authentication" docs/adr/*.md
+```
+
+### Create New Requirement
+```bash
+# Find next requirement number in domain
+view docs/requirements/auth.yaml  # Check last REQ-AUTH-NNN
+
+# Add to appropriate domain file using str_replace
+```
+
+### Create New ADR
+```bash
+# Find next ADR number
+bash_tool: ls docs/adr/ | tail -1
+
+# Create new file with template
+create_file: docs/adr/NNNN-title.md
+```
+
+---
+
+## Notes
+
+- **Requirements are living documents**: They evolve as the project evolves
+- **ADRs are historical records**: Once accepted, never edit content, only status
+- **Both are versioned in git**: Full audit trail of changes
+- **Permalinks use commit SHAs**: Immutable references to code
+- **Bidirectional linking is critical**: Both systems reference each other
+- **Human review for high criticality**: P0/HIGH requirements need extra scrutiny
+- **ADRs prevent decision amnesia**: Future developers understand WHY choices were made
+
+---
+
+## When to Ask for Human Input
+
+**Always ask before**:
+- Creating an ADR (architectural decisions need human oversight)
+- Marking a requirement as deprecated
+- Changing requirement priority or criticality
+- Superseding an existing ADR
+- Making changes that affect P0 or HIGH criticality requirements
+
+**Proceed autonomously for**:
+- Reading requirements and ADRs
+- Implementing approved requirements
+- Updating permalinks after refactoring
+- Adding code/test links to requirements
+- Writing tests to satisfy acceptance criteria
+- Following existing ADR guidance

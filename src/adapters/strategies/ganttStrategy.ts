@@ -121,10 +121,11 @@ export class GanttStrategy extends BaseDiagramStrategy {
     let current: Element | null = target;
     
     while (current && current !== svg) {
-      if (current instanceof SVGGElement && current.tagName === "g") {
-        const className = this.getElementClassName(current);
+      if (current.tagName === "g" && current instanceof SVGElement) {
+        const svgEl: SVGElement = current; // Type narrowed to SVGElement
+        const className = this.getElementClassName(svgEl);
         if (className && className.includes('section')) {
-          sectionGroup = current;
+          sectionGroup = svgEl as unknown as SVGGElement;
           break;
         }
       }

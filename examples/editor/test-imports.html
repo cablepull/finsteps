@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Imports</title>
+</head>
+<body>
+    <h1>Testing Module Imports...</h1>
+    <div id="status">Loading...</div>
+    <script type="module">
+        console.log('Test script starting...');
+        document.getElementById('status').textContent = 'Script started...';
+
+        try {
+            console.log('Attempting to import from dist/index.js...');
+            const module1 = await import("../../dist/index.js");
+            console.log('Import successful!', module1);
+            document.getElementById('status').textContent = 'Import successful! Check console.';
+            document.body.style.background = 'green';
+        } catch (error) {
+            console.error('Import failed:', error);
+            document.getElementById('status').textContent = 'Import FAILED: ' + error.message;
+            document.body.style.background = 'red';
+        }
+    </script>
+</body>
+</html>

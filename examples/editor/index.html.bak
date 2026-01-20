@@ -11,51 +11,47 @@
   </head>
   <body>
     <div class="editor-layout">
-      <!-- Left Sidebar: Mermaid and DSL Inputs -->
-      <aside class="left-panels" id="left-sidebar">
-        <button class="sidebar-collapse-toggle" id="sidebar-collapse-toggle" aria-label="Collapse sidebar">
-          <span class="collapse-icon">◄</span>
-        </button>
-        <div class="sidebar-content">
-          <!-- Mermaid Input Section -->
-          <div class="input-section" id="mermaid-section">
-            <div class="section-header">
-              <h2>Mermaid Diagram</h2>
-            </div>
-            <div class="section-content">
-              <textarea id="mermaid-input" placeholder="Enter your Mermaid diagram text here...">flowchart TD
+      <!-- Left Panel: Inputs -->
+      <aside class="left-panels">
+        <!-- Mermaid Input Pane -->
+        <div class="input-pane" id="mermaid-pane">
+          <div class="pane-header">
+            <h2>Mermaid Diagram</h2>
+            <button class="pane-toggle" id="mermaid-pane-toggle" aria-label="Toggle Mermaid pane">
+              <span class="toggle-icon">▼</span>
+            </button>
+          </div>
+          <div class="pane-content">
+            <textarea id="mermaid-input" placeholder="Enter your Mermaid diagram text here...">flowchart TD
     A[Start] --> B{Decision}
     B -->|Yes| C[Action 1]
     B -->|No| D[Action 2]
     C --> E[End]
     D --> E</textarea>
-              <div class="error-message" id="mermaid-error"></div>
-            </div>
+            <div class="error-message" id="mermaid-error"></div>
           </div>
+        </div>
 
-          <!-- MPD Input Section (Simplified) -->
-          <div class="input-section" id="dsl-section">
-            <div class="section-header">
-              <h2>Presentation Steps (MPD)</h2>
+        <!-- Presentation DSL Pane -->
+        <div class="input-pane" id="dsl-pane">
+          <div class="pane-header">
+            <h2>Presentation Steps</h2>
+            <button class="pane-toggle" id="dsl-pane-toggle" aria-label="Toggle presentation pane">
+              <span class="toggle-icon">▼</span>
+            </button>
+          </div>
+          <div class="pane-content">
+            <div class="editor-toolbar">
+              <button id="generate-mpd" class="toolbar-btn primary">Generate Presentation</button>
             </div>
-            <div class="section-content">
-              <div class="editor-toolbar">
-                <button id="generate-mpd" class="toolbar-btn primary">Generate Presentation</button>
-              </div>
-              <div id="mpd-editor"></div>
-              <div class="error-message" id="mpd-error"></div>
-              <div class="editor-help">
-                <p>Edit the MPD code above to customize your presentation, or click "Generate Presentation" to auto-create from your diagram.</p>
-              </div>
+            <div id="mpd-editor"></div>
+            <div class="error-message" id="mpd-error"></div>
+            <div class="editor-help">
+              <p>Edit the MPD code above to customize your presentation, or click "Generate Presentation" to auto-create from your diagram.</p>
             </div>
           </div>
         </div>
       </aside>
-
-      <!-- Expand button for collapsed sidebar -->
-      <button class="panels-toggle-btn" id="panels-toggle-btn" aria-label="Show sidebar">
-        <span>►</span>
-      </button>
 
       <!-- Right Panel: Preview -->
       <main class="preview-panel">
@@ -72,7 +68,7 @@
         </div>
         <input type="file" id="import-file" accept=".json" style="display: none;">
 
-        <!-- Presentation Controls (REQ-006) -->
+        <!-- Presentation Controls -->
         <div class="presentation-controls">
           <button class="pres-btn" id="prev-step" title="Previous Step">
             <span class="btn-icon">◀</span>
@@ -110,6 +106,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/json/json.min.js"></script>
-    <script type="module" src="editor.js?v=7"></script>
+    <script type="module" src="editor.js"></script>
   </body>
 </html>
