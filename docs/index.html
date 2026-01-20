@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Finsteps – Mermaid Presentation Framework</title>
+    <meta
+      name="description"
+      content="Finsteps turns your Mermaid diagrams into interactive presentations using the MPD (Mermaid Presentation DSL)."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!--
+      GitHub Pages:
+      - In the repository settings, set Pages source to:
+        Branch: main, Folder: /docs
+      - The site will then be available at:
+        https://<your-username>.github.io/finsteps/
+    -->
+    <header class="fs-nav">
+      <div class="fs-container fs-nav-inner">
+        <div class="fs-nav-left">
+          <span class="fs-logo">Finsteps</span>
+          <span class="fs-tagline">Mermaid Presentation Framework</span>
+        </div>
+        <nav class="fs-nav-links">
+          <a href="#features">Features</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#examples">Examples</a>
+          <a href="#getting-started">Getting started</a>
+          <a href="https://github.com/cablepull/finsteps">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="fs-hero">
+        <div class="fs-container fs-hero-grid">
+          <div class="fs-hero-text">
+            <h1>Interactive presentations on top of Mermaid diagrams.</h1>
+            <p class="fs-hero-subtitle">
+              Finsteps adds a presentation runtime and MPD DSL on top of Mermaid,
+              giving you camera moves, overlays, navigation, and an editor that
+              stay in sync with your diagrams.
+            </p>
+            <div class="fs-hero-cta">
+              <a
+                class="fs-btn fs-btn-primary"
+                href="https://github.com/cablepull/finsteps#readme"
+              >
+                Get started
+              </a>
+              <a class="fs-btn fs-btn-secondary" href="/examples/walkthrough/">
+                View live examples
+              </a>
+            </div>
+            <p class="fs-hero-note">
+              Built around <code>presentMermaid()</code>, MPD, and a
+              controller API that works in both static sites and live editors.
+            </p>
+          </div>
+          <div class="fs-hero-media">
+            <!-- Hero image: put your image at docs/assets/finsteps-hero.png -->
+            <div class="fs-hero-image-frame">
+              <img
+                src="assets/finsteps-hero.png"
+                alt="Finsteps editor and presentation over a Mermaid diagram"
+                onerror="this.classList.add('fs-hero-image--placeholder')"
+              />
+              <div class="fs-hero-image-placeholder">
+                Drop your hero image at
+                <code>docs/assets/finsteps-hero.png</code>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section id="features" class="fs-section">
+        <div class="fs-container">
+          <h2>Why Finsteps?</h2>
+          <p class="fs-section-intro">
+            A small, focused runtime that turns static diagrams into guided
+            walkthroughs.
+          </p>
+          <div class="fs-feature-grid">
+            <article class="fs-card">
+              <h3>MPD: Mermaid Presentation DSL</h3>
+              <p>
+                Describe camera moves, highlights, and overlays alongside your
+                Mermaid diagrams using a small, purpose-built DSL.
+              </p>
+            </article>
+            <article class="fs-card">
+              <h3>Presentation controller</h3>
+              <p>
+                A typed controller with <code>next</code>,
+                <code>prev</code>, <code>goto</code>, and events you can
+                bind to your own UI or host frameworks.
+              </p>
+            </article>
+            <article class="fs-card">
+              <h3>Editor-friendly design</h3>
+              <p>
+                Accessors, hooks, and dynamic AST updates (per ADR-0008) make
+                it easy to embed Finsteps in live editors without hacks.
+              </p>
+            </article>
+            <article class="fs-card">
+              <h3>Camera & overlays</h3>
+              <p>
+                Built-in camera handle and overlay primitives for zooming,
+                panning, and annotating regions via <code>data-id</code>.
+              </p>
+            </article>
+            <article class="fs-card">
+              <h3>Framework-agnostic</h3>
+              <p>
+                Works with plain HTML, React, Reveal.js, or your own host
+                framework—wherever Mermaid can render.
+              </p>
+            </article>
+            <article class="fs-card">
+              <h3>Clear architecture</h3>
+              <p>
+                Backed by ADRs and requirements: MPD (ADR-0001), rendering
+                lifecycle (ADR-0003), editor refactoring (ADR-0008).
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Architecture -->
+      <section id="architecture" class="fs-section fs-section-alt">
+        <div class="fs-container fs-arch-grid">
+          <div>
+            <h2>How it works</h2>
+            <p>
+              Finsteps parses MPD into a <code>PresentationAst</code> and
+              wires it into a <code>MermaidController</code>. The controller
+              drives camera, overlays, and bindings on top of Mermaid's SVG
+              output.
+            </p>
+            <ul class="fs-list">
+              <li>
+                <strong>MPD</strong>: declarative steps, actions, and bindings.
+              </li>
+              <li>
+                <strong>Controller</strong>: navigation and events with
+                lifecycle hooks.
+              </li>
+              <li>
+                <strong>Adapters</strong>: diagram, camera, and overlay
+                abstractions.
+              </li>
+            </ul>
+            <p class="fs-links">
+              Read the design docs:
+              <a href="docs/adr/0001-mermaid-presentation-dsl.md">ADR-0001</a>,
+              <a href="docs/adr/0003-rendering-lifecycle-cleanup.md">ADR-0003</a>,
+              <a href="docs/adr/0008-framework-refactoring-for-editor-durability.md">ADR-0008</a>
+            </p>
+          </div>
+          <div class="fs-code-card">
+            <pre><code>// Minimal presentMermaid usage
+import { presentMermaid } from "finsteps";
+
+const controller = await presentMermaid({
+  mountEl: document.getElementById("diagram-mount"),
+  mermaidText: `
+flowchart LR
+  A[User] --> B[Finsteps] --> C[Diagram]
+`,
+  mpdText: `
+mpd 1.0
+
+deck {
+  scene default {
+    step overview {
+      camera fit(target: dataId("A"))
+    }
+  }
+}
+`
+});</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Examples -->
+      <section id="examples" class="fs-section">
+        <div class="fs-container">
+          <h2>Live examples</h2>
+          <p class="fs-section-intro">
+            Explore Finsteps running on different diagram types and host
+            environments.
+          </p>
+          <div class="fs-example-grid">
+            <a class="fs-card fs-card-link" href="/examples/walkthrough/">
+              <h3>Architecture walkthrough</h3>
+              <p>Step through a system diagram with camera moves and overlays.</p>
+            </a>
+            <a class="fs-card fs-card-link" href="/examples/pie/">
+              <h3>Pie chart tour</h3>
+              <p>Use nav buttons and keybindings to tell a data story.</p>
+            </a>
+            <a class="fs-card fs-card-link" href="/examples/journey/">
+              <h3>User journey</h3>
+              <p>Highlight key waypoints in a journey diagram.</p>
+            </a>
+            <a class="fs-card fs-card-link" href="/examples/editor/">
+              <h3>Live editor</h3>
+              <p>Edit Mermaid + MPD side-by-side and drive the controller.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Getting started -->
+      <section id="getting-started" class="fs-section fs-section-alt">
+        <div class="fs-container fs-arch-grid">
+          <div>
+            <h2>Getting started</h2>
+            <ol class="fs-list fs-list-ordered">
+              <li>Install Finsteps from npm.</li>
+              <li>Render your Mermaid diagram into a container.</li>
+              <li>Add MPD to describe your steps and actions.</li>
+              <li>Bind the controller to your own controls or editor.</li>
+            </ol>
+          </div>
+          <div class="fs-code-card">
+            <pre><code># Install
+npm install finsteps
+
+// Basic usage (ES module)
+import { presentMermaid } from \"finsteps\";
+
+const controller = await presentMermaid({
+  mountEl: document.getElementById(\"diagram-mount\")!,
+  mermaidText,
+  mpdText
+});
+
+// Listen for step changes
+controller.on(\"stepchange\", (payload) => {
+  console.log(\"Step changed\", payload);
+});</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Links -->
+      <section class="fs-section">
+        <div class="fs-container fs-links-grid">
+          <div>
+            <h2>Project links</h2>
+            <ul class="fs-list">
+              <li>
+                <a href="https://github.com/cablepull/finsteps">
+                  GitHub repository
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/cablepull/finsteps#readme">
+                  README & docs
+                </a>
+              </li>
+              <li>
+                <a href="docs/api/public-api.md">
+                  Public API contract
+                </a>
+              </li>
+              <li>
+                <a href="docs/requirements/editor.yaml">
+                  Editor requirements
+                </a>
+              </li>
+              <li>
+                <a href="docs/adr/0008-framework-refactoring-for-editor-durability.md">
+                  ADR-0008 – Editor durability refactor
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h2>GitHub Pages setup</h2>
+            <ol class="fs-list fs-list-ordered">
+              <li>Push this <code>docs/</code> folder to <code>main</code>.</li>
+              <li>
+                In GitHub &rarr; Settings &rarr; Pages, set:
+                <code>Branch: main</code>, <code>Folder: /docs</code>.
+              </li>
+              <li>
+                Wait for GitHub Pages to build, then open:
+                <code>https://&lt;your-username&gt;.github.io/finsteps/</code>.
+              </li>
+              <li>
+                Place your hero image at
+                <code>docs/assets/finsteps-hero.png</code> in the repo.
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="fs-footer">
+      <div class="fs-container fs-footer-inner">
+        <span>&copy; <span id="fs-year"></span> Finsteps.</span>
+        <span>Built on Mermaid and MPD.</span>
+      </div>
+    </footer>
+
+    <script>
+      // Set current year in footer
+      document.getElementById("fs-year").textContent =
+        new Date().getFullYear();
+    </script>
+  </body>
+  </html>
+
