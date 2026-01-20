@@ -1,5 +1,4 @@
 import { DiagramHandle, TargetDescriptor } from "./types.js";
-import { DiagramStrategy } from "./adapters/diagramStrategies.js";
 import { FlowchartStrategy } from "./adapters/strategies/flowchartStrategy.js";
 
 const escapeSelector = (value: string): string => {

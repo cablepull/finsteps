@@ -205,9 +205,6 @@ const calculateFullBoundingBox = (svg: SVGSVGElement, padding: number = 40): str
       }
     }
     
-    // Recalculate dimensions after element-based calculation
-    const elementBasedWidth = maxX - minX;
-    const elementBasedHeight = maxY - minY;
   }
 
   const finalWidth = maxX - minX;
@@ -415,13 +412,6 @@ export const createBasicCameraHandle = (diagram: DiagramHandle): CameraHandle =>
         // getBBox() returns coordinates in SVG's local coordinate system (after transforms)
         // Get the current viewBox to understand the coordinate space
         const currentViewBoxStr = svg.getAttribute("viewBox");
-        let currentViewBox: {x: number, y: number, width: number, height: number} | null = null;
-        if (currentViewBoxStr) {
-          const parts = currentViewBoxStr.split(" ").map(Number);
-          if (parts.length === 4) {
-            currentViewBox = {x: parts[0], y: parts[1], width: parts[2], height: parts[3]};
-          }
-        }
         // getBBox() returns coordinates in the element's LOCAL coordinate space (before transforms)
         // If the element has a transform, we need to account for it to get the actual position in SVG user space
         // IMPORTANT: getCTM() includes viewBox scaling, so we need to use getScreenCTM() or parse transform attribute

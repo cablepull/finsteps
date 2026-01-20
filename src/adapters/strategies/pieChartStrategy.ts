@@ -82,7 +82,7 @@ export class PieChartStrategy extends BaseDiagramStrategy {
     ];
   }
   
-  findAdjacentElements(target: SVGGraphicsElement, svg: SVGSVGElement): SVGGraphicsElement[] {
+  findAdjacentElements(_target: SVGGraphicsElement, _svg: SVGSVGElement): SVGGraphicsElement[] {
     // For pie charts, don't include adjacent slices when focusing on a single slice
     // This allows camera.fit to zoom in on just the target slice, not the entire chart
     // Return empty array to focus only on the target slice

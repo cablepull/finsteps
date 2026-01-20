@@ -422,7 +422,7 @@ export class MermaidController implements Controller {
     return this.actionEngine;
   }
 
-  private emitActionError(error: Error, step?: StepDefinition, actions?: ActionDefinition[]): void {
+  private emitActionError(error: Error, step?: StepDefinition): void {
     this.lastError = error;
     const errorContext = {
       step: step ? { ...step } : this.executionContext.currentStep,

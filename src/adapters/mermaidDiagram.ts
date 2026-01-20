@@ -645,7 +645,6 @@ function ensureDataIdFromMermaidIds(svg: SVGSVGElement, strategy: DiagramStrateg
           
           // If we found a legend group, try to find the corresponding pie slice path
           if (legendGroup) {
-            const legendText = legendGroup.textContent?.trim() || '';
             // Find all path elements in the SVG (these are the pie slices)
             const allPaths = Array.from(svg.querySelectorAll<SVGPathElement>('path'));
             // Try to find a path that might correspond to this legend item

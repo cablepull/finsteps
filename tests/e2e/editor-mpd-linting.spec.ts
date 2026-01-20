@@ -1,7 +1,5 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import { parseMPD, formatDiagnostics } from "../../src/index";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 describe("Editor MPD Linting", () => {
   describe("MPD syntax validation with formatDiagnostics", () => {

@@ -1,5 +1,5 @@
 import { DiagramType } from "./diagramTypeDetector.js";
-import { DiagramStrategy, BaseDiagramStrategy } from "./diagramStrategies.js";
+import { DiagramStrategy } from "./diagramStrategies.js";
 
 /**
  * Registry for diagram type strategies
