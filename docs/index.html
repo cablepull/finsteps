@@ -169,7 +169,8 @@
           </div>
           <div class="fs-code-card">
             <pre><code>// Minimal presentMermaid usage
-import { presentMermaid } from "finsteps";
+import { presentMermaid } from 
+  "https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js";
 
 const controller = await presentMermaid({
   mountEl: document.getElementById("diagram-mount"),
@@ -231,14 +232,46 @@ deck {
         <div class="fs-container">
           <h2>Getting started</h2>
           <p class="fs-section-intro">
-            Finsteps is currently a repo-only project. To experiment locally:
+            Use Finsteps directly from jsDelivr CDN, or clone the repository to run examples locally.
           </p>
-          <ol class="fs-list fs-list-ordered">
-            <li>Clone the repository from GitHub.</li>
-            <li>Run the local examples (see README for <code>run-example.sh</code>).</li>
-            <li>Open the editor example and tweak Mermaid + MPD side-by-side.</li>
-            <li>Explore the ADRs and requirements to understand the architecture.</li>
-          </ol>
+          
+          <div style="margin: 2rem 0;">
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">CDN (jsDelivr)</h3>
+            <p style="margin-bottom: 1rem; color: var(--fs-text-muted);">
+              Load Finsteps directly in your HTML with no build step:
+            </p>
+            <div style="background: var(--fs-bg-subtle); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem;">
+              <div style="margin-bottom: 0.75rem;">
+                <strong style="font-size: 0.875rem; color: var(--fs-text-muted);">Latest version:</strong>
+                <code style="display: block; margin-top: 0.25rem; padding: 0.5rem; background: var(--fs-bg); border-radius: 0.25rem; font-size: 0.875rem; word-break: break-all;">
+                  https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js
+                </code>
+              </div>
+              <div>
+                <strong style="font-size: 0.875rem; color: var(--fs-text-muted);">Pinned version (v0.4.1):</strong>
+                <code style="display: block; margin-top: 0.25rem; padding: 0.5rem; background: var(--fs-bg); border-radius: 0.25rem; font-size: 0.875rem; word-break: break-all;">
+                  https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.1/dist/finsteps.esm.min.js
+                </code>
+              </div>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--fs-text-muted);">
+              <strong>Note:</strong> You must load Mermaid.js separately before using Finsteps.
+              See <a href="https://github.com/cablepull/finsteps#cdn-usage-jsdelivr">README</a> for complete usage examples.
+            </p>
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Local development</h3>
+            <p style="margin-bottom: 1rem; color: var(--fs-text-muted);">
+              To experiment locally or contribute:
+            </p>
+            <ol class="fs-list fs-list-ordered">
+              <li>Clone the repository from GitHub.</li>
+              <li>Run the local examples (see README for <code>run-example.sh</code>).</li>
+              <li>Open the editor example and tweak Mermaid + MPD side-by-side.</li>
+              <li>Explore the ADRs and requirements to understand the architecture.</li>
+            </ol>
+          </div>
         </div>
       </section>
 
