@@ -805,42 +805,14 @@ var resolveTarget = (diagram, target) => {
   } else if (target.dataId) {
     const strategy = diagram.getStrategy?.() || new FlowchartStrategy();
     const selectors = strategy.getTargetSelectors(target.dataId);
-    const logDataEntry = { location: "targetResolver.ts:35", message: "resolving target by dataId", data: { dataId: target.dataId, diagramType: strategy.getDiagramType(), selectors }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-    const diagramType = strategy.getDiagramType();
-    if (diagramType === "c4Component" || target.dataId && ["controller", "service", "repo", "api", "db"].includes(target.dataId)) {
-      console.log("[TargetResolver]", logDataEntry.message, logDataEntry.data);
-    }
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataEntry) }).catch(() => {
-    });
     for (const selector of selectors) {
       element = root.querySelector(selector);
       if (element) {
-        const logDataFound = { location: "targetResolver.ts:46", message: "target found", data: { dataId: target.dataId, diagramType, selector, elementTag: element.tagName }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-        if (diagramType === "c4Component" || target.dataId && ["controller", "service", "repo", "api", "db"].includes(target.dataId)) {
-          console.log("[TargetResolver]", logDataFound.message, logDataFound.data);
-        }
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataFound) }).catch(() => {
-        });
         break;
       }
     }
     if (!element && root instanceof Element && root.getAttribute("data-id") === target.dataId) {
       element = root;
-      const logDataFoundRoot = { location: "targetResolver.ts:62", message: "target found on root element", data: { dataId: target.dataId, diagramType, elementTag: element.tagName }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-      if (diagramType === "c4Component" || diagramType === "c4Container" || diagramType === "c4Context" || target.dataId && ["controller", "service", "repo", "api", "db", "webapp", "web", "user"].includes(target.dataId)) {
-        console.log("[TargetResolver]", logDataFoundRoot.message, logDataFoundRoot.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataFoundRoot) }).catch(() => {
-        });
-      }
-    }
-    if (!element) {
-      const availableDataIds = Array.from(root.querySelectorAll("[data-id]")).map((el) => el.getAttribute("data-id")).filter((id) => id);
-      const logDataNotFound = { location: "targetResolver.ts:56", message: "target NOT found", data: { dataId: target.dataId, diagramType, selectors, availableDataIds: availableDataIds.slice(0, 20) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-      if (diagramType === "c4Component" || target.dataId && ["controller", "service", "repo", "api", "db"].includes(target.dataId)) {
-        console.log("[TargetResolver]", logDataNotFound.message, logDataNotFound.data);
-      }
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataNotFound) }).catch(() => {
-      });
     }
   }
   if (!element) {
@@ -952,12 +924,6 @@ function detectDiagramType(mermaidText) {
   }
   if (firstLine.startsWith("C4Container") || firstLine.startsWith("c4container")) {
     return "c4Container";
-  }
-  if (firstLine.includes("c4component") || firstLine.includes("C4Component")) {
-    const logData = { location: "diagramTypeDetector.ts:79", message: "checking C4Component", data: { firstLine, startsWithC4Component: firstLine.startsWith("C4Component"), startsWithC4component: firstLine.startsWith("c4component") }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-    console.log("[DiagramTypeDetector]", logData.message, logData.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logData) }).catch(() => {
-    });
   }
   if (firstLine.startsWith("C4Component") || firstLine.startsWith("c4component")) {
     return "c4Component";
@@ -2319,12 +2285,6 @@ var C4Strategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
-    const logDataEntry = { location: "c4Strategy.ts:29", message: "extractNodeIds entry", data: { diagramType: this.diagramType, totalElements: svg.querySelectorAll("[id]").length }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    if (this.diagramType === "c4Component") {
-      console.log("[C4Strategy]", logDataEntry.message, logDataEntry.data);
-    }
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataEntry) }).catch(() => {
-    });
     const patterns = [
       /^c4-([A-Za-z0-9_]+)-\d+$/,
       // c4-name-digit
@@ -2341,47 +2301,12 @@ var C4Strategy = class extends BaseDiagramStrategy {
     ];
     const allIds = [];
     const allIdElements = Array.from(svg.querySelectorAll("[id]"));
-    if (this.diagramType === "c4Component") {
-      const allIds2 = allIdElements.map((el) => ({
-        id: el.getAttribute("id"),
-        tagName: el.tagName,
-        className: this.getElementClassName(el),
-        parentTagName: el.parentElement?.tagName,
-        parentClassName: el.parentElement instanceof SVGElement ? this.getElementClassName(el.parentElement) : ""
-      }));
-      const allGroups = Array.from(svg.querySelectorAll("g"));
-      const groupsWithClasses = allGroups.filter((g) => {
-        const className = this.getElementClassName(g);
-        return className && (className.includes("c4") || className.includes("element") || className.includes("component") || className.includes("container") || className.includes("boundary"));
-      }).slice(0, 20).map((g) => ({
-        tagName: g.tagName,
-        className: this.getElementClassName(g),
-        id: g.id,
-        textContent: g.textContent?.trim().slice(0, 50)
-      }));
-      const logDataIds = { location: "c4Strategy.ts:52", message: "all IDs found", data: { totalIds: allIdElements.length, allIds: allIds2, groupsWithClasses }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-      console.log("[C4Strategy]", logDataIds.message, logDataIds.data);
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataIds) }).catch(() => {
-      });
-    }
     for (const el of allIdElements) {
       const id = el.getAttribute("id");
       if (!id)
         continue;
       allIds.push(id);
       let nodeId = this.extractIdFromPatterns(id, patterns);
-      if (this.diagramType === "c4Component" && nodeId && ["controller", "service", "repo", "api", "db"].includes(nodeId)) {
-        const logData = { location: "c4Strategy.ts:65", message: "extracted nodeId", data: { mermaidId: id, nodeId, className: this.getElementClassName(el), tagName: el.tagName }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[C4Strategy]", logData.message, logData.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logData) }).catch(() => {
-        });
-      }
-      if (this.diagramType === "c4Component" && !nodeId && (id.includes("controller") || id.includes("service") || id.includes("repo") || id.includes("api") || id.includes("db"))) {
-        const logDataNoMatch = { location: "c4Strategy.ts:71", message: "ID did not match patterns", data: { mermaidId: id, patterns: patterns.map((p) => p.toString()), className: this.getElementClassName(el), tagName: el.tagName }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[C4Strategy]", logDataNoMatch.message, logDataNoMatch.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataNoMatch) }).catch(() => {
-        });
-      }
       if (nodeId && !nodeIdMap.has(nodeId)) {
         let current = el;
         let nodeGroup = null;
@@ -2401,12 +2326,6 @@ var C4Strategy = class extends BaseDiagramStrategy {
           nodeIdMap.set(nodeId, el);
         }
       }
-    }
-    if (this.diagramType === "c4Component") {
-      const logDataExit = { location: "c4Strategy.ts:74", message: "extractNodeIds exit", data: { extractedCount: nodeIdMap.size, extractedIds: Array.from(nodeIdMap.keys()), sampleIds: allIds.slice(0, 20) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-      console.log("[C4Strategy]", logDataExit.message, logDataExit.data);
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataExit) }).catch(() => {
-      });
     }
     return nodeIdMap;
   }
@@ -2633,26 +2552,7 @@ strategyRegistry.register("block", new BlockDiagramStrategy());
 strategyRegistry.setDefault(new FlowchartStrategy());
 function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
   let nodeIdMap = strategy.extractNodeIds(svg);
-  const diagramTypeEntry = strategy.getDiagramType();
-  if (diagramTypeEntry === "classDiagram") {
-    const logDataEntry = { location: "mermaidDiagram.ts:49", message: "ensureDataIdFromMermaidIds entry", data: { diagramType: diagramTypeEntry, extractedCount: nodeIdMap.size, hasMermaidText: !!mermaidText }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataEntry.message, logDataEntry.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataEntry) }).catch(() => {
-    });
-  }
-  if (diagramTypeEntry === "c4Component") {
-    const logDataAfter = { location: "mermaidDiagram.ts:71", message: "after extractNodeIds", data: { diagramType: strategy.getDiagramType(), nodeCount: nodeIdMap.size, nodeIds: Array.from(nodeIdMap.keys()) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "B" };
-    console.log("[MermaidDiagram]", logDataAfter.message, logDataAfter.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataAfter) }).catch(() => {
-    });
-  }
   const diagramType = strategy.getDiagramType();
-  const logDataStart = { location: "mermaidDiagram.ts:60", message: "checking for fallback", data: { diagramType, extractedCount: nodeIdMap.size, hasMermaidText: !!mermaidText }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-  if (diagramType === "classDiagram" || diagramType === "erDiagram" || diagramType === "gitGraph" || diagramType === "journey") {
-    console.log("[MermaidDiagram]", logDataStart.message, logDataStart.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataStart) }).catch(() => {
-    });
-  }
   const aliases = mermaidText ? extractC4AliasesFromText(mermaidText) : /* @__PURE__ */ new Set();
   let classAliases = /* @__PURE__ */ new Set();
   if (diagramType === "classDiagram" && mermaidText) {
@@ -2666,10 +2566,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
     while ((classMatch = classSimplePattern.exec(mermaidText)) !== null) {
       classAliases.add(classMatch[1]);
     }
-    const logDataClassExtract = { location: "mermaidDiagram.ts:78", message: "extracted class names", data: { diagramType, classAliases: Array.from(classAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataClassExtract.message, logDataClassExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataClassExtract) }).catch(() => {
-    });
   }
   let erAliases = /* @__PURE__ */ new Set();
   if (diagramType === "erDiagram" && mermaidText) {
@@ -2688,10 +2584,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
     while ((erMatch = relPattern2.exec(mermaidText)) !== null) {
       erAliases.add(erMatch[1]);
     }
-    const logDataErExtract = { location: "mermaidDiagram.ts:103", message: "extracted ER entity names", data: { diagramType, erAliases: Array.from(erAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataErExtract.message, logDataErExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataErExtract) }).catch(() => {
-    });
   }
   let gitAliases = /* @__PURE__ */ new Set();
   if (diagramType === "gitGraph" && mermaidText) {
@@ -2716,10 +2608,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
       gitAliases.add(branchMatch[1]);
     }
     gitAliases.add("merge");
-    const logDataGitExtract = { location: "mermaidDiagram.ts:141", message: "extracted git graph names", data: { diagramType, gitAliases: Array.from(gitAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataGitExtract.message, logDataGitExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataGitExtract) }).catch(() => {
-    });
   }
   let journeyAliases = /* @__PURE__ */ new Set();
   if (diagramType === "journey" && mermaidText) {
@@ -2736,10 +2624,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         }
       }
     }
-    const logDataJourneyExtract = { location: "mermaidDiagram.ts:177", message: "extracted journey step names", data: { diagramType, journeyAliases: Array.from(journeyAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataJourneyExtract.message, logDataJourneyExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataJourneyExtract) }).catch(() => {
-    });
   }
   let pieAliases = /* @__PURE__ */ new Set();
   if (diagramType === "pie" && mermaidText) {
@@ -2752,10 +2636,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         pieAliases.add(sliceName);
       }
     }
-    const logDataPieExtract = { location: "mermaidDiagram.ts:199", message: "extracted pie chart slice names", data: { diagramType, pieAliases: Array.from(pieAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataPieExtract.message, logDataPieExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataPieExtract) }).catch(() => {
-    });
   }
   let quadrantAliases = /* @__PURE__ */ new Set();
   if (diagramType === "quadrantChart" && mermaidText) {
@@ -2768,10 +2648,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         quadrantAliases.add(itemName);
       }
     }
-    const logDataQuadrantExtract = { location: "mermaidDiagram.ts:227", message: "extracted quadrant chart item names", data: { diagramType, quadrantAliases: Array.from(quadrantAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataQuadrantExtract.message, logDataQuadrantExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataQuadrantExtract) }).catch(() => {
-    });
   }
   let requirementAliases = /* @__PURE__ */ new Set();
   if (diagramType === "requirement" && mermaidText) {
@@ -2793,10 +2669,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         requirementAliases.add(elemName);
       }
     }
-    const logDataRequirementExtract = { location: "mermaidDiagram.ts:252", message: "extracted requirement diagram names", data: { diagramType, requirementAliases: Array.from(requirementAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataRequirementExtract.message, logDataRequirementExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataRequirementExtract) }).catch(() => {
-    });
   }
   let sequenceAliases = /* @__PURE__ */ new Set();
   if (diagramType === "sequenceDiagram" && mermaidText) {
@@ -2818,10 +2690,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         sequenceAliases.add(messageLabel);
       }
     }
-    const logDataSequenceExtract = { location: "mermaidDiagram.ts:282", message: "extracted sequence diagram names", data: { diagramType, sequenceAliases: Array.from(sequenceAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataSequenceExtract.message, logDataSequenceExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataSequenceExtract) }).catch(() => {
-    });
   }
   let timelineAliases = /* @__PURE__ */ new Set();
   if (diagramType === "timeline" && mermaidText) {
@@ -2834,30 +2702,9 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         timelineAliases.add(sectionName);
       }
     }
-    const logDataTimelineExtract = { location: "mermaidDiagram.ts:318", message: "extracted timeline diagram names", data: { diagramType, timelineAliases: Array.from(timelineAliases), mermaidTextPreview: mermaidText.slice(0, 200) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataTimelineExtract.message, logDataTimelineExtract.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataTimelineExtract) }).catch(() => {
-    });
   }
   const shouldUseFallback = mermaidText && ((diagramType === "c4Component" || diagramType === "c4Container" || diagramType === "c4Context") && (nodeIdMap.size === 0 || nodeIdMap.size < aliases.size) || diagramType === "classDiagram" && (nodeIdMap.size === 0 || nodeIdMap.size < classAliases.size) || diagramType === "erDiagram" && (nodeIdMap.size === 0 || nodeIdMap.size < erAliases.size) || diagramType === "gitGraph" && (nodeIdMap.size === 0 || nodeIdMap.size < gitAliases.size) || diagramType === "journey" && (nodeIdMap.size === 0 || nodeIdMap.size < journeyAliases.size) || diagramType === "pie" && (nodeIdMap.size === 0 || nodeIdMap.size < pieAliases.size) || diagramType === "quadrantChart" && (nodeIdMap.size === 0 || nodeIdMap.size < quadrantAliases.size) || diagramType === "requirement" && (nodeIdMap.size === 0 || nodeIdMap.size < requirementAliases.size) || diagramType === "sequenceDiagram" && (nodeIdMap.size === 0 || nodeIdMap.size < sequenceAliases.size) || diagramType === "timeline" && (nodeIdMap.size === 0 || nodeIdMap.size < timelineAliases.size));
-  if (diagramType === "classDiagram" || diagramType === "erDiagram" || diagramType === "gitGraph" || diagramType === "journey" || diagramType === "pie" || diagramType === "quadrantChart" || diagramType === "requirement" || diagramType === "sequenceDiagram" || diagramType === "timeline") {
-    const aliasCount = diagramType === "classDiagram" ? classAliases.size : diagramType === "erDiagram" ? erAliases.size : diagramType === "gitGraph" ? gitAliases.size : diagramType === "journey" ? journeyAliases.size : diagramType === "pie" ? pieAliases.size : diagramType === "quadrantChart" ? quadrantAliases.size : diagramType === "requirement" ? requirementAliases.size : diagramType === "sequenceDiagram" ? sequenceAliases.size : diagramType === "timeline" ? timelineAliases.size : 0;
-    const logDataFallbackCheck = { location: "mermaidDiagram.ts:200", message: "fallback check", data: { diagramType, shouldUseFallback, extractedCount: nodeIdMap.size, aliasCount }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataFallbackCheck.message, logDataFallbackCheck.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataFallbackCheck) }).catch(() => {
-    });
-  }
   if (shouldUseFallback) {
-    const logDataFallback = { location: "mermaidDiagram.ts:78", message: "extractNodeIds incomplete, trying fallback from text", data: { diagramType, extractedCount: nodeIdMap.size, aliasCount: aliases.size, missingAliases: Array.from(aliases).filter((a) => !nodeIdMap.has(a)) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-    console.log("[MermaidDiagram]", logDataFallback.message, logDataFallback.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataFallback) }).catch(() => {
-    });
-    if (diagramType === "c4Component" || diagramType === "c4Container" || diagramType === "c4Context") {
-      const logDataAliases = { location: "mermaidDiagram.ts:85", message: "extracted aliases from text", data: { diagramType, aliases: Array.from(aliases) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-      console.log("[MermaidDiagram]", logDataAliases.message, logDataAliases.data);
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataAliases) }).catch(() => {
-      });
-    }
     const boundaryChildren = {};
     if (diagramType === "c4Container" || diagramType === "c4Context") {
       const boundaryPattern = /(?:Container_Boundary|System_Boundary)\s*\(\s*([A-Za-z0-9_]+)\s*,[\s\S]*?\{([\s\S]*?)\}/g;
@@ -2881,12 +2728,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         if (children.length > 0) {
           boundaryChildren[boundaryAlias] = children;
         }
-      }
-      if (Object.keys(boundaryChildren).length > 0) {
-        const logDataBoundaries = { location: "mermaidDiagram.ts:163", message: "extracted boundary children", data: { diagramType, boundaryChildren }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[MermaidDiagram]", logDataBoundaries.message, logDataBoundaries.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataBoundaries) }).catch(() => {
-        });
       }
     }
     const allAliases = diagramType === "classDiagram" ? classAliases : diagramType === "erDiagram" ? erAliases : diagramType === "gitGraph" ? gitAliases : diagramType === "journey" ? journeyAliases : diagramType === "pie" ? pieAliases : diagramType === "quadrantChart" ? quadrantAliases : diagramType === "requirement" ? requirementAliases : diagramType === "sequenceDiagram" ? sequenceAliases : diagramType === "timeline" ? timelineAliases : aliases;
@@ -3008,12 +2849,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         }
         return false;
       });
-      if (diagramType === "c4Component" && ["controller", "service", "repo", "api", "db"].includes(alias)) {
-        const logDataSearch = { location: "mermaidDiagram.ts:90", message: "searching for alias in text", data: { alias, textElementsFound: textElements.length, textElements: textElements.slice(0, 5).map((el) => ({ tagName: el.tagName, textContent: el.textContent?.trim().slice(0, 50), parentTagName: el.parentElement?.tagName })) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[MermaidDiagram]", logDataSearch.message, logDataSearch.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataSearch) }).catch(() => {
-        });
-      }
       let found = false;
       for (const textEl of textElements) {
         let current = textEl;
@@ -3049,10 +2884,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
                 if (!nodeIdMap.has(aliasStr)) {
                   nodeIdMap.set(aliasStr, slicePath);
                   found = true;
-                  const logDataPieSlice = { location: "mermaidDiagram.ts:445", message: "found pie slice path for legend", data: { diagramType, alias: aliasStr, legendIndex, slicePathTag: slicePath.tagName, slicePathHasD: !!slicePath.getAttribute("d") }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "B" };
-                  console.log("[MermaidDiagram]", logDataPieSlice.message, logDataPieSlice.data);
-                  fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataPieSlice) }).catch(() => {
-                  });
                   continue;
                 }
               }
@@ -3129,10 +2960,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
                 }
                 if (!nodeIdMap.has(aliasStr)) {
                   nodeIdMap.set(aliasStr, nodeGroup);
-                  const logDataSequenceMessage = { location: "mermaidDiagram.ts:645", message: "found sequence message label", data: { diagramType, alias: aliasStr, elementTag: nodeGroup.tagName, className: (typeof nodeGroup.className === "string" ? nodeGroup.className : nodeGroup.className.baseVal).slice(0, 50) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-                  console.log("[MermaidDiagram]", logDataSequenceMessage.message, logDataSequenceMessage.data);
-                  fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataSequenceMessage) }).catch(() => {
-                  });
                 }
                 continue;
               }
@@ -3160,10 +2987,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
                     const existingClassName = typeof existingElement.className === "string" ? existingElement.className : existingElement.className.baseVal;
                     if (existingClassName && (existingClassName.includes("main") || existingClassName.includes("data-points"))) {
                       nodeIdMap.delete(aliasStr);
-                      const logDataReplace = { location: "mermaidDiagram.ts:572", message: "replacing parent container mapping with data-point", data: { diagramType, alias: aliasStr, oldElementTag: existingElement.tagName, oldClassName: existingClassName, newElementTag: nodeGroup.tagName, newClassName: className }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "D" };
-                      console.log("[MermaidDiagram]", logDataReplace.message, logDataReplace.data);
-                      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataReplace) }).catch(() => {
-                      });
                     }
                   }
                   let existingAlias = null;
@@ -3181,10 +3004,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
                     nodeIdMap.delete(existingAlias);
                   }
                   nodeIdMap.set(aliasStr, nodeGroup);
-                  const logDataQuadrantPoint = { location: "mermaidDiagram.ts:610", message: "found quadrant data-point group", data: { diagramType, alias: aliasStr, elementTag: nodeGroup.tagName, className, hasCircle: !!nodeGroup.querySelector("circle"), replacedParent: !!existingElement }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-                  console.log("[MermaidDiagram]", logDataQuadrantPoint.message, logDataQuadrantPoint.data);
-                  fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataQuadrantPoint) }).catch(() => {
-                  });
                   break;
                 }
               }
@@ -3261,35 +3080,13 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
             nodeIdMap.set(aliasStr, nodeGroup);
             found = true;
           }
-          const targetAliasesFound = diagramType === "c4Component" ? ["controller", "service", "repo", "api", "db"] : diagramType === "c4Container" ? ["user", "webapp", "web", "api", "db"] : diagramType === "c4Context" ? ["user", "webapp", "auth"] : diagramType === "erDiagram" ? ["CUSTOMER", "ORDER", "ORDER_ITEM", "PRODUCT"] : diagramType === "gitGraph" ? ["main", "develop", "feature", "Initial", "Setup", "Feature A", "Feature B", "Update", "Feature C", "Release", "Tag v1.0", "merge"] : diagramType === "journey" ? ["Landing Page", "Pricing Page", "Signup Form", "Email Verification", "Welcome Tour", "Dashboard"] : diagramType === "pie" ? ["Desktop", "Mobile", "Tablet", "Other"] : diagramType === "quadrantChart" ? ["Leader", "Challenger", "Niche", "Innovator"] : [];
-          if ((diagramType === "c4Component" || diagramType === "c4Container" || diagramType === "c4Context" || diagramType === "erDiagram" || diagramType === "gitGraph" || diagramType === "journey" || diagramType === "pie" || diagramType === "quadrantChart") && targetAliasesFound.includes(aliasStr)) {
-            const className = nodeGroup instanceof SVGElement ? typeof nodeGroup.className === "string" ? nodeGroup.className : nodeGroup.className.baseVal : "";
-            const logDataFound = { location: "mermaidDiagram.ts:148", message: "found element by text fallback", data: { diagramType, alias, elementTag: nodeGroup.tagName, groupId: nodeGroup.id, className, hasShapes: !!nodeGroup.querySelector("rect, circle, ellipse, polygon, path") }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-            console.log("[MermaidDiagram]", logDataFound.message, logDataFound.data);
-            fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataFound) }).catch(() => {
-            });
-          }
           break;
         }
-      }
-      const aliasStrNotFound = String(alias);
-      const targetAliasesNotFound = diagramType === "c4Component" ? ["controller", "service", "repo", "api", "db"] : diagramType === "c4Container" ? ["user", "webapp", "web", "api", "db"] : diagramType === "c4Context" ? ["user", "webapp", "auth"] : diagramType === "erDiagram" ? ["CUSTOMER", "ORDER", "ORDER_ITEM", "PRODUCT"] : diagramType === "gitGraph" ? ["main", "develop", "feature", "Initial", "Setup", "Feature A", "Feature B", "Update", "Feature C", "Release", "Tag v1.0", "merge"] : diagramType === "journey" ? ["Landing Page", "Pricing Page", "Signup Form", "Email Verification", "Welcome Tour", "Dashboard"] : diagramType === "pie" ? ["Desktop", "Mobile", "Tablet", "Other"] : diagramType === "quadrantChart" ? ["Leader", "Challenger", "Niche", "Innovator"] : [];
-      if ((diagramType === "c4Component" || diagramType === "c4Container" || diagramType === "c4Context" || diagramType === "erDiagram" || diagramType === "gitGraph" || diagramType === "journey" || diagramType === "pie" || diagramType === "quadrantChart") && !found && targetAliasesNotFound.includes(aliasStrNotFound)) {
-        const logDataNotFound = { location: "mermaidDiagram.ts:207", message: "alias NOT found by text search", data: { diagramType, alias: aliasStrNotFound, textElementsFound: textElements.length }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[MermaidDiagram]", logDataNotFound.message, logDataNotFound.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataNotFound) }).catch(() => {
-        });
       }
     }
     for (const [boundaryAlias, childAliases] of Object.entries(boundaryChildren)) {
       if (nodeIdMap.has(boundaryAlias))
         continue;
-      if (diagramType === "c4Container" && ["webapp"].includes(boundaryAlias)) {
-        const logDataBoundaryStart = { location: "mermaidDiagram.ts:249", message: "searching for boundary by children (second pass)", data: { alias: boundaryAlias, childAliases }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[MermaidDiagram]", logDataBoundaryStart.message, logDataBoundaryStart.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataBoundaryStart) }).catch(() => {
-        });
-      }
       const childElements = [];
       for (const childAlias of childAliases) {
         if (nodeIdMap.has(childAlias)) {
@@ -3300,12 +3097,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
             childElements.push(childEl);
           }
         }
-      }
-      if (diagramType === "c4Container" && ["webapp"].includes(boundaryAlias)) {
-        const logDataChildElements = { location: "mermaidDiagram.ts:264", message: "found child elements for boundary (second pass)", data: { alias: boundaryAlias, childAliases, childElementsFound: childElements.length, childElementTags: childElements.map((el) => el.tagName) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.log("[MermaidDiagram]", logDataChildElements.message, logDataChildElements.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataChildElements) }).catch(() => {
-        });
       }
       if (childElements.length >= Math.min(2, childAliases.length)) {
         const allGroups = Array.from(svg.querySelectorAll("g"));
@@ -3321,12 +3112,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
           if (containsAll) {
             ancestorCandidates.push(group);
           }
-        }
-        if (diagramType === "c4Container" && ["webapp"].includes(boundaryAlias)) {
-          const logDataAncestors = { location: "mermaidDiagram.ts:288", message: "found ancestor candidates (second pass)", data: { alias: boundaryAlias, ancestorCount: ancestorCandidates.length, ancestors: ancestorCandidates.map((g) => ({ tagName: g.tagName, id: g.id || null, className: g instanceof SVGElement ? typeof g.className === "string" ? g.className : g.className.baseVal : "", hasShapes: !!g.querySelector("rect, circle, ellipse, polygon, path") })) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-          console.log("[MermaidDiagram]", logDataAncestors.message, logDataAncestors.data);
-          fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataAncestors) }).catch(() => {
-          });
         }
         let selectedGroup = null;
         if (ancestorCandidates.length === 0) {
@@ -3355,13 +3140,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         }
         if (selectedGroup && !nodeIdMap.has(boundaryAlias)) {
           nodeIdMap.set(boundaryAlias, selectedGroup);
-          if (diagramType === "c4Container" && ["webapp"].includes(boundaryAlias)) {
-            const className = selectedGroup instanceof SVGElement ? typeof selectedGroup.className === "string" ? selectedGroup.className : selectedGroup.className.baseVal : "";
-            const logDataBoundary = { location: "mermaidDiagram.ts:315", message: "found boundary by child elements (second pass)", data: { alias: boundaryAlias, childAliases, containsChildren: childElements.length, className, hasShapes: !!selectedGroup.querySelector("rect, circle, ellipse, polygon, path"), groupId: selectedGroup.id || null }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-            console.log("[MermaidDiagram]", logDataBoundary.message, logDataBoundary.data);
-            fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataBoundary) }).catch(() => {
-            });
-          }
         }
       }
     }
@@ -3387,27 +3165,12 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
   }
   for (const [nodeId, el] of nodeIdMap) {
     el.setAttribute("data-id", nodeId);
-    const diagramType2 = strategy.getDiagramType();
-    const targetNodeIds = diagramType2 === "c4Component" ? ["controller", "service", "repo", "api", "db"] : diagramType2 === "c4Container" ? ["user", "webapp", "web", "api", "db"] : diagramType2 === "c4Context" ? ["user", "webapp", "auth"] : [];
-    if ((diagramType2 === "c4Component" || diagramType2 === "c4Container" || diagramType2 === "c4Context") && targetNodeIds.includes(nodeId)) {
-      const elementClass = el instanceof SVGElement ? typeof el.className === "string" ? el.className : el.className.baseVal : "";
-      const logDataSet = { location: "mermaidDiagram.ts:325", message: "set data-id", data: { diagramType: diagramType2, nodeId, elementTag: el.tagName, elementClass }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "B" };
-      console.log("[MermaidDiagram]", logDataSet.message, logDataSet.data);
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataSet) }).catch(() => {
-      });
-    }
   }
   for (const [specialAlias, mappedNodeId] of mergeToCommitMap.entries()) {
     const mappedEl = nodeIdMap.get(mappedNodeId);
     if (mappedEl) {
       nodeIdMap.set(specialAlias, mappedEl);
       mappedEl.setAttribute("data-id", specialAlias);
-      if (diagramType === "gitGraph") {
-        const logDataMergeMap = { location: "mermaidDiagram.ts:650", message: "mapped merge to commit", data: { diagramType, specialAlias, mappedNodeId, elementTag: mappedEl.tagName }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "B" };
-        console.log("[MermaidDiagram]", logDataMergeMap.message, logDataMergeMap.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataMergeMap) }).catch(() => {
-        });
-      }
     }
   }
   for (const [specialAlias, mappedNodeId] of mergeToCommitMap.entries()) {
@@ -3419,19 +3182,6 @@ function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
         mappedEl.setAttribute("data-id", specialAlias);
       }
     }
-  }
-  const diagramTypeFinal = strategy.getDiagramType();
-  if (diagramTypeFinal === "c4Component" || diagramTypeFinal === "c4Container" || diagramTypeFinal === "c4Context" || diagramTypeFinal === "classDiagram" || diagramTypeFinal === "erDiagram" || diagramTypeFinal === "gitGraph" || diagramTypeFinal === "journey" || diagramTypeFinal === "pie" || diagramTypeFinal === "quadrantChart") {
-    const elementsWithDataId = Array.from(svg.querySelectorAll("[data-id]"));
-    const rootDataId = svg.getAttribute("data-id");
-    const allDataIds = elementsWithDataId.map((el) => el.getAttribute("data-id")).filter((id) => id);
-    if (rootDataId && !allDataIds.includes(rootDataId)) {
-      allDataIds.push(rootDataId);
-    }
-    const logDataFinal = { location: "mermaidDiagram.ts:456", message: "after setting data-id", data: { diagramType: diagramTypeFinal, totalElementsWithDataId: elementsWithDataId.length, rootHasDataId: !!rootDataId, rootDataId, dataIds: allDataIds.slice(0, 20) }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "B" };
-    console.log("[MermaidDiagram]", logDataFinal.message, logDataFinal.data);
-    fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataFinal) }).catch(() => {
-    });
   }
 }
 var createDiagramHandle = (container, svg, strategy) => {
@@ -3474,28 +3224,12 @@ var createMermaidDiagramAdapter = () => {
         throw new MPFError("Mermaid is not available on window.mermaid", "MPF_MERMAID_UNAVAILABLE");
       }
       const renderId = `finsteps-${Math.random().toString(36).slice(2, 8)}`;
-      const logDataRender = { location: "mermaidDiagram.ts:77", message: "attempting mermaid render", data: { mermaidTextPreview: mermaidText.trim().substring(0, 100), firstLine: mermaidText.trim().split("\n")[0].trim() }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-      if (mermaidText.trim().toLowerCase().includes("c4component")) {
-        console.log("[MermaidDiagram]", logDataRender.message, logDataRender.data, "full text:", mermaidText);
-      }
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataRender) }).catch(() => {
-      });
       let renderResult;
       try {
         renderResult = await mermaid.render(renderId, mermaidText);
       } catch (error) {
-        const logDataRenderError = { location: "mermaidDiagram.ts:84", message: "mermaid render failed", data: { errorMessage: error instanceof Error ? error.message : String(error), errorName: error instanceof Error ? error.name : typeof error, mermaidTextPreview: mermaidText.trim().substring(0, 100), firstLine: mermaidText.trim().split("\n")[0].trim() }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-        console.error("[MermaidDiagram]", logDataRenderError.message, logDataRenderError.data);
-        fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataRenderError) }).catch(() => {
-        });
         throw new MPFError(`Failed to render Mermaid diagram: ${error}`, "MPF_MERMAID_RENDER_FAILED");
       }
-      const logDataRenderSuccess = { location: "mermaidDiagram.ts:91", message: "mermaid render succeeded", data: { hasSvg: !!renderResult?.svg }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "A" };
-      if (mermaidText.trim().toLowerCase().includes("c4component")) {
-        console.log("[MermaidDiagram]", logDataRenderSuccess.message, logDataRenderSuccess.data);
-      }
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataRenderSuccess) }).catch(() => {
-      });
       const { svg } = renderResult;
       mountEl.innerHTML = "";
       const container = document.createElement("div");
@@ -3512,12 +3246,6 @@ var createMermaidDiagramAdapter = () => {
         );
       }
       const diagramType = detectDiagramType(mermaidText);
-      const logDataDetect = { location: "mermaidDiagram.ts:107", message: "diagram type detected", data: { diagramType, firstLine: mermaidText.trim().split("\n")[0].trim() }, timestamp: Date.now(), sessionId: "debug-session", runId: "run1", hypothesisId: "C" };
-      if (diagramType === "c4Component" || mermaidText.trim().toLowerCase().includes("c4component")) {
-        console.log("[MermaidDiagram]", logDataDetect.message, logDataDetect.data);
-      }
-      fetch("http://127.0.0.1:7242/ingest/e6be1aad-0bf5-49de-87e2-f8c8215b6261", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(logDataDetect) }).catch(() => {
-      });
       const strategy = strategyRegistry.getOrDefault(diagramType);
       ensureDataIdFromMermaidIds(svgElement, strategy, mermaidText);
       svgElement.removeAttribute("width");
