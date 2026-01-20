@@ -4,7 +4,7 @@
 
 console.log('[Editor] Starting module load...');
 
-import { presentMermaid, parseMPD } from "../../dist/index.js";
+import { presentMermaid, parseMPD, formatDiagnostics } from "../../dist/index.js";
 
 console.log('[Editor] Imports successful');
 
@@ -132,9 +132,20 @@ function updateControlStates() {
   const exportBtn = document.getElementById('export-btn');
   if (exportBtn) {
     const mermaidInput = document.getElementById('mermaid-input');
-    const hasMermaid = mermaidInput && mermaidInput.value.trim().length > 0;
-    const hasMpd = mpdEditor && mpdEditor.getValue().trim().length > 0;
-    exportBtn.disabled = !(hasMermaid || hasMpd);
+    const hasMermaid = mermaidInput && mermaidInput.value && mermaidInput.value.trim().length > 0;
+    let hasMpd = false;
+    try {
+      if (mpdEditor && typeof mpdEditor.getValue === 'function') {
+        const mpdValue = mpdEditor.getValue();
+        hasMpd = mpdValue && mpdValue.trim().length > 0;
+      }
+    } catch (e) {
+      // mpdEditor might not be initialized yet
+      console.warn('[Controls] mpdEditor not ready:', e);
+    }
+    const shouldEnable = hasMermaid || hasMpd;
+    exportBtn.disabled = !shouldEnable;
+    console.log('[Controls] Export button state:', { hasMermaid, hasMpd, shouldEnable, disabled: exportBtn.disabled });
   }
 
   console.log('[Controls] Presentation controls enabled:', presentationEnabled);
@@ -185,6 +196,9 @@ deck {
 
   // Expose mpdEditor on window for tests
   window.mpdEditor = mpdEditor;
+  
+  // Expose editorState on window for tests
+  window.editorState = editorState;
 
   // Refresh CodeMirror to ensure it renders properly
   requestAnimationFrame(() => {
@@ -231,6 +245,9 @@ function initializeEditors() {
     setupPaneToggles();
     console.log('[Editor] Initialization complete!');
 
+    // Initial control state update
+    updateControlStates();
+
     // Auto-generate initial presentation
     autoGenerateInitialPresentation();
   } else {
@@ -271,7 +288,6 @@ function validateMPDSyntax() {
       const warnings = parseResult.diagnostics.filter(d => d.severity === "warning");
 
       if (errors.length > 0) {
-      if (errors.length > 0) {
         // Use framework's formatDiagnostics for proper formatting according to spec
         const formatted = formatDiagnostics(parseResult.diagnostics);
         showError("mpd-error", formatted);
@@ -286,16 +302,8 @@ function validateMPDSyntax() {
       } else if (warnings.length > 0) {
         // Use framework's formatDiagnostics for proper formatting
         const formatted = formatDiagnostics(parseResult.diagnostics);
+        // Show warnings but don't block rendering - warnings are informational
         showError("mpd-error", formatted);
-        clearError("mpd-error"); // Clear so it doesn't block rendering
-      } else {
-        clearError("mpd-error");
-      }
-      } else if (warnings.length > 0) {
-        // Use framework's formatDiagnostics for proper formatting
-        const formatted = formatDiagnostics(parseResult.diagnostics);
-        showError("mpd-error", formatted);
-        clearError("mpd-error");
       } else {
         clearError("mpd-error");
       }
@@ -317,18 +325,29 @@ function validateMPDSyntax() {
  */
 async function validateMermaidSyntax() {
   const mermaidInput = document.getElementById("mermaid-input");
+  if (!mermaidInput) {
+    console.error('[validateMermaidSyntax] Mermaid input element not found');
+    return;
+  }
+
   const mermaidText = mermaidInput.value.trim();
   if (!mermaidText) {
     clearError("mermaid-error");
+    mermaidInput.classList.remove("has-error");
     return;
   }
 
   try {
-    await mermaid.parse(mermaidText);
+    // mermaid.parse() is async and may throw synchronously or asynchronously
+    const result = await mermaid.parse(mermaidText);
+    // If parse succeeds, clear errors
     clearError("mermaid-error");
     mermaidInput.classList.remove("has-error");
+    editorState.mermaidValid = true;
+    updateState({ mermaidValid: true });
   } catch (error) {
-    const errorMsg = error.message || String(error);
+    // Parse failed - display error
+    const errorMsg = error.message || String(error) || 'Unknown syntax error';
     let displayMsg = errorMsg;
 
     const lineMatch = errorMsg.match(/line (\d+)/i);
@@ -339,6 +358,10 @@ async function validateMermaidSyntax() {
 
     showError("mermaid-error", displayMsg);
     mermaidInput.classList.add("has-error");
+    editorState.mermaidValid = false;
+    updateState({ mermaidValid: false });
+    
+    console.log('[validateMermaidSyntax] Error detected:', errorMsg);
   }
 }
 
@@ -847,18 +870,36 @@ function setupPaneToggles() {
   // Sidebar collapse toggle
   const sidebarToggle = document.getElementById("sidebar-collapse-toggle");
   if (sidebarToggle) {
-    sidebarToggle.addEventListener("click", () => {
+    sidebarToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      console.log('[PaneToggles] Sidebar toggle clicked');
       const leftPanels = document.querySelector(".left-panels");
+      if (!leftPanels) {
+        console.error('[PaneToggles] .left-panels element not found');
+        return;
+      }
+      
+      const wasCollapsed = leftPanels.classList.contains("collapsed");
       leftPanels.classList.toggle("collapsed");
+      const isNowCollapsed = leftPanels.classList.contains("collapsed");
+      
+      console.log('[PaneToggles] Sidebar state changed:', { wasCollapsed, isNowCollapsed });
 
       // Update icon direction
       const icon = sidebarToggle.querySelector(".collapse-icon");
-      if (leftPanels.classList.contains("collapsed")) {
-        icon.textContent = "►";
-      } else {
-        icon.textContent = "◄";
+      if (icon) {
+        if (isNowCollapsed) {
+          icon.textContent = "►";
+        } else {
+          icon.textContent = "◄";
+        }
       }
     });
+    console.log('[PaneToggles] Sidebar toggle event listener attached');
+  } else {
+    console.error('[PaneToggles] Sidebar toggle button not found');
   }
 
   // Panels expand toggle (shows when sidebar is collapsed)
@@ -1369,12 +1410,19 @@ function setupPresentationControls(controller) {
 
 function showError(elementId, message) {
   const errorEl = document.getElementById(elementId);
+  if (!errorEl) {
+    console.error(`[Error] Element ${elementId} not found`);
+    return;
+  }
   errorEl.textContent = message;
   errorEl.classList.add("show");
 }
 
 function clearError(elementId) {
   const errorEl = document.getElementById(elementId);
+  if (!errorEl) {
+    return;
+  }
   errorEl.textContent = "";
   errorEl.classList.remove("show");
 }

@@ -1,0 +1,488 @@
+# Finsteps Editor Requirements
+# This file contains all requirements for the Finsteps Mermaid Live Editor example
+# Domain: editor (example/plugin)
+
+- id: REQ-EDITOR-001
+  title: Layout and UI Structure
+  description: |
+    The editor MUST have a two-panel layout with a collapsible left sidebar for inputs 
+    and a main preview area on the right. Left sidebar MUST be collapsible with animation 
+    (collapsing left-to-right). Sidebar MUST contain two input sections: Mermaid Diagram 
+    Input Section and Presentation Framework Instructions (DSL) Input Section.
+  rationale: Provides an intuitive interface for editing Mermaid diagrams and presentation DSL
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Left sidebar is collapsible with animation (collapsing left-to-right)
+    - Sidebar contains two input sections (Mermaid and DSL)
+    - When collapsed, sidebar shows only toggle button
+    - Preview area expands to fill available space when sidebar is collapsed
+    - All panels support scrolling when content overflows
+    - Sidebar collapse animates horizontally (left-to-right direction)
+  code_links:
+    - examples/editor/index.html
+    - examples/editor/editor.js:827-877
+  test_links:
+    - tests/e2e/editor.spec.ts:18-26
+    - tests/e2e/editor.spec.ts:28-48
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-002
+  title: Mermaid Diagram Input
+  description: |
+    The editor MUST provide a textarea for entering Mermaid diagram syntax with 
+    real-time syntax validation. Textarea MUST have syntax validation on input 
+    (debounced 300ms). Errors MUST be displayed with line numbers when validation fails.
+  rationale: Ensures users receive immediate feedback on Mermaid syntax errors
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Textarea has syntax validation on input (debounced 300ms)
+    - Errors are displayed with line numbers when validation fails
+    - Textarea has visual error state (CSS class has-error)
+    - Default example diagram is provided on page load
+    - Validation uses Mermaid's mermaid.parse() function
+  code_links:
+    - examples/editor/editor.js:315-343
+    - examples/editor/editor.js:618-646
+  test_links:
+    - tests/e2e/editor.spec.ts:75-97
+    - tests/e2e/editor.spec.ts:111-117
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-003
+  title: MPD DSL Input
+  description: |
+    The DSL Input Section MUST provide a single MPD editor for presentation framework 
+    instructions. Single MPD editor using CodeMirror with real-time syntax validation 
+    and error highlighting. "Generate Presentation" button to auto-create presentation 
+    from diagram.
+  rationale: Enables users to define presentation flow using MPD syntax with validation
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Single MPD editor using CodeMirror
+    - Real-time syntax validation with error highlighting
+    - "Generate Presentation" button to auto-create presentation from diagram
+    - Help text explaining MPD editing
+    - Error messages displayed below editor
+  code_links:
+    - examples/editor/editor.js:153-219
+  test_links:
+    - tests/e2e/editor.spec.ts:118-127
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-004
+  title: Camera Controls
+  description: |
+    The editor MUST provide camera control buttons for manual diagram navigation.
+    "Zoom In" button MUST call camera.zoom(1.2), "Zoom Out" button MUST call 
+    camera.zoom(0.8), "Reset" button MUST call camera.reset(), "Fit All" button 
+    MUST call camera.fitAll(). Controls MUST be disabled when no diagram is rendered.
+  rationale: Allows users to manually navigate and control diagram view independently of steps
+  priority: P1
+  criticality: MEDIUM
+  status: implemented
+  acceptance_criteria:
+    - "Zoom In" button calls camera.zoom(1.2)
+    - "Zoom Out" button calls camera.zoom(0.8)
+    - "Reset" button calls camera.reset()
+    - "Fit All" button calls camera.fitAll()
+    - Controls are disabled when no diagram is rendered
+  code_links:
+    - examples/editor/editor.js:1049-1120
+  test_links:
+    - tests/e2e/editor.spec.ts:315-320
+    - tests/e2e/editor.spec.ts:365-370
+    - tests/e2e/editor.spec.ts:404-410
+    - tests/e2e/editor.spec.ts:454-460
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-005
+  title: Export Functionality
+  description: |
+    The editor MUST allow exporting the current Mermaid diagram and DSL. Export MUST 
+    include: Mermaid diagram text, MPD DSL text, parsed DSL AST (JSON format), version 
+    number, and export timestamp. File MUST be downloaded as JSON with filename: 
+    finsteps-presentation-{timestamp}.json
+  rationale: Enables users to save and share their presentations
+  priority: P1
+  criticality: MEDIUM
+  status: implemented
+  acceptance_criteria:
+    - Export includes Mermaid diagram text
+    - Export includes MPD DSL text
+    - Export includes parsed DSL AST (JSON format)
+    - Export includes version number
+    - Export includes export timestamp
+    - File is downloaded as JSON with filename: finsteps-presentation-{timestamp}.json
+  code_links:
+    - examples/editor/editor.js:757-792
+  test_links:
+    - tests/e2e/editor.spec.ts:727-765
+    - tests/e2e/editor.spec.ts:136-188
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-006
+  title: Presentation Playback Controls
+  description: |
+    The editor MUST provide playback controls for stepping through the presentation.
+    "Play" button MUST auto-advance through steps every 3 seconds. "Pause" button MUST 
+    stop auto-advancement. "Previous" and "Next" buttons MUST navigate to previous/next 
+    step. Step indicator MUST show "Step X / Y".
+  rationale: Provides automated and manual control over presentation progression
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - "Play" button auto-advances through steps every 3 seconds
+    - "Pause" button stops auto-advancement
+    - "Previous" button navigates to previous step
+    - "Next" button navigates to next step
+    - Step indicator shows "Step X / Y"
+    - Playback stops when reaching last step
+    - Manual navigation stops playback
+  code_links:
+    - examples/editor/editor.js:1053-1410
+  test_links:
+    - tests/e2e/editor.spec.ts:499-506
+    - tests/e2e/editor.spec.ts:532-538
+    - tests/e2e/editor.spec.ts:568-575
+    - tests/e2e/editor.spec.ts:578-588
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-007
+  title: Navigation Controls
+  description: |
+    The editor MUST provide navigation buttons for all defined steps. Navigation buttons 
+    MUST be generated from DSL steps. Each button MUST be labeled with step name or id. 
+    Clicking a button MUST navigate to that step. Active step button MUST be visually 
+    highlighted. Navigation MUST update when DSL is modified.
+  rationale: Enables users to jump directly to any step in the presentation
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Navigation buttons are generated from DSL steps
+    - Each button is labeled with step name or id
+    - Clicking a button navigates to that step
+    - Active step button is visually highlighted
+    - Navigation updates when DSL is modified
+  code_links:
+    - examples/editor/editor.js:1044-1247
+  test_links:
+    - tests/e2e/editor.spec.ts:617-632
+    - tests/e2e/editor.spec.ts:634-649
+    - tests/e2e/editor.spec.ts:655-670
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-008
+  title: DSL Generation
+  description: |
+    The editor MUST be able to generate a starter DSL from a rendered diagram. Generation 
+    MUST create an "overview" step with camera.reset(). Generation MUST create a step for 
+    each targetable element. Each target step MUST include: camera.fit() with padding 60, 
+    style.highlight(), and overlay.bubble() with descriptive text. Generation MUST create 
+    keyboard bindings (ArrowRight → nav.next, ArrowLeft → nav.prev) and click bindings 
+    for navigation buttons. Generated DSL MUST be converted to MPD format and inserted 
+    into editor.
+  rationale: Simplifies creation of presentations by auto-generating steps from diagram elements
+  priority: P1
+  criticality: MEDIUM
+  status: implemented
+  acceptance_criteria:
+    - Generation creates an "overview" step with camera.reset()
+    - Generation creates a step for each targetable element
+    - Each target step includes camera.fit() with padding 60
+    - Each target step includes style.highlight()
+    - Each target step includes overlay.bubble() with descriptive text
+    - Generation creates keyboard bindings (ArrowRight → nav.next, ArrowLeft → nav.prev)
+    - Generation creates click bindings for navigation buttons
+    - Generated DSL is converted to MPD format and inserted into editor
+  code_links:
+    - examples/editor/editor.js:1080-1226
+    - examples/editor/editor.js:685-754
+  test_links:
+    - tests/e2e/editor.spec.ts:678-742
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-009
+  title: Import Functionality
+  description: |
+    The editor MUST allow importing previously exported presentations. Import MUST support 
+    files exported from REQ-EDITOR-005. Import MUST load Mermaid text into Mermaid input. 
+    Import MUST load MPD text into MPD editor (if available). Import MUST fallback to 
+    converting DSL AST to MPD if MPD not present. Import MUST trigger diagram rendering 
+    after successful load. Import errors MUST be displayed to user.
+  rationale: Enables users to load previously saved presentations
+  priority: P1
+  criticality: MEDIUM
+  status: implemented
+  acceptance_criteria:
+    - Import supports files exported from REQ-EDITOR-005
+    - Import loads Mermaid text into Mermaid input
+    - Import loads MPD text into MPD editor (if available)
+    - Import falls back to converting DSL AST to MPD if MPD not present
+    - Import triggers diagram rendering after successful load
+    - Import errors are displayed to user
+  code_links:
+    - examples/editor/editor.js:794-840
+  test_links:
+    - tests/e2e/editor.spec.ts:771-835
+    - tests/e2e/editor.spec.ts:128-135
+  dependencies:
+    - REQ-EDITOR-005
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-010
+  title: Error Handling and Display
+  description: |
+    The editor MUST display validation and runtime errors clearly to users. Errors MUST 
+    be displayed in dedicated error panels. Error panels MUST be collapsible/expandable. 
+    MPD errors MUST use formatDiagnostics() for consistent formatting. Error messages 
+    MUST include: error message text, line number (when available), column number (when 
+    available), and error code (for MPD diagnostics). Editor lines with errors MUST be 
+    visually highlighted. Errors MUST clear when fixed.
+  rationale: Provides clear feedback to users about syntax and runtime errors
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Errors are displayed in dedicated error panels
+    - Error panels are collapsible/expandable
+    - MPD errors use formatDiagnostics() for consistent formatting
+    - Error messages include error message text
+    - Error messages include line number (when available)
+    - Error messages include column number (when available)
+    - Error messages include error code (for MPD diagnostics)
+    - Editor lines with errors are visually highlighted
+    - Errors clear when fixed
+  code_links:
+    - examples/editor/editor.js:248-313
+    - examples/editor/editor.js:315-343
+    - examples/editor/editor.js:1370-1380
+  test_links:
+    - tests/e2e/editor.spec.ts:900-928
+    - tests/e2e/editor.spec.ts:929-960
+    - tests/e2e/editor.spec.ts:961-987
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-011
+  title: Drag-to-Pan
+  description: |
+    The diagram MUST support drag-to-pan functionality by default. Drag-to-pan MUST be 
+    enabled by default on diagram SVG. Panning MUST use mouse/touch drag gestures. Panning 
+    MUST update SVG viewBox dynamically. Panning direction MUST match drag direction 
+    (right drag = right pan).
+  rationale: Enables intuitive manual navigation of large diagrams
+  priority: P2
+  criticality: LOW
+  status: implemented
+  acceptance_criteria:
+    - Drag-to-pan is enabled by default on diagram SVG
+    - Panning uses mouse/touch drag gestures
+    - Panning updates SVG viewBox dynamically
+    - Panning direction matches drag direction (right drag = right pan)
+  code_links:
+    - examples/editor/editor.js:1122-1307
+  test_links:
+    - tests/e2e/editor.spec.ts:989-1027
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-012
+  title: Real-time Updates
+  description: |
+    The diagram MUST update in real-time as users edit Mermaid or DSL text. Updates MUST 
+    be debounced to prevent excessive rendering. Mermaid updates: 300ms debounce for 
+    validation, 500ms for rendering. MPD updates: 300ms debounce for validation, 500ms 
+    for rendering. Only valid inputs MUST trigger diagram rendering. Invalid inputs MUST 
+    display errors but not block editing.
+  rationale: Provides immediate visual feedback while preventing excessive re-rendering
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Updates are debounced to prevent excessive rendering
+    - Mermaid updates: 300ms debounce for validation, 500ms for rendering
+    - MPD updates: 300ms debounce for validation, 500ms for rendering
+    - Only valid inputs trigger diagram rendering
+    - Invalid inputs display errors but do not block editing
+  code_links:
+    - examples/editor/editor.js:618-646
+    - examples/editor/editor.js:915-922
+  test_links:
+    - tests/e2e/editor.spec.ts:1028-1059
+    - tests/e2e/editor.spec.ts:1046-1061
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-013
+  title: Initialization
+  description: |
+    The editor MUST initialize all components on page load. Mermaid MUST be initialized 
+    with dark theme. CodeMirror editors MUST be initialized with proper configuration. 
+    Event listeners MUST be attached to all interactive elements. Initial presentation 
+    MUST be auto-generated if Mermaid text exists. Diagram MUST render after initialization 
+    completes.
+  rationale: Ensures editor is fully functional immediately after page load
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Mermaid is initialized with dark theme
+    - CodeMirror editors are initialized with proper configuration
+    - Event listeners are attached to all interactive elements
+    - Initial presentation is auto-generated if Mermaid text exists
+    - Diagram renders after initialization completes
+  code_links:
+    - examples/editor/editor.js:11-20
+    - examples/editor/editor.js:224-246
+    - examples/editor/editor.js:655-754
+  test_links:
+    - tests/e2e/editor.spec.ts:1089-1104
+    - tests/e2e/editor.spec.ts:1104-1119
+    - tests/e2e/editor.spec.ts:1116-1162
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-014
+  title: Step Change Event Handling
+  description: |
+    The editor MUST update UI state when presentation steps change. Editor MUST listen to 
+    controller.on("stepchange") events. Active navigation button MUST update on step change. 
+    Step indicator display MUST update on step change. Current step index MUST be tracked 
+    for playback controls.
+  rationale: Keeps UI synchronized with presentation state during navigation
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Editor listens to controller.on("stepchange") events
+    - Active navigation button updates on step change
+    - Step indicator display updates on step change
+    - Current step index is tracked for playback controls
+  code_links:
+    - examples/editor/editor.js:1056-1063
+    - examples/editor/editor.js:1243-1260
+    - examples/editor/editor.js:1338-1341
+  test_links:
+    - tests/e2e/editor.spec.ts:1148-1180
+    - tests/e2e/editor.spec.ts:1166-1193
+    - tests/e2e/editor.spec.ts:1194-1228
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-015
+  title: Sidebar Collapse
+  description: |
+    The left sidebar MUST be collapsible with smooth horizontal animation (collapsing 
+    left-to-right). Toggle button MUST be visible in collapsed state. Collapse animation 
+    MUST be smooth (0.3s transition) and horizontal. Collapse MUST move from left to right 
+    (sidebar shrinks leftward). Icon MUST rotate to indicate state. When collapsed, sidebar 
+    content MUST be hidden. Preview area MUST expand to fill space when collapsed. Toggle 
+    button MUST remain accessible when collapsed.
+  rationale: Provides more screen space for diagram preview while keeping controls accessible
+  priority: P1
+  criticality: MEDIUM
+  status: implemented
+  acceptance_criteria:
+    - Toggle button is visible in collapsed state
+    - Collapse animation is smooth (0.3s transition) and horizontal
+    - Collapse moves from left to right (sidebar shrinks leftward)
+    - Icon rotates to indicate state
+    - When collapsed, sidebar content is hidden
+    - Preview area expands to fill space when collapsed
+    - Toggle button remains accessible when collapsed
+  code_links:
+    - examples/editor/editor.js:846-877
+    - examples/editor/styles.css:578-593
+  test_links:
+    - tests/e2e/editor.spec.ts:41-61
+  dependencies:
+    - REQ-EDITOR-001
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-016
+  title: Reactive State Tracking
+  description: |
+    The editor MUST track application state reactively and update the UI accordingly. 
+    Editor MUST maintain a centralized state object tracking: Mermaid text content and 
+    validity, DSL text content and validity, current diagram controller instance, current 
+    step index, rendering status (idle, rendering, ready, error), and available targets 
+    from diagram. State changes MUST trigger UI updates reactively. All UI components MUST 
+    reflect current state accurately. State MUST be updated before triggering UI updates. 
+    Invalid state MUST prevent presentation controls from being enabled. Valid state MUST 
+    enable presentation controls automatically.
+  rationale: Ensures UI consistency and enables reactive control enablement based on application state
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Editor maintains a centralized state object tracking all relevant state
+    - State changes trigger UI updates reactively
+    - All UI components reflect current state accurately
+    - State is updated before triggering UI updates
+    - Invalid state prevents presentation controls from being enabled
+    - Valid state enables presentation controls automatically
+  code_links:
+    - examples/editor/editor.js:27-54
+    - examples/editor/editor.js:74-95
+    - examples/editor/editor.js:1031-1039
+  test_links:
+    - tests/e2e/editor.spec.ts:269-333
+  dependencies:
+    - REQ-EDITOR-017
+  modified: 2024-01-19
+  modified_by: migration
+
+- id: REQ-EDITOR-017
+  title: Control Enablement Based on State
+  description: |
+    The editor MUST enable/disable controls based on the current application state. 
+    Navigation buttons MUST be enabled only when: diagram is successfully rendered, 
+    controller instance exists, and DSL contains valid steps. Playback controls MUST be 
+    enabled only when navigation buttons are enabled and at least one step is defined. 
+    Camera controls MUST be enabled only when diagram is successfully rendered and 
+    controller instance exists. Export button MUST be enabled when at least Mermaid text 
+    or DSL text is present. Import button MUST always be enabled. Disabled controls MUST 
+    provide visual feedback (grayed out, cursor not-allowed). Control state MUST update 
+    immediately when state changes.
+  rationale: Prevents user errors by disabling controls when they cannot function properly
+  priority: P0
+  criticality: HIGH
+  status: implemented
+  acceptance_criteria:
+    - Navigation buttons are enabled only when diagram rendered, controller exists, and DSL has valid steps
+    - Playback controls are enabled only when navigation enabled and at least one step defined
+    - Camera controls are enabled only when diagram rendered and controller exists
+    - Export button is enabled when at least Mermaid text or DSL text is present
+    - Import button is always enabled
+    - Disabled controls provide visual feedback (grayed out, cursor not-allowed)
+    - Control state updates immediately when state changes
+  code_links:
+    - examples/editor/editor.js:100-142
+    - examples/editor/editor.js:234
+  test_links:
+    - tests/e2e/editor.spec.ts:136-188
+    - tests/e2e/editor.spec.ts:223-268
+    - tests/e2e/editor.spec.ts:255-272
+    - tests/e2e/editor.spec.ts:269-333
+  dependencies:
+    - REQ-EDITOR-016
+  modified: 2024-01-19
+  modified_by: migration

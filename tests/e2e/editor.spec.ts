@@ -1,5 +1,26 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Helper function to wait for diagram to be fully rendered
+ * Checks that editorState.renderStatus === 'ready', controller exists, and SVG is present
+ */
+async function waitForDiagramRender(page, timeout = 30000) {
+  await page.waitForFunction(
+    () => {
+      const state = (window as any).editorState;
+      if (!state) return false;
+      const hasController = state.controller !== null && state.controller !== undefined;
+      const isReady = state.renderStatus === 'ready';
+      const hasSvg = document.querySelector('#diagram-mount svg') !== null;
+      return hasController && isReady && hasSvg;
+    },
+    { timeout }
+  );
+  
+  // Additional wait for controls to be enabled
+  await page.waitForTimeout(500);
+}
+
 test.describe('Finsteps Editor E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     try {
@@ -35,26 +56,48 @@ test.describe('Finsteps Editor E2E Tests', () => {
     // Wait for initial state to stabilize
     await page.waitForTimeout(500);
     
-    // Get initial class
-    const initialClass = await sidebar.getAttribute('class') || '';
-    const isInitiallyCollapsed = initialClass.includes('collapsed');
+    // Get initial state
+    const isInitiallyCollapsed = await sidebar.evaluate(el => el.classList.contains('collapsed'));
     
     // Click to toggle - should change state
     await toggle.click();
-    await page.waitForTimeout(600); // Wait for animation (0.3s transition + buffer)
+    // Wait for CSS transition (0.3s) plus buffer
+    await page.waitForTimeout(500);
     
-    const afterFirstClick = await sidebar.getAttribute('class') || '';
-    const isCollapsedAfterFirst = afterFirstClick.includes('collapsed');
+    // Wait for state to actually change
+    await page.waitForFunction(
+      (initState) => {
+        const leftPanels = document.querySelector('.left-panels');
+        if (!leftPanels) return false;
+        const currentState = leftPanels.classList.contains('collapsed');
+        return currentState !== initState;
+      },
+      isInitiallyCollapsed,
+      { timeout: 2000 }
+    );
+    
+    const isCollapsedAfterFirst = await sidebar.evaluate(el => el.classList.contains('collapsed'));
     
     // Should be in opposite state after first click
     expect(isCollapsedAfterFirst).toBe(!isInitiallyCollapsed);
     
     // Click again to toggle back
     await toggle.click();
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(500);
     
-    const finalClass = await sidebar.getAttribute('class') || '';
-    const isCollapsedFinal = finalClass.includes('collapsed');
+    // Wait for state to change back
+    await page.waitForFunction(
+      (initState) => {
+        const leftPanels = document.querySelector('.left-panels');
+        if (!leftPanels) return false;
+        const currentState = leftPanels.classList.contains('collapsed');
+        return currentState === initState;
+      },
+      isInitiallyCollapsed,
+      { timeout: 2000 }
+    );
+    
+    const isCollapsedFinal = await sidebar.evaluate(el => el.classList.contains('collapsed'));
     
     // Should be back to initial state
     expect(isCollapsedFinal).toBe(isInitiallyCollapsed);
@@ -69,10 +112,34 @@ test.describe('Finsteps Editor E2E Tests', () => {
     await page.waitForTimeout(300);
     
     await mermaidInput.fill('invalid mermaid syntax {');
-    // Wait for debounce (300ms) + validation (async) + error display
-    await page.waitForTimeout(3000);
+    // Trigger input event to start validation
+    await page.evaluate(() => {
+      const input = document.getElementById('mermaid-input') as HTMLTextAreaElement;
+      if (input) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
     
-    // Check for error - mermaid.parse might throw or might not, so check both error panel and input class
+    // Wait for debounce (300ms) + validation (async) + error display
+    await page.waitForTimeout(2000);
+    
+    // Wait for error to appear - check for has-error class or error panel with show class
+    await page.waitForFunction(
+      () => {
+        const input = document.getElementById('mermaid-input') as HTMLTextAreaElement;
+        const errorPanel = document.getElementById('mermaid-error');
+        if (!input || !errorPanel) return false;
+        
+        const hasErrorClass = input.classList.contains('has-error');
+        const errorText = errorPanel.textContent?.trim() || '';
+        const hasShowClass = errorPanel.classList.contains('show');
+        
+        return hasErrorClass || (errorText.length > 0) || hasShowClass;
+      },
+      { timeout: 5000 }
+    );
+    
+    // Check for error - verify at least one error indicator exists
     const errorText = await errorPanel.textContent();
     const errorClass = await errorPanel.getAttribute('class') || '';
     const hasErrorClass = await mermaidInput.evaluate(el => el.classList.contains('has-error'));
@@ -87,6 +154,13 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     // Fix the error
     await mermaidInput.fill('flowchart TD\n    A --> B');
+    // Trigger input event to start validation
+    await page.evaluate(() => {
+      const input = document.getElementById('mermaid-input') as HTMLTextAreaElement;
+      if (input) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(1500);
     
     // Error should clear
@@ -137,7 +211,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
-    await page.waitForTimeout(300);
     
     // Clear MPD editor too - this triggers change which calls handleMPDChange -> updateControlStates
     await page.evaluate(() => {
@@ -148,8 +221,15 @@ test.describe('Finsteps Editor E2E Tests', () => {
         editor.trigger('change');
       }
     });
-    // Wait for updateControlStates to run
-    await page.waitForTimeout(1000);
+    
+    // Wait for updateControlStates to run and button to be disabled
+    await page.waitForFunction(
+      () => {
+        const btn = document.getElementById('export-btn') as HTMLButtonElement;
+        return btn && btn.disabled === true;
+      },
+      { timeout: 3000 }
+    );
     
     disabled = await exportBtn.getAttribute('disabled');
     expect(disabled).not.toBeNull();
@@ -163,7 +243,15 @@ test.describe('Finsteps Editor E2E Tests', () => {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
-    await page.waitForTimeout(800);
+    
+    // Wait for updateControlStates to run and button to be enabled
+    await page.waitForFunction(
+      () => {
+        const btn = document.getElementById('export-btn') as HTMLButtonElement;
+        return btn && btn.disabled === false;
+      },
+      { timeout: 3000 }
+    );
     
     disabled = await exportBtn.getAttribute('disabled');
     expect(disabled).toBeNull();
@@ -182,7 +270,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
-    await page.waitForTimeout(300);
     
     await page.evaluate(() => {
       const editor = (window as any).mpdEditor;
@@ -191,7 +278,15 @@ test.describe('Finsteps Editor E2E Tests', () => {
         editor.trigger('change');
       }
     });
-    await page.waitForTimeout(1000);
+    
+    // Wait for button to be disabled
+    await page.waitForFunction(
+      () => {
+        const btn = document.getElementById('export-btn') as HTMLButtonElement;
+        return btn && btn.disabled === true;
+      },
+      { timeout: 3000 }
+    );
     
     // Check visual feedback
     const disabled = await exportBtn.getAttribute('disabled');
@@ -274,7 +369,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
-    await page.waitForTimeout(300);
     
     await page.evaluate(() => {
       const editor = (window as any).mpdEditor;
@@ -283,7 +377,15 @@ test.describe('Finsteps Editor E2E Tests', () => {
         editor.trigger('change');
       }
     });
-    await page.waitForTimeout(1000);
+    
+    // Wait for button to be disabled
+    await page.waitForFunction(
+      () => {
+        const btn = document.getElementById('export-btn') as HTMLButtonElement;
+        return btn && btn.disabled === true;
+      },
+      { timeout: 3000 }
+    );
     
     disabled = await exportBtn.getAttribute('disabled');
     expect(disabled).not.toBeNull();
@@ -296,7 +398,15 @@ test.describe('Finsteps Editor E2E Tests', () => {
         input.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
-    await page.waitForTimeout(1000);
+    
+    // Wait for button to be enabled
+    await page.waitForFunction(
+      () => {
+        const btn = document.getElementById('export-btn') as HTMLButtonElement;
+        return btn && btn.disabled === false;
+      },
+      { timeout: 3000 }
+    );
     
     disabled = await exportBtn.getAttribute('disabled');
     expect(disabled).toBeNull();
@@ -304,10 +414,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
 
   // REQ-005: Camera Controls - Functional Tests
   test('REQ-005: camera controls should zoom in when clicked', async ({ page }) => {
-    // Wait for diagram mount to exist (might be hidden initially)
-    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(4000); // Wait for auto-generation and rendering
-    
     // Ensure we have a valid diagram with MPD by generating one if needed
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
     if (!svgExists) {
@@ -316,22 +422,21 @@ test.describe('Finsteps Editor E2E Tests', () => {
       const btnCount = await generateBtn.count();
       if (btnCount > 0) {
         await generateBtn.click();
-        await page.waitForTimeout(4000);
       }
     }
+    
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const zoomIn = page.locator('#zoom-in');
     const diagramSvg = page.locator('#diagram-mount svg');
     
     await expect(zoomIn).toHaveCount(1);
     
-    // Wait for SVG to exist
-    await page.waitForSelector('#diagram-mount svg', { timeout: 10000 });
-    
-    // Check if enabled (diagram rendered)
+    // Check if enabled (should be enabled after waitForDiagramRender)
     const disabled = await zoomIn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Zoom in button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -350,10 +455,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-005: camera controls should zoom out when clicked', async ({ page }) => {
-    // Wait for diagram mount to exist (might be hidden initially)
-    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(4000);
-    
     // Ensure we have a valid diagram with MPD
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
     if (!svgExists) {
@@ -361,20 +462,20 @@ test.describe('Finsteps Editor E2E Tests', () => {
       const btnCount = await generateBtn.count();
       if (btnCount > 0) {
         await generateBtn.click();
-        await page.waitForTimeout(4000);
       }
     }
+    
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const zoomOut = page.locator('#zoom-out');
     const diagramSvg = page.locator('#diagram-mount svg');
     
     await expect(zoomOut).toHaveCount(1);
     
-    await page.waitForSelector('#diagram-mount svg', { timeout: 10000 });
-    
     const disabled = await zoomOut.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Zoom out button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -390,10 +491,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-005: camera controls should reset viewBox when reset clicked', async ({ page }) => {
-    // Wait for diagram mount to exist (might be hidden initially)
-    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(4000);
-    
     // Ensure we have a valid diagram with MPD
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
     if (!svgExists) {
@@ -401,20 +498,20 @@ test.describe('Finsteps Editor E2E Tests', () => {
       const btnCount = await generateBtn.count();
       if (btnCount > 0) {
         await generateBtn.click();
-        await page.waitForTimeout(4000);
       }
     }
+    
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const reset = page.locator('#reset');
     const diagramSvg = page.locator('#diagram-mount svg');
     
     await expect(reset).toHaveCount(1);
     
-    await page.waitForSelector('#diagram-mount svg', { timeout: 10000 });
-    
     const disabled = await reset.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Reset button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -439,10 +536,6 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-005: camera controls should fit all when fit-all clicked', async ({ page }) => {
-    // Wait for diagram mount to exist (might be hidden initially)
-    await page.waitForSelector('#diagram-mount', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(4000);
-    
     // Ensure we have a valid diagram with MPD
     const svgExists = await page.locator('#diagram-mount svg').count() > 0;
     if (!svgExists) {
@@ -450,16 +543,16 @@ test.describe('Finsteps Editor E2E Tests', () => {
       const btnCount = await generateBtn.count();
       if (btnCount > 0) {
         await generateBtn.click();
-        await page.waitForTimeout(4000);
       }
     }
+    
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const fitAll = page.locator('#fit-all');
     const diagramSvg = page.locator('#diagram-mount svg');
     
     await expect(fitAll).toHaveCount(1);
-    
-    await page.waitForSelector('#diagram-mount svg', { timeout: 10000 });
     
     const disabled = await fitAll.getAttribute('disabled');
     if (disabled !== null) {
@@ -482,9 +575,8 @@ test.describe('Finsteps Editor E2E Tests', () => {
 
   // REQ-006: Presentation Playback Controls - Functional Tests
   test('REQ-006: playback controls should advance to next step', async ({ page }) => {
-    // Wait for editor and auto-generation
-    await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
-    await page.waitForTimeout(5000); // Wait for auto-generation and rendering
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     // Check if we have a valid presentation - if not, skip
     const stepDisplay = page.locator('#current-step-display');
@@ -492,7 +584,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     // If it's "Step 0 / 0", we don't have a valid presentation yet
     if (initialStepText === 'Step 0 / 0') {
-      test.skip();
+      test.skip('No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -501,7 +593,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await nextBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Next button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -515,15 +607,14 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-006: playback controls should go to previous step', async ({ page }) => {
-    // Wait for editor and auto-generation
-    await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
-    await page.waitForTimeout(5000); // Wait for auto-generation and rendering
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const stepDisplay = page.locator('#current-step-display');
     const initialStepText = await stepDisplay.textContent();
     
     if (initialStepText === 'Step 0 / 0') {
-      test.skip();
+      test.skip('No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -534,7 +625,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await prevBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Previous button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -695,7 +786,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     // Click generate
     await generateBtn.click();
-    await page.waitForTimeout(4000); // Wait for generation, rendering, and diagram creation
+    
+    // Wait for diagram to be fully rendered after generation
+    await waitForDiagramRender(page);
     
     // Check if MPD editor has content - wait for it
     await page.waitForFunction(
@@ -791,7 +884,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
     try {
       // Set file input (this triggers the change event)
       await importFile.setInputFiles(tempFile);
-      await page.waitForTimeout(3000); // Wait for import, file reading, and rendering
+      
+      // Wait for diagram to be fully rendered after import
+      await waitForDiagramRender(page);
       
       // Verify Mermaid input - wait for it to be set
       await page.waitForFunction(
@@ -861,7 +956,9 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     try {
       await importFile.setInputFiles(tempFile);
-      await page.waitForTimeout(3000); // Wait for import, conversion, and rendering
+      
+      // Wait for diagram to be fully rendered after import
+      await waitForDiagramRender(page);
       
       // Verify Mermaid loaded
       await page.waitForFunction(
@@ -1066,15 +1163,14 @@ test.describe('Finsteps Editor E2E Tests', () => {
       await page.waitForTimeout(500);
       
       await generateBtn.click();
-      await page.waitForTimeout(4000); // Wait for generation and render
-    } else {
-      await page.waitForTimeout(2000); // Just wait for render
     }
+    
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const diagramSvg = page.locator('#diagram-mount svg');
     
-    // Verify diagram rendered
-    await page.waitForSelector('#diagram-mount svg', { timeout: 10000 });
+    // Verify diagram rendered (should already be rendered after waitForDiagramRender)
     const svgCount = await diagramSvg.count();
     expect(svgCount).toBeGreaterThan(0);
   });
@@ -1111,8 +1207,8 @@ test.describe('Finsteps Editor E2E Tests', () => {
     // Wait for editor to be ready
     await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
     
-    // Wait for auto-generation (it happens after editor init)
-    await page.waitForTimeout(5000); // Give time for async generation
+    // Wait for auto-generation and diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     // Check if MPD editor has content - wait for it
     await page.waitForFunction(
@@ -1159,15 +1255,14 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-015: should update step indicator on step change', async ({ page }) => {
-    // Wait for editor and auto-generation
-    await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
-    await page.waitForTimeout(5000);
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const stepDisplay = page.locator('#current-step-display');
     const initialStepText = await stepDisplay.textContent();
     
     if (initialStepText === 'Step 0 / 0') {
-      test.skip();
+      test.skip('No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -1175,7 +1270,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await nextBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Next button is disabled, diagram may not be rendered correctly');
       return;
     }
     
@@ -1190,15 +1285,14 @@ test.describe('Finsteps Editor E2E Tests', () => {
   });
 
   test('REQ-015: should track current step index for playback', async ({ page }) => {
-    // Wait for editor and auto-generation
-    await page.waitForFunction(() => typeof (window as any).mpdEditor !== 'undefined', { timeout: 5000 });
-    await page.waitForTimeout(5000);
+    // Wait for diagram to be fully rendered
+    await waitForDiagramRender(page);
     
     const stepDisplay = page.locator('#current-step-display');
     const initialStepText = await stepDisplay.textContent();
     
     if (initialStepText === 'Step 0 / 0') {
-      test.skip();
+      test.skip('No steps available, diagram may not be rendered correctly');
       return;
     }
     
@@ -1207,7 +1301,7 @@ test.describe('Finsteps Editor E2E Tests', () => {
     
     const disabled = await nextBtn.getAttribute('disabled');
     if (disabled !== null) {
-      test.skip();
+      test.skip('Next button is disabled, diagram may not be rendered correctly');
       return;
     }
     
