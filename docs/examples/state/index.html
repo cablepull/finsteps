@@ -162,7 +162,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script type="module">
-      import { presentMermaid } from "../../dist/index.js";
+      import { presentMermaid } from "https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js";
 
       mermaid.initialize({ startOnLoad: false, theme: "dark" });
 
@@ -273,7 +273,7 @@
       });
 
       // Get camera handle for manual controls (zoom/pan buttons)
-      const { createBasicCameraHandle } = await import("../../dist/adapters/basicCamera.js");
+      const { createBasicCameraHandle } = await import("https://cdn.jsdelivr.net/gh/cablepull/finsteps@latest/dist/finsteps.esm.min.js");
       const diagramContainer = document.querySelector(".finsteps-diagram");
       const svgElement = diagramContainer ? diagramContainer.querySelector("svg") : null;
       let cameraHandle = null;
