@@ -1,0 +1,1 @@
+{"version":3,"file":"actionEngine.d.ts","sourceRoot":"","sources":["../../src/actions/actionEngine.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,aAAa,EAAE,gBAAgB,EAAE,gBAAgB,EAAE,WAAW,EAAE,MAAM,aAAa,CAAC;AAE7F,qBAAa,YAAY;IACX,OAAO,CAAC,QAAQ;gBAAR,QAAQ,EAAE,gBAAgB;IAExC,GAAG,CACP,OAAO,EAAE,gBAAgB,EAAE,EAC3B,OAAO,EAAE,aAAa,EACtB,WAAW,EAAE,WAAW,GACvB,OAAO,CAAC,KAAK,EAAE,CAAC;CA2BpB"}

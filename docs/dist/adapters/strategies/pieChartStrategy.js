@@ -1,0 +1,81 @@
+import { BaseDiagramStrategy } from "../diagramStrategies.js";
+/**
+ * Strategy for pie charts
+ * Handles pie slices
+ */
+export class PieChartStrategy extends BaseDiagramStrategy {
+    getDiagramType() {
+        return 'pie';
+    }
+    getTargetableClasses() {
+        return ['slice', 'pie'];
+    }
+    getTargetableTags() {
+        return ['g', 'path', 'text'];
+    }
+    extractNodeIds(svg) {
+        const nodeIdMap = new Map();
+        // Patterns for pie chart IDs
+        const patterns = [
+            /^slice-([A-Za-z0-9_]+)-\d+$/, // slice-name-digit
+            /^pie-([A-Za-z0-9_]+)-\d+$/, // pie-name-digit
+            /^([A-Za-z0-9_]+)-\d+$/, // name-digit (fallback)
+        ];
+        // First pass: find all elements with ids and extract node ids
+        for (const el of Array.from(svg.querySelectorAll("[id]"))) {
+            const id = el.getAttribute("id");
+            if (!id)
+                continue;
+            let nodeId = this.extractIdFromPatterns(id, patterns);
+            if (nodeId && !nodeIdMap.has(nodeId)) {
+                // Find the group that contains this element
+                let current = el;
+                let nodeGroup = null;
+                // Walk up the tree to find the slice group
+                while (current && current !== svg) {
+                    if (current instanceof SVGElement && current.tagName === "g") {
+                        const className = this.getElementClassName(current);
+                        if (className && (className.includes('slice') || className.includes('pie'))) {
+                            nodeGroup = current;
+                            break;
+                        }
+                    }
+                    current = current.parentElement;
+                }
+                // If we found a group, use it
+                if (nodeGroup) {
+                    nodeIdMap.set(nodeId, nodeGroup);
+                }
+                else if (el.tagName === "g" && this.hasTargetableClass(el)) {
+                    nodeIdMap.set(nodeId, el);
+                }
+                else if (el.tagName === "path" && this.hasTargetableClass(el)) {
+                    // Pie slices are often path elements
+                    nodeIdMap.set(nodeId, el);
+                }
+            }
+        }
+        return nodeIdMap;
+    }
+    getTargetSelectors(dataId) {
+        const escapedId = this.escapeSelector(dataId);
+        return [
+            `g.slice[data-id="${escapedId}"]`,
+            `g.pie[data-id="${escapedId}"]`,
+            `path.slice[data-id="${escapedId}"]`,
+            `path.pie[data-id="${escapedId}"]`,
+            `g[class*="slice"][data-id="${escapedId}"]`,
+            `g[class*="pie"][data-id="${escapedId}"]`,
+            `path[class*="slice"][data-id="${escapedId}"]`,
+            `path[class*="pie"][data-id="${escapedId}"]`,
+            `[data-id="${escapedId}"]`, // Fallback
+        ];
+    }
+    findAdjacentElements(_target, _svg) {
+        // For pie charts, don't include adjacent slices when focusing on a single slice
+        // This allows camera.fit to zoom in on just the target slice, not the entire chart
+        // Return empty array to focus only on the target slice
+        return [];
+    }
+}
+//# sourceMappingURL=pieChartStrategy.js.map

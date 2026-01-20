@@ -1,0 +1,15 @@
+export function formatDiagnostics(diagnostics) {
+    if (!diagnostics.length) {
+        return "No diagnostics.";
+    }
+    return diagnostics
+        .map((diag) => {
+        const location = diag.span
+            ? `(${diag.span.start.line}:${diag.span.start.column})`
+            : "";
+        const code = diag.code ? ` [${diag.code}]` : "";
+        return `${diag.severity.toUpperCase()}: ${diag.message} ${location}${code}`.trim();
+    })
+        .join("\n");
+}
+//# sourceMappingURL=diagnostics.js.map
