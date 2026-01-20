@@ -103,7 +103,7 @@ import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/
 
 **Specific version:**
 ```javascript
-import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.3.0/dist/finsteps.esm.min.js';
+import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.2/dist/finsteps.esm.min.js';
 ```
 
 **Unminified (for debugging):**
