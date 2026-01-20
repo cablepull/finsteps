@@ -47,15 +47,23 @@ fi
 
 echo "✅ Build complete"
 
-# Create git tag
+# Force-add only the bundled CDN files (they're normally gitignored)
+echo "📝 Committing bundled files for CDN distribution..."
+git add -f dist/finsteps.esm.js dist/finsteps.esm.min.js
+
+# Commit the bundled files
+git commit -m "chore: add CDN bundles for ${TAG}" || echo "⚠️  No changes to commit (bundles may already be committed)"
+
+# Create git tag (which will include the committed bundles)
 echo "🏷️  Creating git tag ${TAG}..."
 git tag -a "${TAG}" -m "Release ${TAG}"
 
 echo ""
-echo "✅ Tag ${TAG} created locally"
+echo "✅ Tag ${TAG} created locally with bundled files"
 echo ""
 echo "📋 Next steps:"
-echo "   1. Push the tag to GitHub:"
+echo "   1. Push commits and tag to GitHub:"
+echo "      git push origin main"
 echo "      git push origin ${TAG}"
 echo ""
 echo "   2. Create a GitHub release:"
