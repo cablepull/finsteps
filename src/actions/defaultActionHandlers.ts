@@ -64,7 +64,11 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       const resolved = resolveTarget(context.diagram, target);
       
       if (!resolved) {
-        throw new ActionError("camera.fit missing target", "MPF_ACTION_INVALID_ARGS");
+        throw new ActionError(
+          "camera.fit missing target",
+          "MPF_ACTION_INVALID_ARGS",
+          { target: target ? JSON.stringify(target) : undefined }
+        );
       }
       
       // Extract duration - support both "durationMs" (from DSL example) and "duration"
@@ -101,7 +105,11 @@ export const createDefaultActionHandlers = (): ActionHandlerMap => {
       const target = action.payload?.target as TargetDescriptor | undefined;
       const resolved = resolveTarget(context.diagram, target);
       if (!resolved) {
-        throw new ActionError("overlay.bubble missing target", "MPF_ACTION_INVALID_ARGS");
+        throw new ActionError(
+          "overlay.bubble missing target",
+          "MPF_ACTION_INVALID_ARGS",
+          { target: target ? JSON.stringify(target) : undefined }
+        );
       }
       const text = String(action.payload?.text ?? "");
       context.overlay.showBubble({

@@ -98,3 +98,10 @@ interface Diagnostic {
 - Node `type` strings are stable.
 - Existing node fields are stable; new optional fields may be added.
 - Diagnostic codes are stable for existing validation paths.
+
+## Related Documentation
+
+- [Grammar Documentation](../grammar.md) - Complete grammar reference
+- [EBNF Grammar](../ebnf/mpd.ebnf) - Formal grammar specification
+- [JSON Schema](../schema/mpd.json) - Machine-readable ParseResult schema
+- [Grammar Summary](grammar.md) - Parser implementation details

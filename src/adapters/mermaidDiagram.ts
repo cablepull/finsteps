@@ -1050,14 +1050,27 @@ export const createMermaidDiagramAdapter = (): DiagramAdapter => {
     async render({ mountEl, mermaidText }) {
       const mermaid = (window as Window & { mermaid?: { render: Function; run?: Function } }).mermaid;
       if (!mermaid || typeof mermaid.render !== "function") {
-        throw new MPFError("Mermaid is not available on window.mermaid", "MPF_MERMAID_UNAVAILABLE");
+        throw new MPFError(
+          "Mermaid is not available on window.mermaid",
+          "MPF_MERMAID_UNAVAILABLE",
+          {
+            mermaidAvailable: typeof (window as Window & { mermaid?: unknown }).mermaid !== "undefined"
+          }
+        );
       }
       const renderId = `finsteps-${Math.random().toString(36).slice(2, 8)}`;
       let renderResult;
       try {
         renderResult = await mermaid.render(renderId, mermaidText);
       } catch (error) {
-        throw new MPFError(`Failed to render Mermaid diagram: ${error}`, "MPF_MERMAID_RENDER_FAILED");
+        throw new MPFError(
+          `Failed to render Mermaid diagram: ${error}`,
+          "MPF_MERMAID_RENDER_FAILED",
+          {
+            mermaidTextLength: mermaidText?.length || 0,
+            errorMessage: error instanceof Error ? error.message : String(error)
+          }
+        );
       }
       const { svg } = renderResult;
       mountEl.innerHTML = "";

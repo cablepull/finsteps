@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cablepull.github.io/finsteps/schema/api.json",
+  "title": "Finsteps API Schema",
+  "description": "JSON Schema for PresentationAst used by presentMermaid()",
+  "type": "object",
+  "required": ["steps"],
+  "properties": {
+    "steps": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/StepDefinition" }
+    },
+    "bindings": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/BindingDefinition" }
+    }
+  },
+  "definitions": {
+    "PresentationAst": {
+      "type": "object",
+      "required": ["steps"],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/StepDefinition" }
+        },
+        "bindings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/BindingDefinition" }
+        }
+      }
+    },
+    "StepDefinition": {
+      "type": "object",
+      "required": ["id", "actions"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ActionDefinition" }
+        },
+        "bindings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/BindingDefinition" }
+        },
+        "errorPolicy": {
+          "type": "string",
+          "enum": ["haltOnError", "continueOnError"]
+        }
+      }
+    },
+    "ActionDefinition": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string" },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "BindingDefinition": {
+      "type": "object",
+      "required": ["event", "actions"],
+      "properties": {
+        "event": {
+          "type": "string",
+          "enum": ["click", "hover", "key", "timer", "custom"]
+        },
+        "target": { "$ref": "#/definitions/TargetDescriptor" },
+        "key": { "type": "string" },
+        "delayMs": { "type": "number" },
+        "eventName": { "type": "string" },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ActionDefinition" }
+        }
+      }
+    },
+    "TargetDescriptor": {
+      "type": "object",
+      "properties": {
+        "element": {
+          "type": "object",
+          "description": "DOM Element (not serializable in JSON)"
+        },
+        "selector": { "type": "string" },
+        "id": { "type": "string" },
+        "dataId": { "type": "string" }
+      }
+    }
+  }
+}

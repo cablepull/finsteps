@@ -73,3 +73,9 @@ Events:
 - Backwards compatible additions: minor version.
 - Breaking changes in public interfaces or behavior: major version.
 - Bug fixes and non-breaking internal changes: patch version.
+
+## Related Documentation
+
+- [JSON Schema](../schema/api.json) - Machine-readable PresentationAst schema
+- [MPD Grammar](../grammar.md) - Complete MPD grammar reference
+- [MPD Parser Compatibility Contract](../mpd-parser/compatibility-contract.md) - ParseResult AST structure

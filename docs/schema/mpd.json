@@ -1,0 +1,945 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cablepull.github.io/finsteps/schema/mpd.json",
+  "title": "MPD ParseResult Schema",
+  "description": "JSON Schema for MPD (Mermaid Presentation DSL) ParseResult returned by parseMPD()",
+  "type": "object",
+  "required": ["ast", "diagnostics"],
+  "properties": {
+    "ast": {
+      "oneOf": [
+        { "$ref": "#/definitions/ProgramNode" },
+        { "type": "null" }
+      ]
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Diagnostic" }
+    }
+  },
+  "definitions": {
+    "ParseResult": {
+      "type": "object",
+      "required": ["ast", "diagnostics"],
+      "properties": {
+        "ast": {
+          "oneOf": [
+            { "$ref": "#/definitions/ProgramNode" },
+            { "type": "null" }
+          ]
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Diagnostic" }
+        }
+      }
+    },
+    "ProgramNode": {
+      "type": "object",
+      "required": ["type", "version", "body", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "Program" },
+        "version": { "type": "string" },
+        "body": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TopLevelItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TopLevelItem": {
+      "oneOf": [
+        { "$ref": "#/definitions/DeckNode" },
+        { "$ref": "#/definitions/DiagramDeclNode" },
+        { "$ref": "#/definitions/RuntimeDeclNode" },
+        { "$ref": "#/definitions/SelectorsDeclNode" },
+        { "$ref": "#/definitions/StylesDeclNode" },
+        { "$ref": "#/definitions/ConstDeclNode" },
+        { "$ref": "#/definitions/SceneDeclNode" },
+        { "$ref": "#/definitions/BindingDeclNode" },
+        { "$ref": "#/definitions/PluginDeclNode" },
+        { "$ref": "#/definitions/MetaDeclNode" },
+        { "$ref": "#/definitions/UnknownBlockNode" }
+      ]
+    },
+    "SourceSpan": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "$ref": "#/definitions/SourcePosition" },
+        "end": { "$ref": "#/definitions/SourcePosition" }
+      }
+    },
+    "SourcePosition": {
+      "type": "object",
+      "required": ["offset", "line", "column"],
+      "properties": {
+        "offset": { "type": "number" },
+        "line": { "type": "number" },
+        "column": { "type": "number" }
+      }
+    },
+    "Diagnostic": {
+      "type": "object",
+      "required": ["message", "severity"],
+      "properties": {
+        "message": { "type": "string" },
+        "severity": { "type": "string", "enum": ["error", "warning"] },
+        "span": { "$ref": "#/definitions/SourceSpan" },
+        "code": { "type": "string" }
+      }
+    },
+    "DeckNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "Deck" },
+        "name": { "$ref": "#/definitions/NameValue" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DeckItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "DeckItem": {
+      "oneOf": [
+        { "$ref": "#/definitions/MetaDeclNode" },
+        { "$ref": "#/definitions/DiagramDeclNode" },
+        { "$ref": "#/definitions/RuntimeDeclNode" },
+        { "$ref": "#/definitions/SelectorsDeclNode" },
+        { "$ref": "#/definitions/StylesDeclNode" },
+        { "$ref": "#/definitions/ConstDeclNode" },
+        { "$ref": "#/definitions/SceneDeclNode" },
+        { "$ref": "#/definitions/BindingDeclNode" },
+        { "$ref": "#/definitions/PluginDeclNode" },
+        { "$ref": "#/definitions/UnknownBlockNode" }
+      ]
+    },
+    "DiagramDeclNode": {
+      "type": "object",
+      "required": ["type", "id", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "DiagramDecl" },
+        "id": { "$ref": "#/definitions/NameValue" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/DiagramItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "DiagramItem": {
+      "oneOf": [
+        { "$ref": "#/definitions/MermaidSourceDeclNode" },
+        { "$ref": "#/definitions/MermaidConfigDeclNode" },
+        { "$ref": "#/definitions/DiagramAssetsDeclNode" },
+        { "$ref": "#/definitions/MetaDeclNode" }
+      ]
+    },
+    "MermaidSourceDeclNode": {
+      "type": "object",
+      "required": ["type", "source", "tag", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "MermaidSourceDecl" },
+        "source": { "type": "string" },
+        "tag": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "MermaidConfigDeclNode": {
+      "type": "object",
+      "required": ["type", "config", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "MermaidConfigDecl" },
+        "config": { "$ref": "#/definitions/ObjectExprNode" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "DiagramAssetsDeclNode": {
+      "type": "object",
+      "required": ["type", "assets", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "DiagramAssetsDecl" },
+        "assets": { "$ref": "#/definitions/ObjectExprNode" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "RuntimeDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "RuntimeDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/RuntimeItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "RuntimeItem": {
+      "oneOf": [
+        { "$ref": "#/definitions/CameraDeclNode" },
+        { "$ref": "#/definitions/OverlayDeclNode" },
+        { "$ref": "#/definitions/NavigationDeclNode" },
+        { "$ref": "#/definitions/PerformanceDeclNode" },
+        { "$ref": "#/definitions/MetaDeclNode" }
+      ]
+    },
+    "CameraDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "CameraDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/CameraItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "CameraItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "span", "name"],
+          "properties": {
+            "type": { "type": "string", "const": "CameraEngine" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "name": { "$ref": "#/definitions/NameValue" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "options"],
+          "properties": {
+            "type": { "type": "string", "const": "CameraOptions" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "options": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "bounds"],
+          "properties": {
+            "type": { "type": "string", "const": "CameraBounds" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "bounds": { "type": "string", "enum": ["viewport", "container", "svg"] }
+          }
+        }
+      ]
+    },
+    "OverlayDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "OverlayDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/OverlayItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "OverlayItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "span", "name"],
+          "properties": {
+            "type": { "type": "string", "const": "OverlayEngine" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "name": { "$ref": "#/definitions/NameValue" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "options"],
+          "properties": {
+            "type": { "type": "string", "const": "OverlayOptions" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "options": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        }
+      ]
+    },
+    "NavigationDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "NavigationDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/NavigationItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "NavigationItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "span", "options"],
+          "properties": {
+            "type": { "type": "string", "const": "NavigationKeys" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "options": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "NavigationWheelZoom" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "NavigationDragPan" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "NavigationTapToAdvance" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "NavigationProgressUI" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "NavigationStartAt" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": {
+              "oneOf": [
+                { "type": "number" },
+                { "type": "string" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "PerformanceDeclNode": {
+      "type": "object",
+      "required": ["type", "options", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "PerformanceDecl" },
+        "options": { "$ref": "#/definitions/ObjectExprNode" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "SelectorsDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "SelectorsDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SelectorsItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "SelectorsItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "span", "strategy"],
+          "properties": {
+            "type": { "type": "string", "const": "SelectorsStrategy" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "strategy": {
+              "type": "string",
+              "enum": ["mermaid-node-id", "mermaid-data-id", "css", "hybrid"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "fallback"],
+          "properties": {
+            "type": { "type": "string", "const": "SelectorsFallback" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "fallback": { "$ref": "#/definitions/ArrayExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "spec"],
+          "properties": {
+            "type": { "type": "string", "const": "SelectorsNode" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "spec": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "spec"],
+          "properties": {
+            "type": { "type": "string", "const": "SelectorsEdge" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "spec": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "spec"],
+          "properties": {
+            "type": { "type": "string", "const": "SelectorsSubgraph" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "spec": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        { "$ref": "#/definitions/MetaDeclNode" }
+      ]
+    },
+    "StylesDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "StylesDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/StylesItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "StylesItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "span", "classes"],
+          "properties": {
+            "type": { "type": "string", "const": "StylesClasses" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "classes": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "spotlight"],
+          "properties": {
+            "type": { "type": "string", "const": "StylesSpotlight" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "spotlight": { "$ref": "#/definitions/ObjectExprNode" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "theme"],
+          "properties": {
+            "type": { "type": "string", "const": "StylesTheme" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "theme": { "$ref": "#/definitions/NameValue" }
+          }
+        },
+        { "$ref": "#/definitions/MetaDeclNode" }
+      ]
+    },
+    "ConstDeclNode": {
+      "type": "object",
+      "required": ["type", "name", "value", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ConstDecl" },
+        "name": { "type": "string" },
+        "value": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "SceneDeclNode": {
+      "type": "object",
+      "required": ["type", "name", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "SceneDecl" },
+        "name": { "$ref": "#/definitions/NameValue" },
+        "diagram": { "$ref": "#/definitions/NameValue" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/SceneItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "SceneItem": {
+      "oneOf": [
+        { "$ref": "#/definitions/StepDeclNode" },
+        { "$ref": "#/definitions/BindingDeclNode" },
+        { "$ref": "#/definitions/MetaDeclNode" },
+        { "$ref": "#/definitions/ConstDeclNode" }
+      ]
+    },
+    "StepDeclNode": {
+      "type": "object",
+      "required": ["type", "name", "statements", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "StepDecl" },
+        "name": { "$ref": "#/definitions/NameValue" },
+        "alias": { "type": "string" },
+        "statements": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/StepStmt" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "StepStmt": {
+      "oneOf": [
+        { "$ref": "#/definitions/FocusStmtNode" },
+        { "$ref": "#/definitions/DoStmtNode" },
+        { "$ref": "#/definitions/LetStmtNode" },
+        { "$ref": "#/definitions/AssertStmtNode" },
+        { "$ref": "#/definitions/MetaDeclNode" }
+      ]
+    },
+    "FocusStmtNode": {
+      "type": "object",
+      "required": ["type", "target", "options", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "FocusStmt" },
+        "target": { "$ref": "#/definitions/TargetExprNode" },
+        "options": { "$ref": "#/definitions/FocusOptions" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "FocusOptions": {
+      "type": "object",
+      "properties": {
+        "pad": { "type": "number" },
+        "align": {
+          "type": "string",
+          "enum": ["center", "start", "end", "top", "bottom", "left", "right"]
+        },
+        "lock": {
+          "type": "string",
+          "enum": ["none", "x", "y", "xy"]
+        },
+        "id": { "type": "string" }
+      }
+    },
+    "DoStmtNode": {
+      "type": "object",
+      "required": ["type", "action", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "DoStmt" },
+        "action": { "$ref": "#/definitions/ActionCallNode" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "LetStmtNode": {
+      "type": "object",
+      "required": ["type", "name", "value", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "LetStmt" },
+        "name": { "type": "string" },
+        "value": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "AssertStmtNode": {
+      "type": "object",
+      "required": ["type", "condition", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "AssertStmt" },
+        "condition": { "$ref": "#/definitions/Expr" },
+        "message": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "BindingDeclNode": {
+      "type": "object",
+      "required": ["type", "rules", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "BindingDecl" },
+        "name": { "$ref": "#/definitions/NameValue" },
+        "priority": { "type": "number" },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/BindingRuleNode" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "BindingRuleNode": {
+      "type": "object",
+      "required": ["type", "event", "statements", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "BindingRule" },
+        "event": { "$ref": "#/definitions/EventSpecNode" },
+        "target": {
+          "oneOf": [
+            { "$ref": "#/definitions/TargetExprNode" },
+            { "type": "string", "const": "any" }
+          ]
+        },
+        "when": { "$ref": "#/definitions/Expr" },
+        "statements": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/BindingStmt" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "BindingStmt": {
+      "oneOf": [
+        { "$ref": "#/definitions/DoStmtNode" },
+        { "$ref": "#/definitions/LetStmtNode" },
+        { "$ref": "#/definitions/AssertStmtNode" }
+      ]
+    },
+    "EventSpecNode": {
+      "type": "object",
+      "required": ["type", "kind", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "EventSpec" },
+        "kind": {
+          "type": "string",
+          "enum": ["click", "dblclick", "hover", "mouseenter", "mouseleave", "wheel", "scroll", "key", "timer", "custom"]
+        },
+        "value": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "ActionCallNode": {
+      "type": "object",
+      "required": ["type", "name", "args", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ActionCall" },
+        "name": { "type": "string" },
+        "args": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ActionArg" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "ActionArg": {
+      "type": "object",
+      "required": ["type", "value", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ActionArg" },
+        "key": { "type": "string" },
+        "value": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "PluginDeclNode": {
+      "type": "object",
+      "required": ["type", "ref", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "PluginDecl" },
+        "ref": { "$ref": "#/definitions/NameValue" },
+        "options": { "$ref": "#/definitions/ObjectExprNode" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "MetaDeclNode": {
+      "type": "object",
+      "required": ["type", "entries", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "MetaDecl" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/MetaEntry" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "MetaEntry": {
+      "type": "object",
+      "required": ["type", "key", "value", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "MetaEntry" },
+        "key": { "type": "string" },
+        "value": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "UnknownBlockNode": {
+      "type": "object",
+      "required": ["type", "name", "content", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "UnknownBlock" },
+        "name": { "type": "string" },
+        "content": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "NameValue": {
+      "type": "object",
+      "required": ["type", "value", "kind", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "Name" },
+        "value": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["identifier", "string"]
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "Expr": {
+      "oneOf": [
+        { "$ref": "#/definitions/LiteralExprNode" },
+        { "$ref": "#/definitions/VarRefNode" },
+        { "$ref": "#/definitions/ObjectExprNode" },
+        { "$ref": "#/definitions/ArrayExprNode" },
+        { "$ref": "#/definitions/CallExprNode" },
+        { "$ref": "#/definitions/TargetExprNode" },
+        { "$ref": "#/definitions/UnaryExprNode" },
+        { "$ref": "#/definitions/BinaryExprNode" }
+      ]
+    },
+    "LiteralExprNode": {
+      "type": "object",
+      "required": ["type", "literalType", "value", "raw", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "Literal" },
+        "literalType": {
+          "type": "string",
+          "enum": ["number", "int", "duration", "percent", "boolean", "null", "string", "color"]
+        },
+        "value": {
+          "oneOf": [
+            { "type": "number" },
+            { "type": "boolean" },
+            { "type": "null" },
+            { "type": "string" }
+          ]
+        },
+        "raw": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "VarRefNode": {
+      "type": "object",
+      "required": ["type", "path", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "VarRef" },
+        "path": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "ObjectExprNode": {
+      "type": "object",
+      "required": ["type", "entries", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ObjectExpr" },
+        "entries": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ObjectEntryNode" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "ObjectEntryNode": {
+      "type": "object",
+      "required": ["type", "key", "value", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ObjectEntry" },
+        "key": { "type": "string" },
+        "value": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "ArrayExprNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ArrayExpr" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Expr" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "CallExprNode": {
+      "type": "object",
+      "required": ["type", "name", "args", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "CallExpr" },
+        "name": { "type": "string" },
+        "args": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ActionArg" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetExprNode": {
+      "oneOf": [
+        { "$ref": "#/definitions/TargetNodeExpr" },
+        { "$ref": "#/definitions/TargetEdgeExpr" },
+        { "$ref": "#/definitions/TargetSubgraphExpr" },
+        { "$ref": "#/definitions/TargetCssExpr" },
+        { "$ref": "#/definitions/TargetIdExpr" },
+        { "$ref": "#/definitions/TargetTextExpr" },
+        { "$ref": "#/definitions/TargetGroupExpr" },
+        { "$ref": "#/definitions/TargetUnionExpr" },
+        { "$ref": "#/definitions/TargetIntersectExpr" },
+        { "$ref": "#/definitions/TargetExceptExpr" }
+      ]
+    },
+    "TargetNodeExpr": {
+      "type": "object",
+      "required": ["type", "ref", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetNode" },
+        "ref": {
+          "oneOf": [
+            { "type": "string", "const": "*" },
+            { "$ref": "#/definitions/NameValue" }
+          ]
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetEdgeExpr": {
+      "type": "object",
+      "required": ["type", "ref", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetEdge" },
+        "ref": {
+          "oneOf": [
+            { "$ref": "#/definitions/NameValue" },
+            { "$ref": "#/definitions/EdgeTuple" }
+          ]
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetSubgraphExpr": {
+      "type": "object",
+      "required": ["type", "ref", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetSubgraph" },
+        "ref": {
+          "oneOf": [
+            { "type": "string", "const": "*" },
+            { "$ref": "#/definitions/NameValue" }
+          ]
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetCssExpr": {
+      "type": "object",
+      "required": ["type", "selector", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetCss" },
+        "selector": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetIdExpr": {
+      "type": "object",
+      "required": ["type", "id", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetId" },
+        "id": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetTextExpr": {
+      "type": "object",
+      "required": ["type", "text", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetText" },
+        "text": { "type": "string" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetGroupExpr": {
+      "type": "object",
+      "required": ["type", "targets", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetGroup" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TargetExprNode" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetUnionExpr": {
+      "type": "object",
+      "required": ["type", "targets", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetUnion" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TargetExprNode" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetIntersectExpr": {
+      "type": "object",
+      "required": ["type", "targets", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetIntersect" },
+        "targets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TargetExprNode" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "TargetExceptExpr": {
+      "type": "object",
+      "required": ["type", "left", "right", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "TargetExcept" },
+        "left": { "$ref": "#/definitions/TargetExprNode" },
+        "right": { "$ref": "#/definitions/TargetExprNode" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "EdgeTuple": {
+      "type": "object",
+      "required": ["from", "to"],
+      "properties": {
+        "from": {
+          "oneOf": [
+            { "type": "string", "const": "*" },
+            { "$ref": "#/definitions/NameValue" }
+          ]
+        },
+        "to": {
+          "oneOf": [
+            { "type": "string", "const": "*" },
+            { "$ref": "#/definitions/NameValue" }
+          ]
+        }
+      }
+    }
+  }
+}

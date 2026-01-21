@@ -1,5 +1,7 @@
 # MPD Grammar Summary
 
+This document provides implementation details for the MPD parser. For a complete grammar reference with examples, see the [main grammar documentation](../grammar.md). The formal EBNF grammar is available in [../ebnf/mpd.ebnf](../ebnf/mpd.ebnf).
+
 This package implements the MPD DSL described in `docs/ebnf/mpd.ebnf` with a focus on the core constructs that drive diagrams, runtime settings, scenes, and bindings. The parser recognizes:
 
 - **Program header**: `mpd <version>`
@@ -40,3 +42,10 @@ Diagnostics cover:
 - Malformed target expressions (e.g., `edge(A, *)`)
 - Duplicate step names in a scene
 - Version mismatch warnings
+
+## Related Documentation
+
+- [Grammar Documentation](../grammar.md) - Complete grammar reference with examples
+- [EBNF Grammar](../ebnf/mpd.ebnf) - Formal grammar specification
+- [JSON Schema](../schema/mpd.json) - Machine-readable ParseResult schema
+- [Parser Compatibility Contract](compatibility-contract.md) - AST structure documentation

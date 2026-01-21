@@ -4,9 +4,11 @@ Finsteps is a Mermaid presentation runtime that lets you walk through diagram st
 
 ## Docs
 
+- [Quick Start Guide](docs/quick-start.md) - 5-minute tutorial (start here!)
 - Public API contract: `docs/api/public-api.md`
 - Examples: `docs/examples/vanilla.html`, `docs/examples/react-hook.md`, `docs/examples/revealjs.md`
 - Product requirements: `docs/prd/finsteps-mermaid-presentation-framework.md`
+
 Finsteps goal as a library is to enable you to walk through mermaid charts.
 
 ## How to debug
@@ -51,8 +53,134 @@ console.log(result.ast);
 
 ### Docs
 
-- [Grammar summary](docs/mpd-parser/grammar.md)
-- [Compatibility contract](docs/mpd-parser/compatibility-contract.md)
+- [Grammar documentation](docs/grammar.md) - Complete MPD grammar reference with examples
+- [EBNF Grammar](docs/ebnf/mpd.ebnf) - Formal grammar specification
+- [Grammar summary](docs/mpd-parser/grammar.md) - Parser implementation details
+- [Compatibility contract](docs/mpd-parser/compatibility-contract.md) - AST structure documentation
+
+### JSON Schemas
+
+- [MPD Schema](docs/schema/mpd.json) - JSON Schema for ParseResult (returned by `parseMPD()`)
+- [API Schema](docs/schema/api.json) - JSON Schema for PresentationAst (used by `presentMermaid()`)
+
+Schemas are also available via `package.json` contract under `finsteps.schema`.
+
+## For AI Assistants
+
+This library enables interactive presentations over Mermaid diagrams using:
+
+- **MPD (Mermaid Presentation DSL)**: Declarative language for defining presentation steps
+- **presentMermaid()**: Main entry point function
+- **Controller API**: Navigation methods (next, prev, goto, reset)
+- **JSON Schemas**: Machine-readable contracts for MPD and API validation
+
+### Minimal Example Template
+
+```javascript
+import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+
+const mermaidText = `graph LR
+  A[Start] --> B[Process] --> C[End]`;
+
+const mpdText = `mpd 1.0
+scene default {
+  step overview {
+    camera reset();
+    overlay bubble(target: dataId("A"), text: "Welcome!");
+  }
+  step detail {
+    camera fit(target: dataId("B"), padding: 60, duration: 500);
+    style highlight(target: dataId("B"));
+    overlay bubble(target: dataId("B"), text: "Details here");
+  }
+}`;
+
+const controller = await presentMermaid({
+  mermaidText,
+  mpdText,
+  mountEl: document.getElementById('diagram'),
+  options: { parseMpd: parseMPD }
+});
+
+// Navigate programmatically
+controller.next();  // Go to next step
+controller.prev();  // Go to previous step
+controller.goto('detail');  // Jump to specific step
+```
+
+### MPD Syntax Reference
+
+**Program structure:**
+```mpd
+mpd 1.0
+scene <name> {
+  step <id> {
+    camera <action>(<args>);
+    overlay bubble(target: dataId("<nodeId>"), text: "<message>");
+    style highlight(target: dataId("<nodeId>"));
+  }
+}
+```
+
+**Common actions:**
+- `camera fit(target: dataId("A"), padding: 60, duration: 500)` - Focus camera on target
+- `camera reset()` - Reset camera to full view
+- `overlay bubble(target: dataId("A"), text: "Message")` - Show bubble callout
+- `style highlight(target: dataId("A"))` - Highlight element
+- `nav.next()`, `nav.prev()`, `nav.goto(id: "step1")` - Navigation actions
+
+**Target expressions:**
+- `dataId("A")` - Target by data-id attribute (most common)
+- `node("A")` - Target by Mermaid node ID
+- `css(".selector")` - Target by CSS selector
+- `union(target1, target2)` - Multiple targets
+
+**Keyboard bindings:**
+```mpd
+binding {
+  on key "ArrowRight" {
+    do nav.next();
+  }
+  on key "ArrowLeft" {
+    do nav.prev();
+  }
+}
+```
+
+### Validation
+
+Use `parseMPD()` to validate MPD syntax before suggesting code:
+
+```javascript
+import { parseMPD, formatDiagnostics } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+
+const result = parseMPD(mpdText);
+if (result.diagnostics.length > 0) {
+  const errors = result.diagnostics.filter(d => d.severity === "error");
+  if (errors.length > 0) {
+    console.error(formatDiagnostics(result.diagnostics));
+    // Regenerate with corrections
+  }
+}
+```
+
+### Resources
+
+- [JSON Schema for MPD](docs/schema/mpd.json) - Validate ParseResult structure
+- [JSON Schema for API](docs/schema/api.json) - Validate PresentationAst structure
+- [Complete Grammar Documentation](docs/grammar.md) - Full MPD syntax reference
+- [EBNF Grammar](docs/ebnf/mpd.ebnf) - Formal grammar specification
+- [Quick Start Guide](docs/quick-start.md) - Progressive tutorial
+
+### Tips for AI Assistants
+
+When generating Finsteps code:
+
+1. **Always provide both Mermaid and MPD**: Users need both the diagram and the presentation script
+2. **Use dataId for targets**: Most reliable targeting method - matches what's rendered in SVG
+3. **Validate MPD before suggesting**: Use `parseMPD()` to check syntax
+4. **Include navigation**: Add keyboard bindings (ArrowRight/ArrowLeft) for better UX
+5. **Check error messages**: If errors occur, check `error.suggestions` array for helpful hints
 
 ## CDN Usage (jsDelivr)
 

@@ -9,13 +9,24 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "files": [
     "dist",
     "docs"
   ],
+  "finsteps": {
+    "schema": {
+      "mpd": "https://cablepull.github.io/finsteps/schema/mpd.json",
+      "api": "https://cablepull.github.io/finsteps/schema/api.json"
+    },
+    "examples": {
+      "minimal": "https://cablepull.github.io/finsteps/examples/minimal.html",
+      "templates": "https://github.com/cablepull/finsteps-templates"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "bundle": "esbuild src/index.ts --bundle --format=esm --outfile=dist/finsteps.esm.js --external:mermaid --platform=browser --target=es2020",

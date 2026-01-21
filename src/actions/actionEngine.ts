@@ -13,7 +13,11 @@ export class ActionEngine {
     for (const action of actions) {
       const handler = this.handlers[action.type];
       if (!handler) {
-        const error = new ActionError(`Unknown action: ${action.type}`, "MPF_ACTION_UNKNOWN");
+        const error = new ActionError(
+          `Unknown action: ${action.type}`,
+          "MPF_ACTION_UNKNOWN",
+          { actionType: action.type }
+        );
         if (errorPolicy === "haltOnError") {
           throw error;
         }

@@ -218,7 +218,11 @@ export function createOverlayEngine({ mountRoot = document.body, mode, adapters 
       throw new MPFError('OverlayEngine has been destroyed.', 'MPF_OVERLAY_DESTROYED');
     }
     if (!targetEl) {
-      throw new MPFError('showBubble requires a targetEl.', 'MPF_OVERLAY_TARGET_MISSING');
+      throw new MPFError(
+        'showBubble requires a targetEl.',
+        'MPF_OVERLAY_TARGET_MISSING',
+        { hasTarget: !!targetEl }
+      );
     }
     const adapter = overlayAdapters.bubble ?? defaultBubbleAdapter;
     const overlay = adapter({
