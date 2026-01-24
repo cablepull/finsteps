@@ -15,7 +15,7 @@ The simplest working Finsteps presentation - just a diagram with one step.
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
 </head>
 <body>
   <div id="diagram"></div>
@@ -61,7 +61,7 @@ Add Next/Previous buttons to navigate between steps.
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
   <style>
     body { font-family: system-ui; padding: 2rem; }
     #diagram { width: 100%; height: 400px; border: 1px solid #ccc; margin: 1rem 0; }
@@ -124,7 +124,7 @@ Add camera movements to focus on different parts of the diagram.
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
   <style>
     body { font-family: system-ui; padding: 2rem; }
     #diagram { width: 100%; height: 400px; border: 1px solid #ccc; margin: 1rem 0; }
@@ -193,7 +193,7 @@ Add bubble callouts to highlight and explain parts of the diagram.
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
   <style>
     body { font-family: system-ui; padding: 2rem; }
     #diagram { width: 100%; height: 400px; border: 1px solid #ccc; margin: 1rem 0; }
@@ -266,7 +266,7 @@ Add keyboard navigation for a better presentation experience.
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
   <style>
     body { font-family: system-ui; padding: 2rem; }
     #diagram { width: 100%; height: 400px; border: 1px solid #ccc; margin: 1rem 0; }

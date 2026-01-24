@@ -9,7 +9,7 @@ test.describe('Editor Diagnostics', () => {
     page.on('console', msg => console.log(`[Browser Console] ${msg.type()}: ${msg.text()}`));
     page.on('pageerror', err => console.error(`[Browser Error] ${err.message}`));
 
-    await page.goto('http://localhost:5173/examples/editor/index.html', { 
+    await page.goto('http://localhost:5173/examples/editor/', { 
       waitUntil: 'domcontentloaded',
       timeout: 10000 
     });
@@ -87,7 +87,7 @@ test.describe('Editor Diagnostics', () => {
       console.error(`[Request Failed] ${request.url()} - ${request.failure()?.errorText}`);
     });
 
-    await page.goto('http://localhost:5173/examples/editor/index.html', { 
+    await page.goto('http://localhost:5173/examples/editor/', { 
       waitUntil: 'domcontentloaded',
       timeout: 10000 
     });
@@ -99,7 +99,7 @@ test.describe('Editor Diagnostics', () => {
     const moduleCheck = await page.evaluate(async () => {
       try {
         // Try to dynamically import the editor module
-        const response = await fetch('editor.js');
+        const response = await fetch('./editor.js');
         const text = await response.text();
         return {
           moduleAccessible: response.ok,

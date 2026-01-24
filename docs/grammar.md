@@ -242,6 +242,55 @@ runtime {
 }
 ```
 
+### Controls Configuration
+
+```mpd
+runtime {
+  controls {
+    mode: "floating";
+    position: "bottom-right";
+    showPlayPause: true;
+    showPrevNext: true;
+    showZoomControls: true;
+    showStepIndicator: true;
+    autoHide: false;
+    offset: { x: 20, y: 20 };
+  }
+}
+```
+
+Controls configuration options:
+- `mode`: Control display mode - `"floating"` (overlay), `"fixed"` (in layout), or `"none"` (disabled)
+- `position`: Position for floating controls - `"bottom-right"`, `"bottom-left"`, `"top-right"`, `"top-left"`, or `"bottom-center"`
+- `showPlayPause`: Show play/pause toggle button for auto-advance (default: `true`)
+- `showPrevNext`: Show previous/next step buttons (default: `true`)
+- `showZoomControls`: Show zoom in/out and fit all buttons (default: `true`)
+- `showStepIndicator`: Show step counter display (default: `true`)
+- `autoHide`: Automatically hide controls after inactivity (default: `false`)
+- `offset`: Offset from position edge as `{ x: number, y: number }` (default: `{ x: 20, y: 20 }`)
+
+Controls can also be configured programmatically via JavaScript:
+
+```javascript
+import { presentMermaid, createFloatingControls } from 'finsteps';
+
+const controller = await presentMermaid({
+  mountEl,
+  mermaidText,
+  mpdText,
+  options: {
+    controls: createFloatingControls({
+      controller, // Will be set automatically
+      camera,     // Optional, for zoom controls
+      position: 'bottom-right',
+      showPlayPause: true,
+      showPrevNext: true,
+      showZoomControls: true
+    })
+  }
+});
+```
+
 ## Diagram Declaration
 
 Diagrams can be declared inline or referenced by ID:
@@ -354,6 +403,7 @@ The complete EBNF grammar is available in [ebnf/mpd.ebnf](ebnf/mpd.ebnf). This f
 - Expression syntax (literals, operators, function calls, target expressions)
 - Statement syntax (focus, do, let, assert)
 - Action vocabulary (camera, style, overlay, navigation)
+- Runtime configuration (camera, overlay, navigation, controls)
 
 ## Validation
 

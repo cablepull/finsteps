@@ -79,6 +79,13 @@ export interface OverlayHandle {
   destroy(): void;
 }
 
+export interface ControlsHandle {
+  show(): void;
+  hide(): void;
+  updateState(state: ControllerState): void;
+  destroy(): void;
+}
+
 export interface ActionContext {
   controller: Controller;
   diagram: DiagramHandle;
@@ -152,6 +159,8 @@ export interface PresentMermaidOptions {
     diagram?: DiagramAdapter;
     camera?: CameraHandle;
     overlay?: OverlayHandle;
+    controls?: ControlsHandle;
+    createControls?: boolean;
     actionHandlers?: ActionHandlerMap;
     errorPolicy?: ErrorPolicy;
     hooks?: ControllerHooks;

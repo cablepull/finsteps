@@ -192,7 +192,7 @@ Finsteps is available via [jsDelivr CDN](https://www.jsdelivr.com/) for easy int
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
 </head>
 <body>
   <div id="diagram"></div>

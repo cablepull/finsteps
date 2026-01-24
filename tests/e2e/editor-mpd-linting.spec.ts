@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { test, expect } from "@playwright/test";
 import { parseMPD, formatDiagnostics } from "../../src/index";
 
-describe("Editor MPD Linting", () => {
-  describe("MPD syntax validation with formatDiagnostics", () => {
-    it("should format error diagnostics correctly", () => {
+test.describe("Editor MPD Linting", () => {
+  test.describe("MPD syntax validation with formatDiagnostics", () => {
+    test("should format error diagnostics correctly", () => {
       const invalidMPD = `mpd 1.0
 scene test {
   step one {
@@ -21,7 +21,7 @@ scene test {
       expect(formatted).toMatch(/\d+:\d+/); // Should contain line:column format
     });
 
-    it("should format warning diagnostics correctly", () => {
+    test("should format warning diagnostics correctly", () => {
       const mpdWithWarning = `mpd 2.1
 scene test {
   step one {
@@ -38,7 +38,7 @@ scene test {
       }
     });
 
-    it("should format multiple diagnostics correctly", () => {
+    test("should format multiple diagnostics correctly", () => {
       const invalidMPD = `mpd 1.0
 scene test {
   step one {
@@ -61,7 +61,7 @@ scene test {
       expect(lines.length).toBeGreaterThan(0);
     });
 
-    it("should include diagnostic codes when available", () => {
+    test("should include diagnostic codes when available", () => {
       const invalidMPD = `mpd 2.1
 scene test {
   step one {
@@ -76,17 +76,17 @@ scene test {
         // Should include codes like [validate/version-mismatch]
         const hasCode = result.diagnostics.some(d => d.code);
         if (hasCode) {
-          expect(formatted).toMatch(/\[validate\/\w+\]/);
+          expect(formatted).toMatch(/\[validate\/[\w-]+\]/);
         }
       }
     });
 
-    it("should handle empty diagnostics gracefully", () => {
+    test("should handle empty diagnostics gracefully", () => {
       const formatted = formatDiagnostics([]);
       expect(formatted).toBe("No diagnostics.");
     });
 
-    it("should format diagnostics with span information", () => {
+    test("should format diagnostics with span information", () => {
       const invalidMPD = `mpd 1.0
 scene test {
   step one {
@@ -107,8 +107,8 @@ scene test {
     });
   });
 
-  describe("MPD parsing error handling", () => {
-    it("should not render if there are blocking errors", () => {
+  test.describe("MPD parsing error handling", () => {
+    test("should not render if there are blocking errors", () => {
       const invalidMPD = `mpd 1.0
 scene test {
   step one {
@@ -128,7 +128,7 @@ scene test {
       }
     });
 
-    it("should allow rendering with warnings", () => {
+    test("should allow rendering with warnings", () => {
       const mpdWithWarning = `mpd 2.1
 scene test {
   step one {
@@ -148,8 +148,8 @@ scene test {
     });
   });
 
-  describe("Control updates after MPD changes", () => {
-    it("should parse valid MPD and generate AST", () => {
+  test.describe("Control updates after MPD changes", () => {
+    test("should parse valid MPD and generate AST", () => {
       const validMPD = `mpd 1.0
 
 deck {
@@ -171,7 +171,7 @@ deck {
       expect(result.diagnostics.filter(d => d.severity === "error")).toHaveLength(0);
     });
 
-    it("should extract steps from parsed MPD", () => {
+    test("should extract steps from parsed MPD", () => {
       const validMPD = `mpd 1.0
 
 deck {
@@ -194,20 +194,38 @@ deck {
       
       expect(result.ast).not.toBeNull();
       if (result.ast) {
-        const scene = result.ast.body.find(
-          (item: any) => item.type === "SceneDecl"
+        // With deck structure, SceneDecl is nested inside Deck
+        const deck = result.ast.body.find(
+          (item: any) => item.type === "Deck"
         );
-        expect(scene).toBeDefined();
-        if (scene && (scene as any).items) {
-          const steps = (scene as any).items.filter(
-            (item: any) => item.type === "StepDecl"
+        if (deck) {
+          const scene = deck.items?.find(
+            (item: any) => item.type === "SceneDecl"
           );
-          expect(steps.length).toBeGreaterThanOrEqual(2);
+          expect(scene).toBeDefined();
+          if (scene && (scene as any).items) {
+            const steps = (scene as any).items.filter(
+              (item: any) => item.type === "StepDecl"
+            );
+            expect(steps.length).toBeGreaterThanOrEqual(2);
+          }
+        } else {
+          // Fallback: try direct SceneDecl in body
+          const scene = result.ast.body.find(
+            (item: any) => item.type === "SceneDecl"
+          );
+          expect(scene).toBeDefined();
+          if (scene && (scene as any).items) {
+            const steps = (scene as any).items.filter(
+              (item: any) => item.type === "StepDecl"
+            );
+            expect(steps.length).toBeGreaterThanOrEqual(2);
+          }
         }
       }
     });
 
-    it("should handle duplicate step names", () => {
+    test("should handle duplicate step names", () => {
       const invalidMPD = `mpd 1.0
 
 deck {

@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Mindmap Walkthrough</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        grid-template-rows: auto 1fr;
+        height: 100vh;
+      }
+      header {
+        grid-column: 1 / -1;
+        padding: 0.75rem 1rem;
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+      }
+      header h1 { margin: 0; font-size: 1rem; font-weight: 600; }
+      .sidebar {
+        padding: 1rem 0.75rem;
+        background: #1e293b;
+        border-right: 1px solid #334155;
+        overflow-y: auto;
+      }
+      .sidebar h2 {
+        margin: 0 0 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94a3b8;
+      }
+      .jump-btn {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.8rem;
+        text-align: left;
+        background: #334155;
+        color: #e2e8f0;
+        border: 1px solid #475569;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .jump-btn.active { background: #3b82f6; border-color: #60a5fa; color: #fff; }
+      .stage-wrap {
+        padding: 1rem;
+        overflow: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .diagram-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        width: 100%;
+        position: relative;
+      }
+      .diagram-stage .finsteps-diagram {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .diagram-stage .finsteps-diagram svg {
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        max-width: 100%;
+        display: block;
+      }
+      .finsteps-highlight {
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+      }
+      g.finsteps-highlight, rect.finsteps-highlight, path.finsteps-highlight, polygon.finsteps-highlight {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header><h1>Mindmap Walkthrough</h1></header>
+      <aside class="sidebar">
+        <h2>Navigation</h2>
+        <button class="jump-btn" data-goto="overview">Overview</button>
+        <button class="jump-btn" data-goto="root">Root</button>
+        <button class="jump-btn" data-goto="topic_a">Topic_A</button>
+        <button class="jump-btn" data-goto="topic_b">Topic_B</button>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const mermaidText = `mindmap
+  root((Root))
+    Topic_A
+      Sub_1
+      Sub_2
+    Topic_B
+      Sub_3
+      Sub_4`;
+
+      const ast = {
+        steps: [
+          {
+            id: "overview",
+            actions: [
+              { type: "camera.reset" },
+              { type: "overlay.bubble", payload: { target: { dataId: "Root" }, text: "Mindmap overview. Use the sidebar to navigate nodes." } }
+            ]
+          },
+          {
+            id: "root",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Root" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Root" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "Root" }, text: "Root: central topic of the mindmap." } }
+            ]
+          },
+          {
+            id: "topic_a",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Topic_A" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Topic_A" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "Topic_A" }, text: "Topic_A: branch with subtopics." } }
+            ]
+          },
+          {
+            id: "topic_b",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Topic_B" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Topic_B" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "Topic_B" }, text: "Topic_B: another branch with subtopics." } }
+            ]
+          }
+        ],
+        bindings: [
+          { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+          { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] },
+          { event: "click", target: { selector: "button[data-goto='overview']" }, actions: [{ type: "nav.goto", payload: { id: "overview" } }] },
+          { event: "click", target: { selector: "button[data-goto='root']" }, actions: [{ type: "nav.goto", payload: { id: "root" } }] },
+          { event: "click", target: { selector: "button[data-goto='topic_a']" }, actions: [{ type: "nav.goto", payload: { id: "topic_a" } }] },
+          { event: "click", target: { selector: "button[data-goto='topic_b']" }, actions: [{ type: "nav.goto", payload: { id: "topic_b" } }] }
+        ]
+      };
+
+      const controller = await presentMermaid({
+        mountEl: document.getElementById("diagram-mount"),
+        mermaidText,
+        ast
+      });
+
+      const updateActiveButtons = () => {
+        const state = controller.getState();
+        document.querySelectorAll('.jump-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-goto') === state.stepId);
+        });
+      };
+      controller.on('stepchange', updateActiveButtons);
+      updateActiveButtons();
+    </script>
+  </body>
+</html>
+

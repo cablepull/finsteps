@@ -123,6 +123,7 @@ RuntimeDecl   ::= "runtime" SEP Block(RuntimeItem*)
 RuntimeItem   ::= CameraDecl
                | OverlayDecl
                | NavigationDecl
+               | ControlsDecl
                | PerformanceDecl
                | MetaDecl
 
@@ -147,6 +148,16 @@ NavItem       ::= "keys" SEP ":" SEP Object SEP ";"
                | "tapToAdvance" SEP ":" SEP BOOLEAN SEP ";"
                | "progressUI" SEP ":" SEP BOOLEAN SEP ";"
                | "startAt" SEP ":" SEP (INT | STR) SEP ";"
+
+ControlsDecl  ::= "controls" SEP Block(ControlsItem*)
+ControlsItem  ::= "mode" SEP ":" SEP Name SEP ";"
+               | "position" SEP ":" SEP Name SEP ";"
+               | "showPlayPause" SEP ":" SEP BOOLEAN SEP ";"
+               | "showPrevNext" SEP ":" SEP BOOLEAN SEP ";"
+               | "showZoomControls" SEP ":" SEP BOOLEAN SEP ";"
+               | "showStepIndicator" SEP ":" SEP BOOLEAN SEP ";"
+               | "autoHide" SEP ":" SEP BOOLEAN SEP ";"
+               | "offset" SEP ":" SEP Object SEP ";"
 
 PerformanceDecl
               ::= "performance" SEP Object SEP ";"

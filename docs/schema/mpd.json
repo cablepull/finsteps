@@ -182,6 +182,7 @@
         { "$ref": "#/definitions/CameraDeclNode" },
         { "$ref": "#/definitions/OverlayDeclNode" },
         { "$ref": "#/definitions/NavigationDeclNode" },
+        { "$ref": "#/definitions/ControlsDeclNode" },
         { "$ref": "#/definitions/PerformanceDeclNode" },
         { "$ref": "#/definitions/MetaDeclNode" }
       ]
@@ -334,6 +335,94 @@
                 { "type": "string" }
               ]
             }
+          }
+        }
+      ]
+    },
+    "ControlsDeclNode": {
+      "type": "object",
+      "required": ["type", "items", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "ControlsDecl" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ControlsItem" }
+        },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "ControlsItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "span", "mode"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsMode" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "mode": { "$ref": "#/definitions/NameValue" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "position"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsPosition" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "position": { "$ref": "#/definitions/NameValue" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsShowPlayPause" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsShowPrevNext" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsShowZoomControls" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsShowStepIndicator" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "value"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsAutoHide" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "value": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["type", "span", "offset"],
+          "properties": {
+            "type": { "type": "string", "const": "ControlsOffset" },
+            "span": { "$ref": "#/definitions/SourceSpan" },
+            "offset": { "$ref": "#/definitions/ObjectExprNode" }
           }
         }
       ]

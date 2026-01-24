@@ -13,6 +13,7 @@ Optional:
 - `options.diagram`: custom DiagramAdapter.
 - `options.camera`: custom CameraHandle.
 - `options.overlay`: custom OverlayHandle.
+- `options.controls`: custom ControlsHandle (or use `createFloatingControls()`).
 - `options.actionHandlers`: additional action handlers.
 - `options.errorPolicy`: default error policy (`haltOnError` or `continueOnError`).
 - `options.hooks`: lifecycle hooks for editor integration:
@@ -67,6 +68,30 @@ Events:
 - `showBubble({ id?, target, text })`
 - `hideBubble(id?)`
 - `destroy()`
+
+### ControlsHandle
+- `show()` - Show the controls UI
+- `hide()` - Hide the controls UI
+- `updateState(state)` - Update controls based on controller state
+- `destroy()` - Remove controls and clean up resources
+
+Controls can be created using `createFloatingControls()`:
+
+```javascript
+import { createFloatingControls } from 'finsteps';
+
+const controls = createFloatingControls({
+  controller,        // Controller instance (required)
+  camera,            // CameraHandle for zoom controls (optional)
+  position: 'bottom-right',  // Position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'bottom-center'
+  showPlayPause: true,       // Show play/pause button (default: true)
+  showPrevNext: true,       // Show prev/next buttons (default: true)
+  showZoomControls: true,   // Show zoom controls (default: true)
+  showStepIndicator: true,  // Show step counter (default: true)
+  autoHide: false,          // Auto-hide after inactivity (default: false)
+  offset: { x: 20, y: 20 }  // Offset from position edge (default: { x: 20, y: 20 })
+});
+```
 
 ## Semantic Versioning Discipline
 

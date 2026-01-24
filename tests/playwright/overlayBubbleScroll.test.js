@@ -1,14 +1,19 @@
 import { expect, test } from '@playwright/test';
-import path from 'node:path';
-
-const browserScript = path.resolve('src/overlay/browser.js');
+const browserScriptUrl = 'http://localhost:5173/src/overlay/browser.js';
 
 test('bubble remains visible during container scroll', async ({ page }) => {
   const timeoutMs = 10_000;
   test.setTimeout(timeoutMs);
 
   const runTest = async () => {
-    await page.setContent(`
+    // Ensure the page has an http(s) origin so module scripts can load without CORS issues.
+    // NOTE: page.setContent() navigates to about:blank; use document.write instead to preserve origin.
+    await page.goto('http://localhost:5173/');
+    await page.evaluate((html) => {
+      document.open();
+      document.write(html);
+      document.close();
+    }, `
       <style>
         body { margin: 0; }
         #scroll-container {
@@ -30,8 +35,9 @@ test('bubble remains visible during container scroll', async ({ page }) => {
       </div>
     `);
 
-    await page.addScriptTag({ path: browserScript, type: 'module' });
-    await page.waitForFunction(() => window.createOverlayEngine, { timeout: 2_000 });
+    // Load as a module via the local server so relative imports resolve.
+    await page.addScriptTag({ url: browserScriptUrl, type: 'module' });
+    await page.waitForFunction(() => window.createOverlayEngine, undefined, { timeout: 2_000 });
 
     await page.evaluate(() => {
       const engine = window.createOverlayEngine({ mountRoot: document.body });

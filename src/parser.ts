@@ -12,6 +12,8 @@ import {
   CameraDeclNode,
   CameraItem,
   ConstDeclNode,
+  ControlsDeclNode,
+  ControlsItem,
   DeckItem,
   DeckNode,
   DiagramAssetsDeclNode,
@@ -396,6 +398,8 @@ class MPDParser {
           return this.parseOverlayDecl();
         case "navigation":
           return this.parseNavigationDecl();
+        case "controls":
+          return this.parseControlsDecl();
         case "performance":
           return this.parsePerformanceDecl();
         case "meta":
@@ -584,6 +588,111 @@ class MPDParser {
       return {
         type: "NavigationStartAt",
         value,
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    return null;
+  }
+
+  private parseControlsDecl(): ControlsDeclNode | null {
+    const start = this.consumeKeyword("controls");
+    if (!start) {
+      return null;
+    }
+    const { items, end } = this.parseBlock(() => this.parseControlsItem());
+    return {
+      type: "ControlsDecl",
+      items: items.filter((item): item is ControlsItem => item !== null),
+      span: spanFrom(start, end)
+    };
+  }
+
+  private parseControlsItem(): ControlsItem | null {
+    if (this.matchKeyword("mode")) {
+      const start = this.consumeKeyword("mode");
+      this.consumePunct(":");
+      const mode = this.parseName();
+      this.consumePunct(";");
+      return {
+        type: "ControlsMode",
+        mode: mode ?? { type: "Name", value: "floating", kind: "identifier", span: spanFrom(start!, this.previous()) },
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("position")) {
+      const start = this.consumeKeyword("position");
+      this.consumePunct(":");
+      const position = this.parseName();
+      this.consumePunct(";");
+      return {
+        type: "ControlsPosition",
+        position: position ?? { type: "Name", value: "bottom-right", kind: "identifier", span: spanFrom(start!, this.previous()) },
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("showPlayPause")) {
+      const start = this.consumeKeyword("showPlayPause");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowPlayPause",
+        value,
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("showPrevNext")) {
+      const start = this.consumeKeyword("showPrevNext");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowPrevNext",
+        value,
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("showZoomControls")) {
+      const start = this.consumeKeyword("showZoomControls");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowZoomControls",
+        value,
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("showStepIndicator")) {
+      const start = this.consumeKeyword("showStepIndicator");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowStepIndicator",
+        value,
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("autoHide")) {
+      const start = this.consumeKeyword("autoHide");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsAutoHide",
+        value,
+        span: spanFrom(start!, this.previous())
+      };
+    }
+    if (this.matchKeyword("offset")) {
+      const start = this.consumeKeyword("offset");
+      this.consumePunct(":");
+      const offset = this.parseObjectExpr();
+      this.consumePunct(";");
+      return {
+        type: "ControlsOffset",
+        offset,
         span: spanFrom(start!, this.previous())
       };
     }

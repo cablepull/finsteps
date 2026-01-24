@@ -71,7 +71,8 @@ test.describe('Finsteps Editor E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
     try {
       // Use explicit index.html path to ensure correct relative path resolution
-      await page.goto('http://localhost:5173/examples/editor/index.html', { waitUntil: 'domcontentloaded', timeout: 10000 });
+      // Use trailing slash to avoid serve redirect breaking relative asset paths
+      await page.goto('http://localhost:5173/examples/editor/', { waitUntil: 'domcontentloaded', timeout: 10000 });
     } catch {
       const { fileURLToPath } = await import('url');
       const { join, dirname } = await import('path');

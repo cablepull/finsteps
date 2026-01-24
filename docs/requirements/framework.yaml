@@ -1,0 +1,88 @@
+# Finsteps Framework Requirements
+# This file contains all requirements for the core Finsteps framework
+# Domain: framework (core)
+
+# Related ADRs:
+# - ADR-0010: Floating Controls Feature (implements this requirement)
+
+- id: REQ-FRAMEWORK-001
+  title: Floating Controls Feature
+  description: |
+    The core framework MUST support optional floating icon controls for presentation navigation
+    and diagram interaction. Controls MUST be configurable via MPD DSL and/or JavaScript runtime
+    options. Controls MUST include: play/pause toggle (auto-advance), previous/next step buttons
+    (manual navigation), zoom in/out controls, fit all control, and step indicator. Controls MUST
+    integrate with Controller API for navigation and Camera API for zoom/pan operations. Controls
+    MUST be framework-agnostic (work with any JavaScript framework or vanilla JS). Controls MUST
+    update automatically when controller state changes.
+  rationale: |
+    Provides out-of-the-box UI controls for presentations, reducing friction for users who want
+    working controls without custom implementation. Follows existing adapter pattern (camera,
+    overlay) for consistency. Enables declarative configuration via DSL while allowing
+    JavaScript overrides for flexibility.
+  priority: P1
+  criticality: MEDIUM
+  status: proposed
+  acceptance_criteria:
+    - Controls can be configured via DSL (`runtime { controls { ... } }`)
+    - Controls can be configured via JavaScript (`options.controls`)
+    - Controls integrate with Controller API (next, prev, goto, play/pause)
+    - Controls integrate with Camera API (zoom, fitAll, reset)
+    - Controls update state on step changes automatically
+    - Play/pause button is visually distinct from next/prev buttons
+    - Controls include zoom controls (zoom in/out, fit all)
+    - Controls show step indicator (current step / total steps)
+    - Controls are responsive (mobile-friendly sizing and touch targets)
+    - Controls can be hidden/shown programmatically
+    - Controls follow existing adapter pattern (ControlsHandle interface)
+    - All existing examples continue to work without changes
+  code_links: []
+  test_links: []
+  dependencies: []
+  related_adrs:
+    - ADR-0010
+  modified: 2025-01-23
+  modified_by: plan-implementation
+
+- id: REQ-FRAMEWORK-002
+  title: Expand Mermaid diagram type support for editor MPD generation
+  description: |
+    The framework MUST support additional Mermaid diagram types beyond the initial set by providing:
+    - correct diagram type detection
+    - reliable assignment of `data-id` attributes for targetable elements in rendered SVGs
+    - reliable target resolution for `target: { dataId: "..." }`
+    - editor-grade MPD starter generation based on discovered targets
+
+    The following Mermaid syntaxes MUST be supported at an editor-grade level:
+    - mindmap
+    - xychart (XY)
+    - kanban
+    - packet
+    - radar
+    - sankey
+    - treemap
+    - zenuml
+  rationale: |
+    Users expect to use a broad range of Mermaid diagram syntaxes in the editor. Without stable
+    `data-id` target extraction and resolution, key framework features (camera fit, highlighting,
+    overlays) and editor conveniences (starter MPD generation) fail or become unusable. Extending
+    support via the existing per-diagram strategy pattern keeps the core extensible and limits
+    type-specific behavior to well-defined strategy implementations.
+  priority: P1
+  criticality: MEDIUM
+  status: proposed
+  acceptance_criteria:
+    - For each listed diagram type, `detectDiagramType()` returns the correct type from Mermaid source text
+    - For each listed diagram type, rendered SVG contains at least one element with a stable `data-id`
+    - For each listed diagram type, `resolveTarget()` can locate an element for a known `data-id`
+    - In the editor, “Available Targets” populates for each listed diagram type (non-empty)
+    - In the editor, “Generate Presentation” produces MPD that parses with zero errors for each listed type
+    - Examples exist under `examples/<type>/index.html` for each listed type and demonstrate targeting
+    - Automated tests cover detection + data-id extraction for each listed type
+  code_links: []
+  test_links: []
+  dependencies: []
+  related_adrs:
+    - ADR-0011
+  modified: 2026-01-24
+  modified_by: plan-implementation

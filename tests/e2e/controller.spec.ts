@@ -1,17 +1,22 @@
 import { expect, test } from "@playwright/test";
-const fixtureUrl = new URL("fixtures/index.html", import.meta.url).toString();
+// Use the local web server so ES module imports resolve correctly.
+// Use trailing slash so relative module imports resolve from the directory.
+const fixtureUrl = "http://localhost:5173/tests/e2e/fixtures/";
 
 test.describe("finsteps controller integration", () => {
   test.describe.configure({ timeout: 10_000 });
   test.beforeEach(async ({ page }) => {
     await page.goto(fixtureUrl);
     try {
-      await page.waitForFunction(() => (window as any).__controllerReady === true, {
-        timeout: 5_000
-      });
+      await page.waitForFunction(
+        () => (window as any).__controllerReady === true,
+        undefined,
+        { timeout: 5_000 }
+      );
     } catch (error) {
-      if (error instanceof Error && error.name === "TimeoutError") {
+      if ((error as any)?.name === "TimeoutError") {
         test.skip("Controller readiness timed out; skipping test.");
+        return;
       }
       throw error;
     }

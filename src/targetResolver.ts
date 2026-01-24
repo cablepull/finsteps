@@ -117,7 +117,7 @@ export const resolveTarget = (
   
   // Final check: if the element is a group but might be the root group,
   // ensure it's not the first child of svg (which would be the root group)
-  if (element instanceof SVGGraphicsElement && element.tagName === "g") {
+  if (element.tagName === "g") {
     const elementParent: Element | null = element.parentElement;
     if (elementParent === root || (elementParent && elementParent.tagName === "svg")) {
       // This might be the root group - check if it has the specific data-id we're looking for
@@ -126,8 +126,8 @@ export const resolveTarget = (
       if (elementDataId !== target?.dataId || !elementClassName.includes("node")) {
         // This is likely the root group, search for the actual node within it
         const escapedDataId = target?.dataId ? escapeSelector(target.dataId) : '';
-        const nodeGroup = root.querySelector(`g.node[data-id="${escapedDataId}"]`);
-        if (nodeGroup instanceof SVGGraphicsElement) {
+        const nodeGroup = root.querySelector(`g.node[data-id="${escapedDataId}"], [data-id="${escapedDataId}"]`);
+        if (nodeGroup && nodeGroup !== element) {
           return nodeGroup;
         }
       }

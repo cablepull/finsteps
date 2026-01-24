@@ -22,7 +22,7 @@ function generateSuggestions(code: MPFErrorCode, context?: Record<string, unknow
     case "MPF_MERMAID_UNAVAILABLE":
       return [
         'Load Mermaid.js before importing Finsteps',
-        'Add <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script> in your HTML',
+        'Add <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script> in your HTML',
         'Ensure mermaid.initialize() is called before presentMermaid()'
       ];
     case "MPF_MERMAID_RENDER_FAILED":
@@ -90,8 +90,8 @@ export class ParseError extends MPFError {
 }
 
 export class ActionError extends MPFError {
-  constructor(message: string, code: MPFErrorCode = "MPF_ACTION_INVALID_ARGS") {
-    super(message, code);
+  constructor(message: string, code: MPFErrorCode = "MPF_ACTION_INVALID_ARGS", context?: Record<string, unknown>) {
+    super(message, code, context);
     this.name = "ActionError";
   }
 }

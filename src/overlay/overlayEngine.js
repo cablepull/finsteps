@@ -1,4 +1,13 @@
-import { MPFError } from '../errors';
+// NOTE: This file is used directly in the browser (via src/overlay/browser.js),
+// so it must not depend on the TypeScript module graph.
+class MPFError extends Error {
+  constructor(message, code, context) {
+    super(message);
+    this.name = "MPFError";
+    this.code = code;
+    this.context = context;
+  }
+}
 
 const DEFAULT_OFFSET = 8;
 

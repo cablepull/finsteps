@@ -1,5 +1,6 @@
 import { createBasicCameraHandle } from "./adapters/basicCamera.js";
 import { createBasicOverlayHandle } from "./adapters/basicOverlay.js";
+import { createFloatingControls, ControlsHandle } from "./adapters/floatingControls.js";
 import { createMermaidDiagramAdapter } from "./adapters/mermaidDiagram.js";
 import { MermaidController } from "./controller/controller.js";
 import { MPFError } from "./errors.js";
@@ -42,12 +43,21 @@ export const presentMermaid = async (options: PresentMermaidOptions) => {
     hooks: options.options?.hooks
   });
   await controller.init({ diagram });
+
+  // Create floating controls if configured via JavaScript options
+  // Note: DSL-based controls configuration would be extracted from AST here in the future
+  if (options.options?.controls) {
+    // Controls handle was provided, update its state
+    options.options.controls.updateState(controller.getState());
+  }
+
   return controller;
 };
 
 export * from "./types.js";
 export * from "./adapters/basicCamera.js";
 export * from "./adapters/basicOverlay.js";
+export * from "./adapters/floatingControls.js";
 export * from "./adapters/mermaidDiagram.js";
 export * from "./mocks/mockHandles.js";
 import { parseMPD } from "./parser.js";
@@ -95,6 +105,8 @@ export type {
   CameraDeclNode,
   CameraItem,
   ConstDeclNode,
+  ControlsDeclNode,
+  ControlsItem,
   DeckItem,
   DeckNode,
   Diagnostic,

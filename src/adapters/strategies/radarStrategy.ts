@@ -1,0 +1,8 @@
+import { LabelBasedStrategy } from "./labelBasedStrategy.js";
+
+export class RadarStrategy extends LabelBasedStrategy {
+  constructor() {
+    super("radar", { skipNumericLabels: true, maxTargets: 300 });
+  }
+}
+

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Sankey Walkthrough</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.css" />
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+      .layout { display: grid; grid-template-columns: 220px 1fr; grid-template-rows: auto 1fr; height: 100vh; }
+      header { grid-column: 1 / -1; padding: 0.75rem 1rem; background: #1e293b; border-bottom: 1px solid #334155; }
+      header h1 { margin: 0; font-size: 1rem; font-weight: 600; }
+      .sidebar { padding: 1rem 0.75rem; background: #1e293b; border-right: 1px solid #334155; overflow-y: auto; }
+      .sidebar h2 { margin: 0 0 0.5rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+      .jump-btn { display: block; width: 100%; padding: 0.5rem 0.75rem; margin-bottom: 0.35rem; font-size: 0.8rem; text-align: left; background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; cursor: pointer; }
+      .jump-btn.active { background: #3b82f6; border-color: #60a5fa; color: #fff; }
+      .stage-wrap { padding: 1rem; overflow: auto; min-height: 0; display: flex; flex-direction: column; }
+      .diagram-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 500px; width: 100%; position: relative; }
+      .diagram-stage .finsteps-diagram { width: 100%; height: 100%; min-height: 500px; display: flex; align-items: center; justify-content: center; }
+      .diagram-stage .finsteps-diagram svg { width: 100%; height: 100%; min-height: 500px; max-width: 100%; display: block; }
+      .finsteps-highlight { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8)); }
+      g.finsteps-highlight, rect.finsteps-highlight, path.finsteps-highlight, polygon.finsteps-highlight { stroke: #3b82f6 !important; stroke-width: 3px !important; stroke-opacity: 0.9 !important; }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header><h1>Sankey Walkthrough</h1></header>
+      <aside class="sidebar">
+        <h2>Navigation</h2>
+        <button class="jump-btn" data-goto="overview">Overview</button>
+        <button class="jump-btn" data-goto="electricity">Electricity Grid</button>
+        <button class="jump-btn" data-goto="gas">Gas</button>
+        <button class="jump-btn" data-goto="bio">Bio-conversion</button>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const mermaidText = `---
+config:
+  sankey:
+    showValues: false
+---
+sankey-beta
+Agricultural 'waste',Bio-conversion,124.729
+Bio-conversion,Liquid,0.597
+Bio-conversion,Losses,26.862
+Bio-conversion,Solid,280.322
+Bio-conversion,Gas,81.144
+Biofuel imports,Liquid,35
+Biomass imports,Solid,35
+Coal imports,Coal,11.606
+Coal reserves,Coal,63.965
+Coal,Solid,75.571
+District heating,Industry,10.639
+District heating,Heating and cooling - commercial,22.505
+District heating,Heating and cooling - homes,46.184
+Electricity grid,Over generation / exports,104.453
+Electricity grid,Heating and cooling - homes,113.726
+Electricity grid,H2 conversion,27.14
+Electricity grid,Industry,342.165
+Electricity grid,Road transport,37.797
+Electricity grid,Agriculture,4.412
+Electricity grid,Heating and cooling - commercial,40.858
+Electricity grid,Losses,56.691
+Electricity grid,Rail transport,7.863
+Electricity grid,Lighting & appliances - commercial,90.008
+Electricity grid,Lighting & appliances - homes,93.494
+Gas imports,NGas,40.719
+Gas reserves,NGas,82.233
+Gas,Heating and cooling - commercial,0.129
+Gas,Losses,1.401
+Gas,Thermal generation,151.891
+Gas,Agriculture,2.096
+Gas,Industry,48.58
+Geothermal,Electricity grid,7.013
+H2 conversion,H2,20.897
+H2 conversion,Losses,6.242
+H2,Road transport,20.897
+Hydro,Electricity grid,6.995
+Liquid,Industry,121.066
+Liquid,International shipping,128.69
+Liquid,Road transport,135.835
+Liquid,Domestic aviation,14.458
+Liquid,International aviation,206.267
+Liquid,Agriculture,3.64
+Liquid,National navigation,33.218
+Liquid,Rail transport,4.413
+Marine algae,Bio-conversion,4.375
+NGas,Gas,122.952
+Nuclear,Thermal generation,839.978
+Oil imports,Oil,504.287
+Oil reserves,Oil,107.703
+Oil,Liquid,611.99
+Other waste,Solid,56.587
+Other waste,Bio-conversion,77.81
+Pumped heat,Heating and cooling - homes,193.026
+Pumped heat,Heating and cooling - commercial,70.672
+Solar PV,Electricity grid,59.901
+Solar Thermal,Heating and cooling - homes,19.263
+Solar,Solar Thermal,19.263
+Solar,Solar PV,59.901
+Solid,Agriculture,0.882
+Solid,Thermal generation,400.12
+Solid,Industry,46.477
+Thermal generation,Electricity grid,525.531
+Thermal generation,Losses,787.129
+Thermal generation,District heating,79.329
+Tidal,Electricity grid,9.452
+UK land based bioenergy,Bio-conversion,182.01
+Wave,Electricity grid,19.013
+Wind,Electricity grid,289.366`;
+
+      const ast = {
+        steps: [
+          {
+            id: "overview",
+            actions: [
+              { type: "camera.reset" },
+              {
+                type: "overlay.bubble",
+                payload: {
+                  target: { dataId: "Electricity_grid" },
+                  text: "Overview of the energy sinks supplied by the Electricity grid."
+                }
+              }
+            ]
+          },
+          {
+            id: "electricity",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Electricity_grid" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Electricity_grid" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "Electricity_grid" }, text: "The Electricity grid feeds homes, industry, and exports." } }
+            ]
+          },
+          {
+            id: "gas",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Gas" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Gas" } } },
+              { type: "overlay.bubble", payload: { target: { dataId: "Gas" }, text: "Gas supplies generation, industry, and heat." } }
+            ]
+          },
+          {
+            id: "bio",
+            actions: [
+              { type: "camera.fit", payload: { target: { dataId: "Bio_conversion" }, padding: 60, duration: 500, easing: "cubicOut" } },
+              { type: "style.highlight", payload: { target: { dataId: "Bio_conversion" } } },
+              {
+                type: "overlay.bubble",
+                payload: { target: { dataId: "Bio_conversion" }, text: "Bio-conversion sources include agricultural waste and algae." }
+              }
+            ]
+          }
+        ],
+        bindings: [
+          { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+          { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] },
+          { event: "click", target: { selector: "button[data-goto='overview']" }, actions: [{ type: "nav.goto", payload: { id: "overview" } }] },
+          { event: "click", target: { selector: "button[data-goto='electricity']" }, actions: [{ type: "nav.goto", payload: { id: "electricity" } }] },
+          { event: "click", target: { selector: "button[data-goto='gas']" }, actions: [{ type: "nav.goto", payload: { id: "gas" } }] },
+          { event: "click", target: { selector: "button[data-goto='bio']" }, actions: [{ type: "nav.goto", payload: { id: "bio" } }] }
+        ]
+      };
+
+      const controller = await presentMermaid({ mountEl: document.getElementById("diagram-mount"), mermaidText, ast });
+      const updateActiveButtons = () => {
+        const state = controller.getState();
+        document.querySelectorAll('.jump-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-goto') === state.stepId);
+        });
+      };
+      controller.on('stepchange', updateActiveButtons);
+      updateActiveButtons();
+    </script>
+  </body>
+</html>
+

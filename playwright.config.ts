@@ -15,8 +15,10 @@ export default defineConfig({
   },
   // Start a dev server before running tests
   webServer: {
-    command: 'npx serve -p 5173',
-    url: 'http://localhost:5173/examples/editor/index.html',
+    // Serve repo root so tests can load fixtures and source modules
+    command: 'npx serve -p 5173 .',
+    // IMPORTANT: use trailing slash so relative assets resolve correctly
+    url: 'http://localhost:5173/examples/editor/',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000, // 2 minutes
     stdout: 'ignore',
