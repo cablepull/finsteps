@@ -71,7 +71,7 @@ export interface RuntimeDeclNode extends NodeBase {
     type: "RuntimeDecl";
     items: RuntimeItem[];
 }
-export type RuntimeItem = CameraDeclNode | OverlayDeclNode | NavigationDeclNode | PerformanceDeclNode | MetaDeclNode;
+export type RuntimeItem = CameraDeclNode | OverlayDeclNode | NavigationDeclNode | ControlsDeclNode | PerformanceDeclNode | MetaDeclNode;
 export interface CameraDeclNode extends NodeBase {
     type: "CameraDecl";
     items: CameraItem[];
@@ -130,6 +130,43 @@ export type NavigationItem = {
     type: "NavigationStartAt";
     span: SourceSpan;
     value: number | string;
+};
+export interface ControlsDeclNode extends NodeBase {
+    type: "ControlsDecl";
+    items: ControlsItem[];
+}
+export type ControlsItem = {
+    type: "ControlsMode";
+    span: SourceSpan;
+    mode: NameValue;
+} | {
+    type: "ControlsPosition";
+    span: SourceSpan;
+    position: NameValue;
+} | {
+    type: "ControlsShowPlayPause";
+    span: SourceSpan;
+    value: boolean;
+} | {
+    type: "ControlsShowPrevNext";
+    span: SourceSpan;
+    value: boolean;
+} | {
+    type: "ControlsShowZoomControls";
+    span: SourceSpan;
+    value: boolean;
+} | {
+    type: "ControlsShowStepIndicator";
+    span: SourceSpan;
+    value: boolean;
+} | {
+    type: "ControlsAutoHide";
+    span: SourceSpan;
+    value: boolean;
+} | {
+    type: "ControlsOffset";
+    span: SourceSpan;
+    offset: ObjectExprNode;
 };
 export interface PerformanceDeclNode extends NodeBase {
     type: "PerformanceDecl";

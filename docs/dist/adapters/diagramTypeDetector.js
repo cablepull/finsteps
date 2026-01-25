@@ -5,7 +5,23 @@
  */
 export function detectDiagramType(mermaidText) {
     const trimmed = mermaidText.trim();
-    const firstLine = trimmed.split('\n')[0].trim().toLowerCase();
+    const lines = trimmed.split('\n').map(l => l.trim());
+    // Skip frontmatter if present
+    let firstRelevantLine = 0;
+    if (lines[0] === '---') {
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i] === '---') {
+                // Skip empty lines after frontmatter
+                let nextIdx = i + 1;
+                while (nextIdx < lines.length && lines[nextIdx] === '') {
+                    nextIdx++;
+                }
+                firstRelevantLine = nextIdx;
+                break;
+            }
+        }
+    }
+    const firstLine = (lines[firstRelevantLine] || '').toLowerCase();
     // Check for explicit diagram type declarations
     if (firstLine.startsWith('flowchart')) {
         return 'flowchart';
@@ -60,6 +76,33 @@ export function detectDiagramType(mermaidText) {
     }
     if (firstLine.startsWith('blockDiagram') || firstLine.startsWith('blockdiagram')) {
         return 'block'; // Legacy alias support
+    }
+    // Additional Mermaid syntaxes (Mermaid 10+)
+    if (firstLine.startsWith('mindmap')) {
+        return 'mindmap';
+    }
+    if (firstLine.startsWith('kanban')) {
+        return 'kanban';
+    }
+    if (firstLine.startsWith('packet')) {
+        return 'packet';
+    }
+    if (firstLine.startsWith('radar')) {
+        return 'radar';
+    }
+    // Mermaid commonly uses sankey-beta/treemap-beta/xychart-beta
+    if (firstLine.startsWith('sankey') || firstLine.startsWith('sankey-beta') || firstLine.startsWith('sankeybeta')) {
+        return 'sankey';
+    }
+    if (firstLine.startsWith('treemap') || firstLine.startsWith('treemap-beta') || firstLine.startsWith('treemapbeta')) {
+        return 'treemap';
+    }
+    if (firstLine.startsWith('xychart') || firstLine.startsWith('xychart-beta') || firstLine.startsWith('xychartbeta') || firstLine.startsWith('xy')) {
+        return 'xychart';
+    }
+    // ZenUML is typically declared as "zenuml" in Mermaid
+    if (firstLine.startsWith('zenuml')) {
+        return 'zenuml';
     }
     // Fallback: check for common patterns
     if (trimmed.includes('graph') || trimmed.includes('-->') || trimmed.includes('---')) {

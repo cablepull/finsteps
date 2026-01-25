@@ -16,6 +16,14 @@ import { QuadrantChartStrategy } from "./strategies/quadrantChartStrategy.js";
 import { RequirementStrategy } from "./strategies/requirementStrategy.js";
 import { C4Strategy } from "./strategies/c4Strategy.js";
 import { BlockDiagramStrategy } from "./strategies/blockDiagramStrategy.js";
+import { MindmapStrategy } from "./strategies/mindmapStrategy.js";
+import { XYChartStrategy } from "./strategies/xyChartStrategy.js";
+import { KanbanStrategy } from "./strategies/kanbanStrategy.js";
+import { PacketStrategy } from "./strategies/packetStrategy.js";
+import { RadarStrategy } from "./strategies/radarStrategy.js";
+import { SankeyStrategy } from "./strategies/sankeyStrategy.js";
+import { TreemapStrategy } from "./strategies/treemapStrategy.js";
+import { ZenUMLStrategy } from "./strategies/zenumlStrategy.js";
 // Register default strategies
 strategyRegistry.register('flowchart', new FlowchartStrategy());
 strategyRegistry.register('gantt', new GanttStrategy());
@@ -35,6 +43,15 @@ strategyRegistry.register('c4Context', new C4Strategy('c4Context'));
 strategyRegistry.register('c4Container', new C4Strategy('c4Container'));
 strategyRegistry.register('c4Component', new C4Strategy('c4Component'));
 strategyRegistry.register('block', new BlockDiagramStrategy());
+// Newly supported Mermaid syntaxes (label-based fallback strategy)
+strategyRegistry.register('mindmap', new MindmapStrategy());
+strategyRegistry.register('xychart', new XYChartStrategy());
+strategyRegistry.register('kanban', new KanbanStrategy());
+strategyRegistry.register('packet', new PacketStrategy());
+strategyRegistry.register('radar', new RadarStrategy());
+strategyRegistry.register('sankey', new SankeyStrategy());
+strategyRegistry.register('treemap', new TreemapStrategy());
+strategyRegistry.register('zenuml', new ZenUMLStrategy());
 // Set flowchart as default fallback
 strategyRegistry.setDefault(new FlowchartStrategy());
 /**
@@ -950,15 +967,29 @@ export const createMermaidDiagramAdapter = () => {
         async render({ mountEl, mermaidText }) {
             const mermaid = window.mermaid;
             if (!mermaid || typeof mermaid.render !== "function") {
-                throw new MPFError("Mermaid is not available on window.mermaid", "MPF_MERMAID_UNAVAILABLE");
+                throw new MPFError("Mermaid is not available on window.mermaid", "MPF_MERMAID_UNAVAILABLE", {
+                    mermaidAvailable: typeof window.mermaid !== "undefined"
+                });
             }
             const renderId = `finsteps-${Math.random().toString(36).slice(2, 8)}`;
             let renderResult;
+            // Log registered diagrams for debugging (if zenuml is expected)
+            if (detectDiagramType(mermaidText) === 'zenuml') {
+                console.log('[MermaidAdapter] ZenUML detected, checking registry...');
+                // @ts-ignore - access internal registry for diagnostics
+                const registered = mermaid.diagrams || {};
+                console.log('[MermaidAdapter] Registered diagrams:', Object.keys(registered));
+            }
             try {
                 renderResult = await mermaid.render(renderId, mermaidText);
             }
             catch (error) {
-                throw new MPFError(`Failed to render Mermaid diagram: ${error}`, "MPF_MERMAID_RENDER_FAILED");
+                const diagType = detectDiagramType(mermaidText);
+                throw new MPFError(`Failed to render Mermaid diagram (type: ${diagType}): ${error}`, "MPF_MERMAID_RENDER_FAILED", {
+                    mermaidTextLength: mermaidText?.length || 0,
+                    detectedType: diagType,
+                    errorMessage: error instanceof Error ? error.message : String(error)
+                });
             }
             const { svg } = renderResult;
             mountEl.innerHTML = "";
@@ -974,6 +1005,10 @@ export const createMermaidDiagramAdapter = () => {
             }
             const diagramType = detectDiagramType(mermaidText);
             const strategy = strategyRegistry.getOrDefault(diagramType);
+            // ZenUML is async/Vue-based and might not have its labels ready immediately
+            if (diagramType === 'zenuml') {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
             ensureDataIdFromMermaidIds(svgElement, strategy, mermaidText);
             // Ensure SVG has width/height attributes for proper rendering with viewBox
             // Remove any existing width/height so viewBox can control scaling

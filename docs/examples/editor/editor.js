@@ -4,21 +4,51 @@
 
 console.log('[Editor] Starting module load...');
 
-import { presentMermaid, parseMPD, formatDiagnostics, createBasicCameraHandle } from "https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js";
+import { presentMermaid, parseMPD, formatDiagnostics, createBasicCameraHandle } from "../../dist/index.js";
 
 console.log('[Editor] Imports successful');
 console.log('[Editor] createBasicCameraHandle type:', typeof createBasicCameraHandle);
 console.log('[Editor] createBasicCameraHandle:', createBasicCameraHandle);
 
 // Initialize Mermaid when it's available
-if (typeof mermaid !== 'undefined') {
-  mermaid.initialize({ startOnLoad: false, theme: "dark" });
-} else {
-  window.addEventListener('load', () => {
-    if (typeof mermaid !== 'undefined') {
-      mermaid.initialize({ startOnLoad: false, theme: "dark" });
-    }
-  });
+async function initMermaid() {
+  console.log('[Editor] initMermaid called, window.__mermaidReady:', window.__mermaidReady);
+  
+  if (window.__mermaidReady) {
+    console.log('[Editor] Mermaid already ready with ZenUML');
+    return;
+  }
+  
+  if (typeof mermaid !== 'undefined') {
+    console.log('[Editor] Mermaid global found, initializing...');
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
+  } else {
+    console.log('[Editor] Waiting for mermaid-ready event...');
+    return new Promise((resolve) => {
+      const onReady = () => {
+        console.log('[Editor] Mermaid ready event received');
+        resolve();
+      };
+      window.addEventListener('mermaid-ready', onReady, { once: true });
+      
+      // Fallback for non-ESM versions
+      window.addEventListener('load', () => {
+        if (typeof mermaid !== 'undefined' && !window.__mermaidReady) {
+          console.log('[Editor] window.load fired, mermaid found');
+          mermaid.initialize({ startOnLoad: false, theme: "dark" });
+          resolve();
+        }
+      });
+      
+      // Safety timeout
+      setTimeout(() => {
+        if (typeof mermaid !== 'undefined') {
+          console.warn('[Editor] initMermaid safety timeout, but mermaid found');
+          resolve();
+        }
+      }, 5000);
+    });
+  }
 }
 
 // ============================================
@@ -235,8 +265,11 @@ deck {
 /**
  * Initialize MPD editor and set up event listeners
  */
-function initializeEditors() {
+async function initializeEditors() {
   console.log('[Editor] initializeEditors called');
+  
+  await initMermaid();
+  
   console.log('[Editor] document.readyState:', document.readyState);
   console.log('[Editor] CodeMirror available:', typeof CodeMirror !== 'undefined');
   console.log('[Editor] mermaid available:', typeof mermaid !== 'undefined');
@@ -809,7 +842,7 @@ async function autoGenerateInitialPresentation() {
     tempMount.style.left = "-9999px";
     document.body.appendChild(tempMount);
 
-    const { createMermaidDiagramAdapter } = await import("https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js");
+    const { createMermaidDiagramAdapter } = await import("../../dist/adapters/mermaidDiagram.js");
     const adapter = createMermaidDiagramAdapter();
     const diagramHandle = await adapter.render({
       mountEl: tempMount,
@@ -868,7 +901,7 @@ function setupButtonListeners() {
         tempMount.style.left = "-9999px";
         document.body.appendChild(tempMount);
 
-        const { createMermaidDiagramAdapter } = await import("https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js");
+        const { createMermaidDiagramAdapter } = await import("../../dist/adapters/mermaidDiagram.js");
         const adapter = createMermaidDiagramAdapter();
         const diagramHandle = await adapter.render({
           mountEl: tempMount,
@@ -1935,7 +1968,7 @@ function clearError(elementId) {
 console.log('[Editor] Setting up initialization, readyState:', document.readyState);
 if (document.readyState === 'loading') {
   console.log('[Editor] DOM still loading, waiting for DOMContentLoaded...');
-  document.addEventListener('DOMContentLoaded', initializeEditors);
+  document.addEventListener('DOMContentLoaded', () => initializeEditors());
 } else {
   console.log('[Editor] DOM already loaded, initializing immediately...');
   initializeEditors();

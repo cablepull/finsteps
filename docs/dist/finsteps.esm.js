@@ -262,6 +262,31 @@ var easingFunctions = {
 function getEasingFunction(name) {
   return easingFunctions[name] || easingFunctions.easeOut;
 }
+function getElementBBox(element, svg) {
+  if (element instanceof SVGGraphicsElement) {
+    try {
+      const bbox = element.getBBox();
+      if (bbox.width > 0 && bbox.height > 0) {
+        return bbox;
+      }
+    } catch {
+    }
+  }
+  const rect = element.getBoundingClientRect();
+  const svgRect = svg.getBoundingClientRect();
+  const viewBox = svg.viewBox.baseVal;
+  if (!viewBox || svgRect.width === 0 || svgRect.height === 0) {
+    return new DOMRect(0, 0, 0, 0);
+  }
+  const scaleX = viewBox.width / svgRect.width;
+  const scaleY = viewBox.height / svgRect.height;
+  return new DOMRect(
+    (rect.left - svgRect.left) * scaleX + viewBox.x,
+    (rect.top - svgRect.top) * scaleY + viewBox.y,
+    rect.width * scaleX,
+    rect.height * scaleY
+  );
+}
 var getSvgViewBox = (svg) => {
   const baseVal = svg.viewBox?.baseVal;
   if (baseVal && baseVal.width && baseVal.height) {
@@ -270,7 +295,10 @@ var getSvgViewBox = (svg) => {
   return svg.getAttribute("viewBox");
 };
 function findAdjacentNodes(targetNode, svg, strategy) {
-  return strategy.findAdjacentElements(targetNode, svg);
+  if (targetNode instanceof SVGGraphicsElement) {
+    return strategy.findAdjacentElements(targetNode, svg);
+  }
+  return [];
 }
 var calculateFullBoundingBox = (svg, padding = 40) => {
   const storedInitialViewBox = svg.getAttribute("data-initial-viewbox");
@@ -482,26 +510,24 @@ var createBasicCameraHandle = (diagram) => {
   container.addEventListener("mouseleave", handleMouseLeave);
   return {
     fit(target, options) {
-      if (!(target instanceof SVGGraphicsElement)) {
+      if (!target) {
         return;
       }
       try {
-        const bboxLocal = target.getBBox();
+        let bbox = getElementBBox(target, svg);
         const transform = target instanceof SVGElement ? target.getAttribute("transform") : null;
-        let bbox = bboxLocal;
-        if (transform && transform.includes("translate")) {
+        if (target instanceof SVGGraphicsElement && transform && transform.includes("translate")) {
           try {
             const translateMatch = transform.match(/translate\s*\(\s*([-\d.]+)\s*[, ]\s*([-\d.]+)\s*\)/);
             if (translateMatch) {
               const tx = parseFloat(translateMatch[1]);
               const ty = parseFloat(translateMatch[2]);
               bbox = new DOMRect(
-                bboxLocal.x + tx,
-                bboxLocal.y + ty,
-                bboxLocal.width,
-                bboxLocal.height
+                bbox.x + tx,
+                bbox.y + ty,
+                bbox.width,
+                bbox.height
               );
-            } else {
             }
           } catch {
           }
@@ -529,22 +555,7 @@ var createBasicCameraHandle = (diagram) => {
         let unionBbox = bbox;
         for (const adjacentNode of adjacentNodes) {
           try {
-            const adjBboxLocal = adjacentNode.getBBox();
-            const adjTransform = adjacentNode.getAttribute("transform");
-            let adjBbox = adjBboxLocal;
-            if (adjTransform && adjTransform.includes("translate")) {
-              const translateMatch = adjTransform.match(/translate\s*\(\s*([-\d.]+)\s*[, ]\s*([-\d.]+)\s*\)/);
-              if (translateMatch) {
-                const tx = parseFloat(translateMatch[1]);
-                const ty = parseFloat(translateMatch[2]);
-                adjBbox = new DOMRect(
-                  adjBboxLocal.x + tx,
-                  adjBboxLocal.y + ty,
-                  adjBboxLocal.width,
-                  adjBboxLocal.height
-                );
-              }
-            }
+            const adjBbox = getElementBBox(adjacentNode, svg);
             const minX = Math.min(unionBbox.x, adjBbox.x);
             const minY = Math.min(unionBbox.y, adjBbox.y);
             const maxX = Math.max(unionBbox.x + unionBbox.width, adjBbox.x + adjBbox.width);
@@ -562,8 +573,8 @@ var createBasicCameraHandle = (diagram) => {
         bbox = unionBbox;
         if (!isFinite(bbox.width) || !isFinite(bbox.height) || bbox.width <= 0 || bbox.height <= 0) {
           const parent = target.parentElement;
-          if (parent instanceof SVGGraphicsElement) {
-            const parentBBox = parent.getBBox();
+          if (parent) {
+            const parentBBox = getElementBBox(parent, svg);
             if (isFinite(parentBBox.width) && isFinite(parentBBox.height) && parentBBox.width > 0 && parentBBox.height > 0) {
               const viewBox2 = {
                 x: parentBBox.x - padding,
@@ -759,11 +770,69 @@ var createBasicOverlayHandle = () => {
 };
 
 // src/errors.ts
+function generateSuggestions(code, context) {
+  switch (code) {
+    case "MPF_INVALID_PRESENT_OPTIONS":
+      return [
+        'Ensure you provide either "ast" or both "mpdText" and "options.parseMpd"',
+        "Example: presentMermaid({ mermaidText, mpdText, mountEl, options: { parseMpd } })",
+        "See API documentation: https://github.com/cablepull/finsteps#cdn-usage-jsdelivr"
+      ];
+    case "MPF_MERMAID_UNAVAILABLE":
+      return [
+        "Load Mermaid.js before importing Finsteps",
+        'Add <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"><\/script> in your HTML',
+        "Ensure mermaid.initialize() is called before presentMermaid()"
+      ];
+    case "MPF_MERMAID_RENDER_FAILED":
+      return [
+        "Check your Mermaid diagram syntax is valid",
+        "Test your diagram at https://mermaid.live/",
+        "Verify the mermaidText is a valid string and not empty"
+      ];
+    case "MPF_OVERLAY_DESTROYED":
+      return [
+        "Do not call overlay methods after controller.destroy()",
+        "Check that the controller is still active before showing overlays",
+        "Ensure lifecycle hooks are not accessing destroyed overlays"
+      ];
+    case "MPF_OVERLAY_TARGET_MISSING":
+      const targetInfo = context?.target ? ` Target: ${JSON.stringify(context.target)}` : "";
+      return [
+        `Verify the target element exists in the diagram${targetInfo}`,
+        "Check that dataId, selector, or id matches an element in the rendered SVG",
+        "Use the live editor to see available data-id values: https://cablepull.github.io/finsteps/examples/editor/"
+      ];
+    case "MPF_ACTION_UNKNOWN":
+      const actionType = context?.actionType ? ` Action: ${context.actionType}` : "";
+      return [
+        `Check that the action type is spelled correctly${actionType}`,
+        "Common actions: camera.fit, camera.reset, overlay.bubble, style.highlight, nav.next, nav.prev",
+        "See grammar documentation: https://cablepull.github.io/finsteps/grammar.html"
+      ];
+    case "MPF_ACTION_INVALID_ARGS":
+      return [
+        "Verify the action payload structure matches the expected format",
+        'Check required fields (e.g., camera.fit requires "target" in payload)',
+        "Review action documentation in grammar: https://cablepull.github.io/finsteps/grammar.html"
+      ];
+    case "MPF_PARSE_ERROR":
+      return [
+        "Use formatDiagnostics(result.diagnostics) to see detailed parse errors",
+        "Check your MPD syntax against the EBNF grammar: https://cablepull.github.io/finsteps/ebnf/mpd.ebnf",
+        "Validate MPD with parseMPD() before passing to presentMermaid()"
+      ];
+    default:
+      return [];
+  }
+}
 var MPFError = class extends Error {
-  constructor(message, code) {
+  constructor(message, code, context) {
     super(message);
     this.name = "MPFError";
     this.code = code;
+    this.context = context;
+    this.suggestions = generateSuggestions(code, context);
   }
 };
 var ParseError = class extends MPFError {
@@ -773,8 +842,8 @@ var ParseError = class extends MPFError {
   }
 };
 var ActionError = class extends MPFError {
-  constructor(message, code = "MPF_ACTION_INVALID_ARGS") {
-    super(message, code);
+  constructor(message, code = "MPF_ACTION_INVALID_ARGS", context) {
+    super(message, code, context);
     this.name = "ActionError";
   }
 };
@@ -859,15 +928,15 @@ var resolveTarget = (diagram, target) => {
       }
     }
   }
-  if (element instanceof SVGGraphicsElement && element.tagName === "g") {
+  if (element.tagName === "g") {
     const elementParent = element.parentElement;
     if (elementParent === root || elementParent && elementParent.tagName === "svg") {
       const elementDataId = element.getAttribute("data-id");
       const elementClassName = element instanceof SVGElement ? typeof element.className === "string" ? element.className : element.className.baseVal : "";
       if (elementDataId !== target?.dataId || !elementClassName.includes("node")) {
         const escapedDataId = target?.dataId ? escapeSelector(target.dataId) : "";
-        const nodeGroup = root.querySelector(`g.node[data-id="${escapedDataId}"]`);
-        if (nodeGroup instanceof SVGGraphicsElement) {
+        const nodeGroup = root.querySelector(`g.node[data-id="${escapedDataId}"], [data-id="${escapedDataId}"]`);
+        if (nodeGroup && nodeGroup !== element) {
           return nodeGroup;
         }
       }
@@ -879,7 +948,21 @@ var resolveTarget = (diagram, target) => {
 // src/adapters/diagramTypeDetector.ts
 function detectDiagramType(mermaidText) {
   const trimmed = mermaidText.trim();
-  const firstLine = trimmed.split("\n")[0].trim().toLowerCase();
+  const lines = trimmed.split("\n").map((l) => l.trim());
+  let firstRelevantLine = 0;
+  if (lines[0] === "---") {
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i] === "---") {
+        let nextIdx = i + 1;
+        while (nextIdx < lines.length && lines[nextIdx] === "") {
+          nextIdx++;
+        }
+        firstRelevantLine = nextIdx;
+        break;
+      }
+    }
+  }
+  const firstLine = (lines[firstRelevantLine] || "").toLowerCase();
   if (firstLine.startsWith("flowchart")) {
     return "flowchart";
   }
@@ -933,6 +1016,30 @@ function detectDiagramType(mermaidText) {
   }
   if (firstLine.startsWith("blockDiagram") || firstLine.startsWith("blockdiagram")) {
     return "block";
+  }
+  if (firstLine.startsWith("mindmap")) {
+    return "mindmap";
+  }
+  if (firstLine.startsWith("kanban")) {
+    return "kanban";
+  }
+  if (firstLine.startsWith("packet")) {
+    return "packet";
+  }
+  if (firstLine.startsWith("radar")) {
+    return "radar";
+  }
+  if (firstLine.startsWith("sankey") || firstLine.startsWith("sankey-beta") || firstLine.startsWith("sankeybeta")) {
+    return "sankey";
+  }
+  if (firstLine.startsWith("treemap") || firstLine.startsWith("treemap-beta") || firstLine.startsWith("treemapbeta")) {
+    return "treemap";
+  }
+  if (firstLine.startsWith("xychart") || firstLine.startsWith("xychart-beta") || firstLine.startsWith("xychartbeta") || firstLine.startsWith("xy")) {
+    return "xychart";
+  }
+  if (firstLine.startsWith("zenuml")) {
+    return "zenuml";
   }
   if (trimmed.includes("graph") || trimmed.includes("-->") || trimmed.includes("---")) {
     return "flowchart";
@@ -2173,39 +2280,18 @@ var RequirementStrategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
-    const patterns = [
-      /^requirement-([A-Za-z0-9_]+)-\d+$/,
-      // requirement-name-digit
-      /^function-([A-Za-z0-9_]+)-\d+$/,
-      // function-name-digit
-      /^relationship-([A-Za-z0-9_]+)-\d+$/,
-      // relationship-name-digit
-      /^([A-Za-z0-9_]+)-\d+$/
-      // name-digit (fallback)
-    ];
-    for (const el of Array.from(svg.querySelectorAll("[id]"))) {
-      const id = el.getAttribute("id");
-      if (!id)
-        continue;
-      let nodeId = this.extractIdFromPatterns(id, patterns);
-      if (nodeId && !nodeIdMap.has(nodeId)) {
-        let current = el;
-        let nodeGroup = null;
-        while (current && current !== svg) {
-          if (current instanceof SVGElement && current.tagName === "g") {
-            const className = this.getElementClassName(current);
-            if (className && (className.includes("requirement") || className.includes("function") || className.includes("relationship"))) {
-              nodeGroup = current;
-              break;
-            }
-          }
-          current = current.parentElement;
-        }
-        if (nodeGroup) {
-          nodeIdMap.set(nodeId, nodeGroup);
-        } else if (el.tagName === "g" && this.hasTargetableClass(el)) {
-          nodeIdMap.set(nodeId, el);
-        }
+    const nodeGroups = Array.from(svg.querySelectorAll("g.node[id]"));
+    for (const nodeGroup of nodeGroups) {
+      const id = nodeGroup.getAttribute("id");
+      if (id && id.trim()) {
+        nodeIdMap.set(id, nodeGroup);
+      }
+    }
+    const relationshipPaths = Array.from(svg.querySelectorAll("path[data-id].relationshipLine"));
+    for (const path of relationshipPaths) {
+      const dataId = path.getAttribute("data-id");
+      if (dataId && dataId.trim()) {
+        nodeIdMap.set(dataId, path);
       }
     }
     return nodeIdMap;
@@ -2213,14 +2299,12 @@ var RequirementStrategy = class extends BaseDiagramStrategy {
   getTargetSelectors(dataId) {
     const escapedId = this.escapeSelector(dataId);
     return [
-      `g.requirement[data-id="${escapedId}"]`,
-      `g.function[data-id="${escapedId}"]`,
-      `g.relationship[data-id="${escapedId}"]`,
-      `g[class*="requirement"][data-id="${escapedId}"]`,
-      `g[class*="function"][data-id="${escapedId}"]`,
-      `g[class*="relationship"][data-id="${escapedId}"]`,
-      `[data-id="${escapedId}"]`
-      // Fallback
+      // Try to find node group by id attribute (most common for req1, req2, func1)
+      `g.node[id="${escapedId}"]`,
+      // Try to find by data-id on label or relationship
+      `[data-id="${escapedId}"]`,
+      // Fallback: try parent of element with data-id
+      `g:has([data-id="${escapedId}"])`
     ];
   }
   findAdjacentElements(target, svg) {
@@ -2531,6 +2615,188 @@ var BlockDiagramStrategy = class extends BaseDiagramStrategy {
   }
 };
 
+// src/adapters/strategies/labelBasedStrategy.ts
+var isNumericLabel = (label) => /^-?\d+(\.\d+)?$/.test(label);
+var normalizeDataId = (raw) => {
+  const trimmed = raw.trim();
+  if (!trimmed)
+    return "";
+  const normalized = trimmed.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
+  return normalized || "";
+};
+var LabelBasedStrategy = class extends BaseDiagramStrategy {
+  constructor(diagramType, options = {}) {
+    super();
+    this.diagramType = diagramType;
+    this.options = options;
+  }
+  getDiagramType() {
+    return this.diagramType;
+  }
+  extractNodeIds(svg) {
+    const map = /* @__PURE__ */ new Map();
+    const seenCounts = /* @__PURE__ */ new Map();
+    const maxTargets = this.options.maxTargets;
+    const texts = Array.from(svg.querySelectorAll("text"));
+    for (const textEl of texts) {
+      const label = (textEl.textContent ?? "").trim();
+      if (!label)
+        continue;
+      if (this.options.skipNumericLabels && isNumericLabel(label))
+        continue;
+      let dataId = normalizeDataId(label);
+      if (!dataId)
+        continue;
+      const target = this.findTargetGroupForText(textEl, svg);
+      if (!target)
+        continue;
+      const base = dataId;
+      const currentCount = (seenCounts.get(base) ?? 0) + 1;
+      seenCounts.set(base, currentCount);
+      if (currentCount > 1) {
+        dataId = `${base}_${currentCount}`;
+      }
+      if (!map.has(dataId)) {
+        map.set(dataId, target);
+      }
+      if (typeof maxTargets === "number" && map.size >= maxTargets) {
+        break;
+      }
+    }
+    return map;
+  }
+  getTargetSelectors(dataId) {
+    const escaped = this.escapeSelector(dataId);
+    return [
+      `g[data-id="${escaped}"]`,
+      `.node[data-id="${escaped}"]`,
+      `.participant[data-id="${escaped}"]`,
+      `.message[data-id="${escaped}"]`,
+      `[data-id="${escaped}"]`
+    ];
+  }
+  findAdjacentElements(_target, _svg) {
+    return [];
+  }
+  getTargetableClasses() {
+    return ["node", "label", "item", "task", "bar", "slice"];
+  }
+  getTargetableTags() {
+    return ["g", "rect", "circle", "ellipse", "polygon", "path", "text"];
+  }
+  findTargetGroupForText(textEl, svg) {
+    let current = textEl;
+    while (current && current !== svg) {
+      let parent = current.parentElement;
+      if (!parent || parent === svg)
+        break;
+      if (parent.tagName.toLowerCase() === "g") {
+        const svgEl = parent;
+        const className = typeof svgEl.className === "string" ? svgEl.className : svgEl.className.baseVal;
+        const hasShapes = !!parent.querySelector("rect,circle,ellipse,polygon,path");
+        if (hasShapes || className.includes("node")) {
+          return svgEl;
+        }
+      }
+      current = parent;
+    }
+    current = textEl;
+    while (current && current !== svg) {
+      let parent = current.parentElement;
+      if (!parent || parent === svg)
+        break;
+      const tag = parent.tagName.toLowerCase();
+      const isGraphicsTag = tag === "g" || tag === "rect" || tag === "circle" || tag === "ellipse" || tag === "polygon" || tag === "path";
+      if (isGraphicsTag) {
+        return parent;
+      }
+      current = parent;
+    }
+    return null;
+  }
+};
+
+// src/adapters/strategies/mindmapStrategy.ts
+var MindmapStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("mindmap", { skipNumericLabels: true, maxTargets: 200 });
+  }
+};
+
+// src/adapters/strategies/xyChartStrategy.ts
+var XYChartStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("xychart", { skipNumericLabels: true, maxTargets: 200 });
+  }
+};
+
+// src/adapters/strategies/kanbanStrategy.ts
+var KanbanStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("kanban", { skipNumericLabels: true, maxTargets: 300 });
+  }
+};
+
+// src/adapters/strategies/packetStrategy.ts
+var PacketStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("packet", { skipNumericLabels: true, maxTargets: 300 });
+  }
+};
+
+// src/adapters/strategies/radarStrategy.ts
+var RadarStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("radar", { skipNumericLabels: true, maxTargets: 300 });
+  }
+};
+
+// src/adapters/strategies/sankeyStrategy.ts
+var SankeyStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("sankey", { skipNumericLabels: true, maxTargets: 300 });
+  }
+};
+
+// src/adapters/strategies/treemapStrategy.ts
+var TreemapStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("treemap", { skipNumericLabels: true, maxTargets: 300 });
+  }
+};
+
+// src/adapters/strategies/zenumlStrategy.ts
+var ZenUMLStrategy = class extends LabelBasedStrategy {
+  constructor() {
+    super("zenuml", { skipNumericLabels: true, maxTargets: 300 });
+  }
+  extractNodeIds(svg) {
+    const map = /* @__PURE__ */ new Map();
+    const foreignObjects = Array.from(svg.querySelectorAll("foreignObject"));
+    for (const fo of foreignObjects) {
+      const labels = Array.from(fo.querySelectorAll(".participant, .message, .alias, .group"));
+      for (const labelEl of labels) {
+        let text = (labelEl.textContent ?? "").trim();
+        if (!text || text.length > 100)
+          continue;
+        const cleanText = text.replace(/[«»<>]/g, "").trim();
+        const dataIds = /* @__PURE__ */ new Set();
+        dataIds.add(text.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
+        dataIds.add(cleanText.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
+        for (const dataId of dataIds) {
+          if (!dataId || map.has(dataId))
+            continue;
+          map.set(dataId, labelEl);
+        }
+      }
+    }
+    if (map.size === 0) {
+      return super.extractNodeIds(svg);
+    }
+    return map;
+  }
+};
+
 // src/adapters/mermaidDiagram.ts
 strategyRegistry.register("flowchart", new FlowchartStrategy());
 strategyRegistry.register("gantt", new GanttStrategy());
@@ -2549,6 +2815,14 @@ strategyRegistry.register("c4Context", new C4Strategy("c4Context"));
 strategyRegistry.register("c4Container", new C4Strategy("c4Container"));
 strategyRegistry.register("c4Component", new C4Strategy("c4Component"));
 strategyRegistry.register("block", new BlockDiagramStrategy());
+strategyRegistry.register("mindmap", new MindmapStrategy());
+strategyRegistry.register("xychart", new XYChartStrategy());
+strategyRegistry.register("kanban", new KanbanStrategy());
+strategyRegistry.register("packet", new PacketStrategy());
+strategyRegistry.register("radar", new RadarStrategy());
+strategyRegistry.register("sankey", new SankeyStrategy());
+strategyRegistry.register("treemap", new TreemapStrategy());
+strategyRegistry.register("zenuml", new ZenUMLStrategy());
 strategyRegistry.setDefault(new FlowchartStrategy());
 function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
   let nodeIdMap = strategy.extractNodeIds(svg);
@@ -3221,14 +3495,34 @@ var createMermaidDiagramAdapter = () => {
     async render({ mountEl, mermaidText }) {
       const mermaid = window.mermaid;
       if (!mermaid || typeof mermaid.render !== "function") {
-        throw new MPFError("Mermaid is not available on window.mermaid", "MPF_MERMAID_UNAVAILABLE");
+        throw new MPFError(
+          "Mermaid is not available on window.mermaid",
+          "MPF_MERMAID_UNAVAILABLE",
+          {
+            mermaidAvailable: typeof window.mermaid !== "undefined"
+          }
+        );
       }
       const renderId = `finsteps-${Math.random().toString(36).slice(2, 8)}`;
       let renderResult;
+      if (detectDiagramType(mermaidText) === "zenuml") {
+        console.log("[MermaidAdapter] ZenUML detected, checking registry...");
+        const registered = mermaid.diagrams || {};
+        console.log("[MermaidAdapter] Registered diagrams:", Object.keys(registered));
+      }
       try {
         renderResult = await mermaid.render(renderId, mermaidText);
       } catch (error) {
-        throw new MPFError(`Failed to render Mermaid diagram: ${error}`, "MPF_MERMAID_RENDER_FAILED");
+        const diagType = detectDiagramType(mermaidText);
+        throw new MPFError(
+          `Failed to render Mermaid diagram (type: ${diagType}): ${error}`,
+          "MPF_MERMAID_RENDER_FAILED",
+          {
+            mermaidTextLength: mermaidText?.length || 0,
+            detectedType: diagType,
+            errorMessage: error instanceof Error ? error.message : String(error)
+          }
+        );
       }
       const { svg } = renderResult;
       mountEl.innerHTML = "";
@@ -3247,6 +3541,9 @@ var createMermaidDiagramAdapter = () => {
       }
       const diagramType = detectDiagramType(mermaidText);
       const strategy = strategyRegistry.getOrDefault(diagramType);
+      if (diagramType === "zenuml") {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
       ensureDataIdFromMermaidIds(svgElement, strategy, mermaidText);
       svgElement.removeAttribute("width");
       svgElement.removeAttribute("height");
@@ -3297,7 +3594,11 @@ var ActionEngine = class {
     for (const action of actions) {
       const handler = this.handlers[action.type];
       if (!handler) {
-        const error = new ActionError(`Unknown action: ${action.type}`, "MPF_ACTION_UNKNOWN");
+        const error = new ActionError(
+          `Unknown action: ${action.type}`,
+          "MPF_ACTION_UNKNOWN",
+          { actionType: action.type }
+        );
         if (errorPolicy === "haltOnError") {
           throw error;
         }
@@ -3375,7 +3676,11 @@ var createDefaultActionHandlers = () => {
       const target = action.payload?.target;
       const resolved = resolveTarget(context.diagram, target);
       if (!resolved) {
-        throw new ActionError("camera.fit missing target", "MPF_ACTION_INVALID_ARGS");
+        throw new ActionError(
+          "camera.fit missing target",
+          "MPF_ACTION_INVALID_ARGS",
+          { target: target ? JSON.stringify(target) : void 0 }
+        );
       }
       const durationMs = action.payload?.durationMs;
       const duration = durationMs ?? action.payload?.duration;
@@ -3407,7 +3712,11 @@ var createDefaultActionHandlers = () => {
       const target = action.payload?.target;
       const resolved = resolveTarget(context.diagram, target);
       if (!resolved) {
-        throw new ActionError("overlay.bubble missing target", "MPF_ACTION_INVALID_ARGS");
+        throw new ActionError(
+          "overlay.bubble missing target",
+          "MPF_ACTION_INVALID_ARGS",
+          { target: target ? JSON.stringify(target) : void 0 }
+        );
       }
       const text = String(action.payload?.text ?? "");
       context.overlay.showBubble({
@@ -3908,6 +4217,260 @@ var MermaidController = class {
     }
   }
 };
+
+// src/adapters/floatingControls.ts
+function createIconButton(icon, title, onClick) {
+  const button = document.createElement("button");
+  button.className = "finsteps-control-btn";
+  button.setAttribute("aria-label", title);
+  button.title = title;
+  const iconMap = {
+    play: "\u25B6",
+    pause: "\u23F8",
+    prev: "\u25C0",
+    next: "\u25B6",
+    zoomIn: "+",
+    zoomOut: "\u2212",
+    fitAll: "\u229E"
+  };
+  const iconText = iconMap[icon] || icon;
+  button.innerHTML = `<span class="finsteps-control-icon">${iconText}</span>`;
+  button.style.cssText = `
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(30, 41, 59, 0.9);
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    backdrop-filter: blur(8px);
+  `;
+  button.addEventListener("mouseenter", () => {
+    button.style.background = "rgba(51, 65, 85, 0.95)";
+    button.style.transform = "scale(1.1)";
+  });
+  button.addEventListener("mouseleave", () => {
+    button.style.background = "rgba(30, 41, 59, 0.9)";
+    button.style.transform = "scale(1)";
+  });
+  button.addEventListener("click", (e) => {
+    e.stopPropagation();
+    onClick();
+  });
+  return button;
+}
+function createFloatingControls(options) {
+  const {
+    controller,
+    camera,
+    position = "bottom-right",
+    showPlayPause = true,
+    showPrevNext = true,
+    showZoomControls = true,
+    showStepIndicator = true,
+    autoHide = false,
+    offset = { x: 20, y: 20 }
+  } = options;
+  const container = document.createElement("div");
+  container.className = "finsteps-floating-controls";
+  container.style.cssText = `
+    position: fixed;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+  `;
+  const positionStyles = {
+    "bottom-right": { bottom: `${offset.y}px`, right: `${offset.x}px` },
+    "bottom-left": { bottom: `${offset.y}px`, left: `${offset.x}px` },
+    "top-right": { top: `${offset.y}px`, right: `${offset.x}px` },
+    "top-left": { top: `${offset.y}px`, left: `${offset.x}px` },
+    "bottom-center": { bottom: `${offset.y}px`, left: "50%", transform: "translateX(-50%)" }
+  };
+  Object.assign(container.style, positionStyles[position] || positionStyles["bottom-right"]);
+  const navGroup = document.createElement("div");
+  navGroup.className = "finsteps-control-group";
+  navGroup.style.cssText = `
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  `;
+  let isPlaying = false;
+  let playbackInterval = null;
+  const stopPlayback = () => {
+    if (playbackInterval) {
+      clearInterval(playbackInterval);
+      playbackInterval = null;
+    }
+    isPlaying = false;
+    updatePlayPauseButton();
+  };
+  const startPlayback = () => {
+    const steps = controller.getSteps?.() || [];
+    if (steps.length === 0)
+      return;
+    isPlaying = true;
+    updatePlayPauseButton();
+    playbackInterval = setInterval(() => {
+      const state = controller.getState();
+      if (state.stepIndex < state.stepCount - 1) {
+        controller.next().catch(() => stopPlayback());
+      } else {
+        stopPlayback();
+      }
+    }, 3e3);
+  };
+  const playPauseBtn = showPlayPause ? createIconButton("play", "Play/Pause", () => {
+    if (isPlaying) {
+      stopPlayback();
+    } else {
+      startPlayback();
+    }
+  }) : null;
+  const updatePlayPauseButton = () => {
+    if (!playPauseBtn)
+      return;
+    const iconSpan = playPauseBtn.querySelector(".finsteps-control-icon");
+    if (iconSpan) {
+      iconSpan.textContent = isPlaying ? "\u23F8" : "\u25B6";
+    }
+    playPauseBtn.title = isPlaying ? "Pause" : "Play";
+  };
+  const prevBtn = showPrevNext ? createIconButton("prev", "Previous Step", () => {
+    stopPlayback();
+    controller.prev().catch(() => {
+    });
+  }) : null;
+  const nextBtn = showPrevNext ? createIconButton("next", "Next Step", () => {
+    stopPlayback();
+    controller.next().catch(() => {
+    });
+  }) : null;
+  if (prevBtn)
+    navGroup.appendChild(prevBtn);
+  if (playPauseBtn)
+    navGroup.appendChild(playPauseBtn);
+  if (nextBtn)
+    navGroup.appendChild(nextBtn);
+  const stepIndicator = showStepIndicator ? document.createElement("div") : null;
+  if (stepIndicator) {
+    stepIndicator.className = "finsteps-step-indicator";
+    stepIndicator.style.cssText = `
+      padding: 6px 12px;
+      background: rgba(30, 41, 59, 0.9);
+      border-radius: 8px;
+      color: #94a3b8;
+      font-size: 12px;
+      font-family: monospace;
+      text-align: center;
+      min-width: 80px;
+    `;
+    navGroup.appendChild(stepIndicator);
+  }
+  container.appendChild(navGroup);
+  if (showZoomControls && camera) {
+    const zoomGroup = document.createElement("div");
+    zoomGroup.className = "finsteps-control-group";
+    zoomGroup.style.cssText = `
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      border-top: 1px solid rgba(51, 65, 85, 0.5);
+      padding-top: 8px;
+    `;
+    const zoomOutBtn = createIconButton("zoomOut", "Zoom Out", () => {
+      if (camera.zoom) {
+        camera.zoom(0.8);
+      }
+    });
+    const zoomInBtn = createIconButton("zoomIn", "Zoom In", () => {
+      if (camera.zoom) {
+        camera.zoom(1.2);
+      }
+    });
+    const fitAllBtn = createIconButton("fitAll", "Fit All", () => {
+      if (camera.fitAll) {
+        camera.fitAll();
+      }
+    });
+    zoomGroup.appendChild(zoomOutBtn);
+    zoomGroup.appendChild(zoomInBtn);
+    zoomGroup.appendChild(fitAllBtn);
+    container.appendChild(zoomGroup);
+  }
+  document.body.appendChild(container);
+  const updateState = (state) => {
+    if (stepIndicator) {
+      stepIndicator.textContent = `Step ${state.stepIndex + 1} / ${state.stepCount}`;
+    }
+    if (prevBtn) {
+      prevBtn.disabled = state.stepIndex <= 0;
+      prevBtn.style.opacity = state.stepIndex <= 0 ? "0.5" : "1";
+      prevBtn.style.cursor = state.stepIndex <= 0 ? "not-allowed" : "pointer";
+    }
+    if (nextBtn) {
+      nextBtn.disabled = state.stepIndex >= state.stepCount - 1;
+      nextBtn.style.opacity = state.stepIndex >= state.stepCount - 1 ? "0.5" : "1";
+      nextBtn.style.cursor = state.stepIndex >= state.stepCount - 1 ? "not-allowed" : "pointer";
+    }
+    if (isPlaying && state.stepIndex >= state.stepCount - 1) {
+      stopPlayback();
+    }
+  };
+  const unsubscribe = controller.on("stepchange", (payload) => {
+    if (payload && typeof payload === "object" && "state" in payload) {
+      updateState(payload.state);
+    } else if (payload && typeof payload === "object" && "stepIndex" in payload) {
+      updateState(payload);
+    }
+  });
+  updateState(controller.getState());
+  let hideTimeout = null;
+  if (autoHide) {
+    const resetHideTimeout = () => {
+      if (hideTimeout)
+        clearTimeout(hideTimeout);
+      container.style.opacity = "1";
+      hideTimeout = setTimeout(() => {
+        container.style.opacity = "0.3";
+      }, 3e3);
+    };
+    container.addEventListener("mouseenter", () => {
+      container.style.opacity = "1";
+      if (hideTimeout)
+        clearTimeout(hideTimeout);
+    });
+    container.addEventListener("mouseleave", resetHideTimeout);
+    resetHideTimeout();
+  }
+  return {
+    show() {
+      container.style.display = "flex";
+    },
+    hide() {
+      container.style.display = "none";
+    },
+    updateState,
+    destroy() {
+      stopPlayback();
+      unsubscribe();
+      if (hideTimeout)
+        clearTimeout(hideTimeout);
+      container.remove();
+    }
+  };
+}
 
 // src/mocks/mockHandles.ts
 var createMockDiagramHandle = (svg) => {
@@ -4559,6 +5122,8 @@ var _MPDParser = class _MPDParser {
           return this.parseOverlayDecl();
         case "navigation":
           return this.parseNavigationDecl();
+        case "controls":
+          return this.parseControlsDecl();
         case "performance":
           return this.parsePerformanceDecl();
         case "meta":
@@ -4741,6 +5306,109 @@ var _MPDParser = class _MPDParser {
       return {
         type: "NavigationStartAt",
         value,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    return null;
+  }
+  parseControlsDecl() {
+    const start = this.consumeKeyword("controls");
+    if (!start) {
+      return null;
+    }
+    const { items, end } = this.parseBlock(() => this.parseControlsItem());
+    return {
+      type: "ControlsDecl",
+      items: items.filter((item) => item !== null),
+      span: spanFrom(start, end)
+    };
+  }
+  parseControlsItem() {
+    if (this.matchKeyword("mode")) {
+      const start = this.consumeKeyword("mode");
+      this.consumePunct(":");
+      const mode = this.parseName();
+      this.consumePunct(";");
+      return {
+        type: "ControlsMode",
+        mode: mode ?? { type: "Name", value: "floating", kind: "identifier", span: spanFrom(start, this.previous()) },
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("position")) {
+      const start = this.consumeKeyword("position");
+      this.consumePunct(":");
+      const position = this.parseName();
+      this.consumePunct(";");
+      return {
+        type: "ControlsPosition",
+        position: position ?? { type: "Name", value: "bottom-right", kind: "identifier", span: spanFrom(start, this.previous()) },
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("showPlayPause")) {
+      const start = this.consumeKeyword("showPlayPause");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowPlayPause",
+        value,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("showPrevNext")) {
+      const start = this.consumeKeyword("showPrevNext");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowPrevNext",
+        value,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("showZoomControls")) {
+      const start = this.consumeKeyword("showZoomControls");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowZoomControls",
+        value,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("showStepIndicator")) {
+      const start = this.consumeKeyword("showStepIndicator");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsShowStepIndicator",
+        value,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("autoHide")) {
+      const start = this.consumeKeyword("autoHide");
+      this.consumePunct(":");
+      const value = this.parseBoolean();
+      this.consumePunct(";");
+      return {
+        type: "ControlsAutoHide",
+        value,
+        span: spanFrom(start, this.previous())
+      };
+    }
+    if (this.matchKeyword("offset")) {
+      const start = this.consumeKeyword("offset");
+      this.consumePunct(":");
+      const offset = this.parseObjectExpr();
+      this.consumePunct(";");
+      return {
+        type: "ControlsOffset",
+        offset,
         span: spanFrom(start, this.previous())
       };
     }
@@ -6088,7 +6756,12 @@ var resolveAst = (options) => {
   }
   throw new MPFError(
     "presentMermaid requires ast or mpdText with parseMpd",
-    "MPF_INVALID_PRESENT_OPTIONS"
+    "MPF_INVALID_PRESENT_OPTIONS",
+    {
+      hasAst: !!options.ast,
+      hasMpdText: !!options.mpdText,
+      hasParseMpd: !!options.options?.parseMpd
+    }
   );
 };
 var presentMermaid = async (options) => {
@@ -6110,19 +6783,38 @@ var presentMermaid = async (options) => {
     hooks: options.options?.hooks
   });
   await controller.init({ diagram });
+  if (options.options?.controls) {
+    options.options.controls.updateState(controller.getState());
+  }
   return controller;
 };
+function validateMPD(mpdText) {
+  const result = parseMPD(mpdText);
+  const errors = result.diagnostics.filter((d) => d.severity === "error");
+  const warnings = result.diagnostics.filter((d) => d.severity === "warning");
+  const valid = result.ast !== null && errors.length === 0;
+  return {
+    valid,
+    ast: result.ast,
+    errors,
+    warnings
+  };
+}
+var src_default = presentMermaid;
 export {
   ActionError,
   MPFError,
   ParseError,
   createBasicCameraHandle,
   createBasicOverlayHandle,
+  createFloatingControls,
   createMermaidDiagramAdapter,
   createMockCameraHandle,
   createMockDiagramHandle,
   createMockOverlayHandle,
+  src_default as default,
   formatDiagnostics,
   parseMPD,
-  presentMermaid
+  presentMermaid,
+  validateMPD
 };

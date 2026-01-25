@@ -130,3 +130,51 @@ C4 component diagram walkthrough showing internal components and their relations
 <http://localhost:5173/examples/block/>
 
 Block diagram walkthrough showing a simple decision flow process. Demonstrates targeting blocks and connections.
+
+## Mindmap walkthrough (experimental)
+
+<http://localhost:5173/examples/mindmap/>
+
+Mindmap walkthrough demonstrating editor-grade target discovery via `data-id` for mindmap nodes.
+
+## XY chart walkthrough (experimental)
+
+<http://localhost:5173/examples/xychart/>
+
+XY chart walkthrough demonstrating editor-grade target discovery via `data-id` for chart labels/series.
+
+## Kanban walkthrough (experimental)
+
+<http://localhost:5173/examples/kanban/>
+
+Kanban walkthrough demonstrating targeting columns and tasks.
+
+## Packet walkthrough (experimental)
+
+<http://localhost:5173/examples/packet/>
+
+Packet diagram walkthrough demonstrating targeting layer labels.
+
+## Radar walkthrough (experimental)
+
+<http://localhost:5173/examples/radar/>
+
+Radar chart walkthrough demonstrating targeting metric labels.
+
+## Sankey walkthrough (experimental)
+
+<http://localhost:5173/examples/sankey/>
+
+Sankey diagram walkthrough demonstrating targeting node labels.
+
+## Treemap walkthrough (experimental)
+
+<http://localhost:5173/examples/treemap/>
+
+Treemap diagram walkthrough demonstrating targeting group labels.
+
+## ZenUML walkthrough (experimental)
+
+<http://localhost:5173/examples/zenuml/>
+
+ZenUML walkthrough demonstrating targeting participant labels (subject to Mermaid ZenUML support in the loaded Mermaid version).

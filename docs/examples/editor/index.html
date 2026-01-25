@@ -4,14 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Finsteps: Mermaid Live Editor</title>
-    <base href="./">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.2.2/dist/mermaid-zenuml.css" />
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css" />
-    <!-- Use relative path so it works under /finsteps/examples/editor/ on GitHub Pages -->
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="editor-layout">
@@ -110,8 +108,6 @@
       </main>
     </div>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.2.2/dist/mermaid-zenuml.css" />
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
     <script type="module">
       import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.esm.min.mjs";
       import zenumlPlugin from "https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.1.0/dist/mermaid-zenuml.esm.min.mjs";
@@ -122,9 +118,9 @@
       // Register ZenUML and initialize
       const setup = async () => {
         try {
-          console.log('[ZenUML] Registering plugin (v0.1.0)...');
+          console.log('[Editor] Registering ZenUML plugin...');
           await mermaid.registerExternalDiagrams([zenumlPlugin]);
-          console.log('[ZenUML] Plugin registered');
+          console.log('[Editor] ZenUML plugin registered successfully');
           
           mermaid.initialize({ 
             startOnLoad: false, 
@@ -135,7 +131,7 @@
           window.__mermaidReady = true;
           window.dispatchEvent(new CustomEvent('mermaid-ready'));
         } catch (e) {
-          console.error('[ZenUML] Registration failed:', e);
+          console.error('[Editor] Failed to register ZenUML plugin:', e);
           window.__mermaidReady = true;
           window.dispatchEvent(new CustomEvent('mermaid-ready'));
         }
@@ -146,7 +142,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/json/json.min.js"></script>
-    <!-- Use relative path so it works under /finsteps/examples/editor/ on GitHub Pages -->
-    <script type="module" src="editor.js?v=7"></script>
+    <script type="module" src="./editor.js?v=7"></script>
   </body>
 </html>

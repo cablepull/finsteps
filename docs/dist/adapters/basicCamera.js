@@ -63,6 +63,35 @@ const easingFunctions = {
 function getEasingFunction(name) {
     return easingFunctions[name] || easingFunctions.easeOut; // Default to easeOut
 }
+/**
+ * Gets the bounding box of an element, even if it's an HTML element inside a foreignObject.
+ * Returns coordinates in the SVG's user coordinate space.
+ */
+function getElementBBox(element, svg) {
+    if (element instanceof SVGGraphicsElement) {
+        try {
+            const bbox = element.getBBox();
+            if (bbox.width > 0 && bbox.height > 0) {
+                return bbox;
+            }
+        }
+        catch {
+            // Fallback if getBBox fails
+        }
+    }
+    // For HTML elements (e.g. ZenUML components) or SVG elements where getBBox fails,
+    // use getBoundingClientRect and project to SVG space.
+    const rect = element.getBoundingClientRect();
+    const svgRect = svg.getBoundingClientRect();
+    // Get current viewBox
+    const viewBox = svg.viewBox.baseVal;
+    if (!viewBox || svgRect.width === 0 || svgRect.height === 0) {
+        return new DOMRect(0, 0, 0, 0);
+    }
+    const scaleX = viewBox.width / svgRect.width;
+    const scaleY = viewBox.height / svgRect.height;
+    return new DOMRect((rect.left - svgRect.left) * scaleX + viewBox.x, (rect.top - svgRect.top) * scaleY + viewBox.y, rect.width * scaleX, rect.height * scaleY);
+}
 const getSvgViewBox = (svg) => {
     const baseVal = svg.viewBox?.baseVal;
     if (baseVal && baseVal.width && baseVal.height) {
@@ -77,7 +106,10 @@ const getSvgViewBox = (svg) => {
  * @returns Array of adjacent node elements
  */
 function findAdjacentNodes(targetNode, svg, strategy) {
-    return strategy.findAdjacentElements(targetNode, svg);
+    if (targetNode instanceof SVGGraphicsElement) {
+        return strategy.findAdjacentElements(targetNode, svg);
+    }
+    return [];
 }
 const calculateFullBoundingBox = (svg, padding = 40) => {
     // Check if there's a stored initial viewBox on the SVG (set by mermaidDiagram)
@@ -336,38 +368,24 @@ export const createBasicCameraHandle = (diagram) => {
     container.addEventListener("mouseleave", handleMouseLeave);
     return {
         fit(target, options) {
-            if (!(target instanceof SVGGraphicsElement)) {
+            if (!target) {
                 return;
             }
             try {
-                // getBBox() returns coordinates in SVG's local coordinate system (after transforms)
-                // getBBox() returns coordinates in the element's LOCAL coordinate space (before transforms)
-                // If the element has a transform, we need to account for it to get the actual position in SVG user space
-                // IMPORTANT: getCTM() includes viewBox scaling, so we need to use getScreenCTM() or parse transform attribute
-                // Instead, we'll use getBBox() on a temporary group at the root level to get user-space coordinates
-                const bboxLocal = target.getBBox();
+                let bbox = getElementBBox(target, svg);
                 const transform = target instanceof SVGElement ? target.getAttribute('transform') : null;
-                // Parse transform attribute to extract translate values (most common case)
-                // This avoids the viewBox scaling issue with getCTM()
-                let bbox = bboxLocal;
-                if (transform && transform.includes('translate')) {
+                // Parse transform attribute if target is SVG
+                if (target instanceof SVGGraphicsElement && transform && transform.includes('translate')) {
                     try {
-                        // Parse translate( tx, ty ) - handle both comma and space separators
                         const translateMatch = transform.match(/translate\s*\(\s*([-\d.]+)\s*[, ]\s*([-\d.]+)\s*\)/);
                         if (translateMatch) {
                             const tx = parseFloat(translateMatch[1]);
                             const ty = parseFloat(translateMatch[2]);
-                            // Apply translation to local bbox to get user-space coordinates
-                            // The bbox dimensions don't change with translation, only position
-                            bbox = new DOMRect(bboxLocal.x + tx, bboxLocal.y + ty, bboxLocal.width, bboxLocal.height);
-                        }
-                        else {
-                            // For other transform types, fall back to local bbox
-                            // Complex transforms would require full matrix parsing
+                            bbox = new DOMRect(bbox.x + tx, bbox.y + ty, bbox.width, bbox.height);
                         }
                     }
                     catch {
-                        // If transform parsing fails, fall back to local bbox
+                        // Ignore transform errors
                     }
                 }
                 const padding = options?.padding ?? 16;
@@ -387,17 +405,7 @@ export const createBasicCameraHandle = (diagram) => {
                 let unionBbox = bbox; // Start with target bbox (already adjusted for min size)
                 for (const adjacentNode of adjacentNodes) {
                     try {
-                        const adjBboxLocal = adjacentNode.getBBox();
-                        const adjTransform = adjacentNode.getAttribute('transform');
-                        let adjBbox = adjBboxLocal;
-                        if (adjTransform && adjTransform.includes('translate')) {
-                            const translateMatch = adjTransform.match(/translate\s*\(\s*([-\d.]+)\s*[, ]\s*([-\d.]+)\s*\)/);
-                            if (translateMatch) {
-                                const tx = parseFloat(translateMatch[1]);
-                                const ty = parseFloat(translateMatch[2]);
-                                adjBbox = new DOMRect(adjBboxLocal.x + tx, adjBboxLocal.y + ty, adjBboxLocal.width, adjBboxLocal.height);
-                            }
-                        }
+                        const adjBbox = getElementBBox(adjacentNode, svg);
                         // Expand union bbox to include this adjacent node
                         const minX = Math.min(unionBbox.x, adjBbox.x);
                         const minY = Math.min(unionBbox.y, adjBbox.y);
@@ -416,8 +424,8 @@ export const createBasicCameraHandle = (diagram) => {
                 if (!isFinite(bbox.width) || !isFinite(bbox.height) || bbox.width <= 0 || bbox.height <= 0) {
                     // If bbox is invalid, try to get it from the parent group
                     const parent = target.parentElement;
-                    if (parent instanceof SVGGraphicsElement) {
-                        const parentBBox = parent.getBBox();
+                    if (parent) {
+                        const parentBBox = getElementBBox(parent, svg);
                         if (isFinite(parentBBox.width) && isFinite(parentBBox.height) && parentBBox.width > 0 && parentBBox.height > 0) {
                             const viewBox = {
                                 x: parentBBox.x - padding,

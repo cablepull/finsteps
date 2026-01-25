@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: ZenUML Order Service</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.2.2/dist/mermaid-zenuml.css" />
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+      .layout { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: auto 1fr; height: 100vh; }
+      header { grid-column: 1 / -1; padding: 0.75rem 1rem; background: #1e293b; border-bottom: 1px solid #334155; }
+      header h1 { margin: 0; font-size: 1rem; font-weight: 600; }
+      .sidebar { padding: 1rem 0.75rem; background: #1e293b; border-right: 1px solid #334155; overflow-y: auto; }
+      .sidebar h2 { margin: 0 0 0.5rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+      .jump-btn { display: block; width: 100%; padding: 0.5rem 0.75rem; margin-bottom: 0.35rem; font-size: 0.8rem; text-align: left; background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; cursor: pointer; }
+      .jump-btn.active { background: #3b82f6; border-color: #60a5fa; color: #fff; }
+      .stage-wrap { padding: 1rem; overflow: auto; min-height: 0; display: flex; flex-direction: column; }
+      .diagram-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 600px; width: 100%; position: relative; }
+      .diagram-stage .finsteps-diagram { width: 100%; height: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; }
+      .diagram-stage .finsteps-diagram svg { width: 100%; height: 100%; min-height: 600px; max-width: 100%; display: block; }
+      
+      /* ZenUML specific highlight */
+      .finsteps-highlight { 
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+        outline: 3px solid #3b82f6 !important;
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header><h1>ZenUML Order Service Walkthrough</h1></header>
+      <aside class="sidebar">
+        <h2>Navigation</h2>
+        <button class="jump-btn" data-goto="overview">Full Overview</button>
+        <button class="jump-btn" data-goto="client">Client (Actor)</button>
+        <button class="jump-btn" data-goto="controller">Order Controller</button>
+        <button class="jump-btn" data-goto="service">Order Service</button>
+        <button class="jump-btn" data-goto="invoice">Invoice Service</button>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.esm.min.mjs";
+      import zenumlPlugin from "https://cdn.jsdelivr.net/npm/@mermaid-js/mermaid-zenuml@0.1.0/dist/mermaid-zenuml.esm.min.mjs";
+
+      window.mermaid = mermaid;
+      
+      const setup = async () => {
+        try {
+          await mermaid.registerExternalDiagrams([zenumlPlugin]);
+          mermaid.initialize({ 
+            startOnLoad: false, 
+            theme: "dark", 
+            securityLevel: 'loose' 
+          });
+          window.__mermaidReady = true;
+          window.dispatchEvent(new CustomEvent('mermaid-ready'));
+        } catch (e) {
+          console.error('Failed to register ZenUML plugin:', e);
+          window.__mermaidReady = true;
+          window.dispatchEvent(new CustomEvent('mermaid-ready'));
+        }
+      };
+      
+      setup();
+    </script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      const init = async () => {
+        if (!window.__mermaidReady) {
+          window.addEventListener('mermaid-ready', () => init(), { once: true });
+          return;
+        }
+
+        const mermaidText = `zenuml
+    title Order Service
+    @Actor Client #FFEBE6
+    @Boundary OrderController #0747A6
+    @EC2 <<BFF>> OrderService #E3FCEF
+    group BusinessService {
+      @Lambda PurchaseService
+      @AzureFunction InvoiceService
+    }
+
+    @Starter(Client)
+    // POST /orders
+    OrderController.post(payload) {
+      OrderService.create(payload) {
+        order = new Order(payload)
+        if(order != null) {
+          par {
+            PurchaseService.createPO(order)
+            InvoiceService.createInvoice(order)      
+          }      
+        }
+      }
+    }`;
+
+        const ast = {
+          steps: [
+            { 
+              id: "overview", 
+              actions: [
+                { type: "camera.reset" }
+              ] 
+            },
+            { 
+              id: "client", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Client" }, padding: 100, duration: 800 } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Client" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Client" }, text: "The actor initiating the request." } }
+              ] 
+            },
+            { 
+              id: "controller", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "OrderController" }, padding: 100, duration: 800 } }, 
+                { type: "style.highlight", payload: { target: { dataId: "OrderController" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "OrderController" }, text: "Receives the POST request." } }
+              ] 
+            },
+            { 
+              id: "service", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "OrderService" }, padding: 100, duration: 800 } }, 
+                { type: "style.highlight", payload: { target: { dataId: "OrderService" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "OrderService" }, text: "Handles business logic." } }
+              ] 
+            },
+            { 
+              id: "invoice", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "InvoiceService" }, padding: 100, duration: 800 } }, 
+                { type: "style.highlight", payload: { target: { dataId: "InvoiceService" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "InvoiceService" }, text: "Generates the invoice." } }
+              ] 
+            }
+          ],
+          bindings: [
+            { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+            { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] },
+            { event: "click", target: { selector: "button[data-goto='overview']" }, actions: [{ type: "nav.goto", payload: { id: "overview" } }] },
+            { event: "click", target: { selector: "button[data-goto='client']" }, actions: [{ type: "nav.goto", payload: { id: "client" } }] },
+            { event: "click", target: { selector: "button[data-goto='controller']" }, actions: [{ type: "nav.goto", payload: { id: "controller" } }] },
+            { event: "click", target: { selector: "button[data-goto='service']" }, actions: [{ type: "nav.goto", payload: { id: "service" } }] },
+            { event: "click", target: { selector: "button[data-goto='invoice']" }, actions: [{ type: "nav.goto", payload: { id: "invoice" } }] }
+          ]
+        };
+
+        try {
+          const controller = await presentMermaid({ 
+            mountEl: document.getElementById("diagram-mount"), 
+            mermaidText, 
+            ast 
+          });
+          
+          const updateActiveButtons = () => {
+            const state = controller.getState();
+            document.querySelectorAll('.jump-btn').forEach(btn => {
+              btn.classList.toggle('active', btn.getAttribute('data-goto') === state.stepId);
+            });
+          };
+          
+          controller.on('stepchange', updateActiveButtons);
+          updateActiveButtons();
+          
+          // Manual click backup
+          document.querySelectorAll('.jump-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const stepId = btn.getAttribute('data-goto');
+              controller.goto(stepId);
+            });
+          });
+
+          console.log("ZenUML Controller initialized");
+        } catch (err) {
+          console.error("Failed to initialize ZenUML presentation:", err);
+        }
+      };
+      
+      init();
+    </script>
+  </body>
+</html>

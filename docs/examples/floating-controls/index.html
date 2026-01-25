@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Floating Controls Example</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      header {
+        padding: 1rem 2rem;
+        background: #1e293b;
+        border-bottom: 1px solid #334155;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      header p {
+        margin: 0.5rem 0 0;
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+      .diagram-stage {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 500px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .diagram-stage .finsteps-diagram {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .diagram-stage .finsteps-diagram svg {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+      }
+      .finsteps-highlight {
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+      }
+      rect.finsteps-highlight,
+      polygon.finsteps-highlight,
+      path.finsteps-highlight,
+      g.finsteps-highlight {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      .info-panel {
+        padding: 1rem 2rem;
+        background: #1e293b;
+        border-top: 1px solid #334155;
+        font-size: 0.875rem;
+        color: #94a3b8;
+      }
+      .info-panel code {
+        background: #0f172a;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', monospace;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Floating Controls Example</h1>
+      <p>Demonstrates floating icon controls for presentation navigation and zoom</p>
+    </header>
+
+    <div class="diagram-stage" id="diagram-mount"></div>
+
+    <div class="info-panel">
+      <p>
+        This example demonstrates floating controls configured via JavaScript. 
+        Controls include: <code>Play/Pause</code> for auto-advance, 
+        <code>Previous/Next</code> for manual navigation, 
+        <code>Zoom In/Out</code> and <code>Fit All</code> for camera control, 
+        and a <code>Step Indicator</code> showing current progress.
+      </p>
+      <p>
+        Controls can also be configured via MPD DSL using the <code>runtime { controls { ... } }</code> block.
+      </p>
+    </div>
+
+    <!-- Mermaid must be available on window.mermaid for Finsteps' default diagram adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
+
+    <script type="module">
+      import { presentMermaid, createFloatingControls, parseMPD } from '../../dist/index.js';
+
+      (async () => {
+      // Ensure Mermaid is initialized before rendering
+      if (window.mermaid && typeof window.mermaid.initialize === 'function') {
+        window.mermaid.initialize({ startOnLoad: false });
+      }
+
+      const mermaidText = `flowchart TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
+    D --> E`;
+
+      const mpdText = `mpd 1.0
+
+deck {
+  scene default {
+    step overview {
+      camera reset();
+      overlay bubble(target: dataId("A"), text: "Welcome! This is the overview step.");
+    }
+    
+    step decision {
+      camera fit(target: dataId("B"), padding: 60, duration: 500);
+      style highlight(target: dataId("B"));
+      overlay bubble(target: dataId("B"), text: "This is the decision point.");
+    }
+    
+    step action1 {
+      camera fit(target: dataId("C"), padding: 60, duration: 500);
+      style highlight(target: dataId("C"));
+      overlay bubble(target: dataId("C"), text: "Action 1 path.");
+    }
+    
+    step action2 {
+      camera fit(target: dataId("D"), padding: 60, duration: 500);
+      style highlight(target: dataId("D"));
+      overlay bubble(target: dataId("D"), text: "Action 2 path.");
+    }
+    
+    step end {
+      camera fit(target: dataId("E"), padding: 60, duration: 500);
+      style highlight(target: dataId("E"));
+      overlay bubble(target: dataId("E"), text: "Final step!");
+    }
+  }
+}`;
+
+      const ast = parseMPD(mpdText).ast;
+      if (!ast) {
+        console.error('Failed to parse MPD');
+        return;
+      }
+
+      // Extract steps from AST
+      const steps = [];
+      for (const item of ast.body) {
+        if (item.type === 'Deck') {
+          for (const deckItem of item.items) {
+            if (deckItem.type === 'SceneDecl') {
+              for (const sceneItem of deckItem.items) {
+                if (sceneItem.type === 'StepDecl') {
+                  steps.push({
+                    id: sceneItem.name.value,
+                    name: sceneItem.name.value,
+                    actions: []
+                  });
+                }
+              }
+            }
+          }
+        } else if (item.type === 'SceneDecl') {
+          for (const sceneItem of item.items) {
+            if (sceneItem.type === 'StepDecl') {
+              steps.push({
+                id: sceneItem.name.value,
+                name: sceneItem.name.value,
+                actions: []
+              });
+            }
+          }
+        }
+      }
+
+      const presentationAst = {
+        steps: steps,
+        bindings: []
+      };
+
+      const controller = await presentMermaid({
+        mountEl: document.getElementById('diagram-mount'),
+        mermaidText,
+        ast: presentationAst,
+        options: {
+          parseMpd: () => presentationAst
+        }
+      });
+
+      // Create floating controls after controller is ready
+      const deps = controller.getDeps?.();
+      if (deps && deps.camera) {
+        const controls = createFloatingControls({
+          controller,
+          camera: deps.camera,
+          position: 'bottom-right',
+          showPlayPause: true,
+          showPrevNext: true,
+          showZoomControls: true,
+          showStepIndicator: true,
+          autoHide: false,
+          offset: { x: 20, y: 20 }
+        });
+        controls.updateState(controller.getState());
+      }
+      })();
+    </script>
+  </body>
+</html>
