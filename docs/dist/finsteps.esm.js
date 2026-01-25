@@ -2750,39 +2750,15 @@ var PacketStrategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
-    const seenLabels = /* @__PURE__ */ new Map();
-    const textElements = Array.from(svg.querySelectorAll("text"));
-    for (const textEl of textElements) {
-      const label = textEl.textContent?.trim();
-      if (!label)
-        continue;
-      if (/^\d+$/.test(label))
-        continue;
-      let dataId = label.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
-      if (!dataId)
-        continue;
-      const baseId = dataId;
-      const count = (seenLabels.get(baseId) ?? 0) + 1;
-      seenLabels.set(baseId, count);
-      if (count > 1) {
-        dataId = `${baseId}_${count}`;
+    const elementsWithDataId = Array.from(svg.querySelectorAll("[data-id]"));
+    for (const element of elementsWithDataId) {
+      const dataId = element.getAttribute("data-id");
+      if (dataId && !nodeIdMap.has(dataId)) {
+        nodeIdMap.set(dataId, element);
       }
-      let target = null;
-      const parent = textEl.parentElement;
-      if (parent) {
-        const rect = parent.querySelector("rect");
-        if (rect) {
-          target = parent;
-        } else if (parent.tagName.toLowerCase() === "g") {
-          target = parent;
-        }
-      }
-      if (!target && textEl.parentElement) {
-        target = textEl.parentElement;
-      }
-      if (target && !nodeIdMap.has(dataId)) {
-        nodeIdMap.set(dataId, target);
-      }
+    }
+    if (typeof console !== "undefined") {
+      console.log("[PacketStrategy] Extracted data-ids:", Array.from(nodeIdMap.keys()));
     }
     return nodeIdMap;
   }

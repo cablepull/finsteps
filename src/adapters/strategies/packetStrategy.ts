@@ -20,57 +20,22 @@ export class PacketStrategy extends BaseDiagramStrategy {
 
   extractNodeIds(svg: SVGSVGElement): Map<string, SVGElement> {
     const nodeIdMap = new Map<string, SVGElement>();
-    const seenLabels = new Map<string, number>();
 
-    // Packet diagrams have text elements with labels
-    // Find all text elements and their parent groups
-    const textElements = Array.from(svg.querySelectorAll("text"));
+    // Packet diagrams already have data-id attributes on <g> elements!
+    // Structure: <g data-id="Field_Name"><rect/><text/></g>
+    // We just need to find all elements with data-id attributes
+    const elementsWithDataId = Array.from(svg.querySelectorAll<SVGElement>("[data-id]"));
 
-    for (const textEl of textElements) {
-      const label = textEl.textContent?.trim();
-      if (!label) continue;
-
-      // Skip numeric labels (bit numbers)
-      if (/^\d+$/.test(label)) continue;
-
-      // Normalize the label to create a data-id
-      let dataId = label
-        .replace(/\s+/g, "_")
-        .replace(/[^A-Za-z0-9_-]/g, "");
-
-      if (!dataId) continue;
-
-      // Handle duplicate labels by adding suffix
-      const baseId = dataId;
-      const count = (seenLabels.get(baseId) ?? 0) + 1;
-      seenLabels.set(baseId, count);
-      if (count > 1) {
-        dataId = `${baseId}_${count}`;
+    for (const element of elementsWithDataId) {
+      const dataId = element.getAttribute("data-id");
+      if (dataId && !nodeIdMap.has(dataId)) {
+        nodeIdMap.set(dataId, element);
       }
+    }
 
-      // Find the parent rect or group that represents this field
-      let target: SVGElement | null = null;
-
-      // Look for sibling rect elements (packet fields are typically rect + text)
-      const parent = textEl.parentElement;
-      if (parent) {
-        const rect = parent.querySelector("rect");
-        if (rect) {
-          target = parent as unknown as SVGElement;
-        } else if (parent.tagName.toLowerCase() === "g") {
-          // The group itself might be the target
-          target = parent as unknown as SVGElement;
-        }
-      }
-
-      // Fallback: use the text element's parent
-      if (!target && textEl.parentElement) {
-        target = textEl.parentElement as unknown as SVGElement;
-      }
-
-      if (target && !nodeIdMap.has(dataId)) {
-        nodeIdMap.set(dataId, target);
-      }
+    // Debug: log all extracted IDs
+    if (typeof console !== 'undefined') {
+      console.log('[PacketStrategy] Extracted data-ids:', Array.from(nodeIdMap.keys()));
     }
 
     return nodeIdMap;
