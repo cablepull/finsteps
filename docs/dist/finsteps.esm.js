@@ -2713,9 +2713,38 @@ var XYChartStrategy = class extends LabelBasedStrategy {
 };
 
 // src/adapters/strategies/kanbanStrategy.ts
-var KanbanStrategy = class extends LabelBasedStrategy {
-  constructor() {
-    super("kanban", { skipNumericLabels: true, maxTargets: 300 });
+var KanbanStrategy = class extends BaseDiagramStrategy {
+  getDiagramType() {
+    return "kanban";
+  }
+  getTargetableClasses() {
+    return ["cluster", "node", "section"];
+  }
+  getTargetableTags() {
+    return ["g", "rect"];
+  }
+  extractNodeIds(svg) {
+    const nodeIdMap = /* @__PURE__ */ new Map();
+    const gElements = Array.from(svg.querySelectorAll("g[id]"));
+    for (const el of gElements) {
+      const id = el.getAttribute("id");
+      const className = el.getAttribute("class");
+      if (id && className && (className.includes("cluster") || className.includes("node"))) {
+        nodeIdMap.set(id, el);
+      }
+    }
+    return nodeIdMap;
+  }
+  getTargetSelectors(dataId) {
+    const escaped = dataId.replace(/"/g, '\\"');
+    return [
+      `g[data-id="${escaped}"]`,
+      `g[id="${escaped}"]`,
+      `[data-id="${escaped}"]`
+    ];
+  }
+  findAdjacentElements(_target, _svg) {
+    return [];
   }
 };
 
