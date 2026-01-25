@@ -44,7 +44,7 @@ All experimental diagram types have strategies and examples:
 
 - [x] **Timeline** - Strategy: `TimelineStrategy`, Example: `examples/timeline-experimental/`
 - [x] **Quadrant Chart** - Strategy: `QuadrantChartStrategy`, Example: `examples/quadrant/`
-- [x] **Requirement Diagram** - Strategy: `RequirementStrategy`, Example: `examples/requirement/` (pending)
+- [x] **Requirement Diagram** - Strategy: `RequirementStrategy`, Example: `examples/requirement/`
 - [x] **C4 Context** - Strategy: `C4Strategy`, Example: `examples/c4context/`
 - [x] **C4 Container** - Strategy: `C4Strategy`, Example: `examples/c4container/` (pending)
 - [x] **C4 Component** - Strategy: `C4Strategy`, Example: `examples/c4component/` (pending)
