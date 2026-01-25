@@ -15,10 +15,22 @@ export class ClassDiagramStrategy extends BaseDiagramStrategy {
     }
     extractNodeIds(svg) {
         const nodeIdMap = new Map();
+        // Debug: log all elements with IDs to understand Mermaid's structure
+        if (typeof console !== 'undefined') {
+            const allIds = Array.from(svg.querySelectorAll("[id]")).map(el => ({
+                id: el.getAttribute("id"),
+                tag: el.tagName,
+                class: el.getAttribute("class")
+            }));
+            console.log('[ClassDiagramStrategy] All elements with IDs:', allIds.slice(0, 20));
+        }
         // Patterns for class diagram IDs
+        // Mermaid generates IDs like: classId-ClassName-0, id_Class1_Class2_1
         const patterns = [
+            /^classId-([A-Za-z0-9_]+)-\d+$/, // classId-name-digit (Mermaid v11+)
             /^class-([A-Za-z0-9_]+)-\d+$/, // class-name-digit
             /^classBox-([A-Za-z0-9_]+)-\d+$/, // classBox-name-digit
+            /^id_([A-Za-z0-9_]+)_[A-Za-z0-9_]+_\d+$/, // id_Class1_Class2_digit (relations)
             /^relation-([A-Za-z0-9_]+)-\d+$/, // relation-name-digit
             /^edge-([A-Za-z0-9_]+)-\d+$/, // edge-name-digit
             /^([A-Za-z0-9_]+)-\d+$/, // name-digit (fallback)
@@ -53,6 +65,10 @@ export class ClassDiagramStrategy extends BaseDiagramStrategy {
                     nodeIdMap.set(nodeId, el);
                 }
             }
+        }
+        // Debug: log extracted data-ids
+        if (typeof console !== 'undefined') {
+            console.log('[ClassDiagramStrategy] Extracted data-ids:', Array.from(nodeIdMap.keys()));
         }
         return nodeIdMap;
     }
