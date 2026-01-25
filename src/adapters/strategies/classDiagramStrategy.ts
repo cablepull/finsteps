@@ -43,37 +43,16 @@ export class ClassDiagramStrategy extends BaseDiagramStrategy {
       /^([A-Za-z0-9_]+)-\d+$/,           // name-digit (fallback)
     ];
     
-    // First pass: find all elements with ids and extract node ids
-    for (const el of Array.from(svg.querySelectorAll<SVGElement>("[id]"))) {
+    // First pass: find all <g> elements with class="node" and extract class names
+    // We only want actual class nodes, not relations/edges
+    for (const el of Array.from(svg.querySelectorAll<SVGElement>("g.node[id]"))) {
       const id = el.getAttribute("id");
       if (!id) continue;
       
       let nodeId: string | null = this.extractIdFromPatterns(id, patterns);
       
       if (nodeId && !nodeIdMap.has(nodeId)) {
-        // Find the group that contains this element
-        let current: Element | null = el;
-        let nodeGroup: SVGElement | null = null;
-        
-        // Walk up the tree to find the class/relation group
-        while (current && current !== svg) {
-          if (current instanceof SVGElement && current.tagName === "g") {
-            const className = this.getElementClassName(current);
-            if (className && (className.includes('class') || className.includes('classBox') || 
-                className.includes('relation') || className.includes('edge'))) {
-              nodeGroup = current;
-              break;
-            }
-          }
-          current = current.parentElement;
-        }
-        
-        // If we found a group, use it
-        if (nodeGroup) {
-          nodeIdMap.set(nodeId, nodeGroup);
-        } else if (el.tagName === "g" && this.hasTargetableClass(el)) {
-          nodeIdMap.set(nodeId, el);
-        }
+        nodeIdMap.set(nodeId, el);
       }
     }
     

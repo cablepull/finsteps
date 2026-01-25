@@ -1394,29 +1394,13 @@ var ClassDiagramStrategy = class extends BaseDiagramStrategy {
       /^([A-Za-z0-9_]+)-\d+$/
       // name-digit (fallback)
     ];
-    for (const el of Array.from(svg.querySelectorAll("[id]"))) {
+    for (const el of Array.from(svg.querySelectorAll("g.node[id]"))) {
       const id = el.getAttribute("id");
       if (!id)
         continue;
       let nodeId = this.extractIdFromPatterns(id, patterns);
       if (nodeId && !nodeIdMap.has(nodeId)) {
-        let current = el;
-        let nodeGroup = null;
-        while (current && current !== svg) {
-          if (current instanceof SVGElement && current.tagName === "g") {
-            const className = this.getElementClassName(current);
-            if (className && (className.includes("class") || className.includes("classBox") || className.includes("relation") || className.includes("edge"))) {
-              nodeGroup = current;
-              break;
-            }
-          }
-          current = current.parentElement;
-        }
-        if (nodeGroup) {
-          nodeIdMap.set(nodeId, nodeGroup);
-        } else if (el.tagName === "g" && this.hasTargetableClass(el)) {
-          nodeIdMap.set(nodeId, el);
-        }
+        nodeIdMap.set(nodeId, el);
       }
     }
     if (typeof console !== "undefined") {
