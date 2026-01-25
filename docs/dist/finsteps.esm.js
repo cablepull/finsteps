@@ -2597,6 +2597,44 @@ var BlockDiagramStrategy = class extends BaseDiagramStrategy {
   }
 };
 
+// src/adapters/strategies/mindmapStrategy.ts
+var MindmapStrategy = class extends BaseDiagramStrategy {
+  getDiagramType() {
+    return "mindmap";
+  }
+  getTargetableClasses() {
+    return ["node", "mindmap-node"];
+  }
+  getTargetableTags() {
+    return ["g", "path"];
+  }
+  extractNodeIds(svg) {
+    const nodeIdMap = /* @__PURE__ */ new Map();
+    const nodeElements = Array.from(svg.querySelectorAll("g.mindmap-node"));
+    for (const el of nodeElements) {
+      const textContent = el.textContent?.trim();
+      if (!textContent)
+        continue;
+      let dataId = textContent.replace(/[()]/g, "").trim().replace(/\s+/g, "_");
+      if (dataId) {
+        nodeIdMap.set(dataId, el);
+      }
+    }
+    return nodeIdMap;
+  }
+  getTargetSelectors(dataId) {
+    const escaped = dataId.replace(/"/g, '\\"');
+    return [
+      `g[data-id="${escaped}"]`,
+      `g.mindmap-node[data-id="${escaped}"]`,
+      `[data-id="${escaped}"]`
+    ];
+  }
+  findAdjacentElements(_target, _svg) {
+    return [];
+  }
+};
+
 // src/adapters/strategies/labelBasedStrategy.ts
 var isNumericLabel = (label) => /^-?\d+(\.\d+)?$/.test(label);
 var normalizeDataId = (raw) => {
@@ -2695,13 +2733,6 @@ var LabelBasedStrategy = class extends BaseDiagramStrategy {
       current = parent;
     }
     return null;
-  }
-};
-
-// src/adapters/strategies/mindmapStrategy.ts
-var MindmapStrategy = class extends LabelBasedStrategy {
-  constructor() {
-    super("mindmap", { skipNumericLabels: true, maxTargets: 200 });
   }
 };
 
