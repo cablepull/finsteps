@@ -2750,6 +2750,7 @@ var PacketStrategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
+    const seenLabels = /* @__PURE__ */ new Map();
     const textElements = Array.from(svg.querySelectorAll("text"));
     for (const textEl of textElements) {
       const label = textEl.textContent?.trim();
@@ -2757,9 +2758,15 @@ var PacketStrategy = class extends BaseDiagramStrategy {
         continue;
       if (/^\d+$/.test(label))
         continue;
-      const dataId = label.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
+      let dataId = label.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
       if (!dataId)
         continue;
+      const baseId = dataId;
+      const count = (seenLabels.get(baseId) ?? 0) + 1;
+      seenLabels.set(baseId, count);
+      if (count > 1) {
+        dataId = `${baseId}_${count}`;
+      }
       let target = null;
       const parent = textEl.parentElement;
       if (parent) {

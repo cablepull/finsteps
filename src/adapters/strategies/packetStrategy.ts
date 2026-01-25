@@ -20,6 +20,7 @@ export class PacketStrategy extends BaseDiagramStrategy {
 
   extractNodeIds(svg: SVGSVGElement): Map<string, SVGElement> {
     const nodeIdMap = new Map<string, SVGElement>();
+    const seenLabels = new Map<string, number>();
 
     // Packet diagrams have text elements with labels
     // Find all text elements and their parent groups
@@ -33,11 +34,19 @@ export class PacketStrategy extends BaseDiagramStrategy {
       if (/^\d+$/.test(label)) continue;
 
       // Normalize the label to create a data-id
-      const dataId = label
+      let dataId = label
         .replace(/\s+/g, "_")
         .replace(/[^A-Za-z0-9_-]/g, "");
 
       if (!dataId) continue;
+
+      // Handle duplicate labels by adding suffix
+      const baseId = dataId;
+      const count = (seenLabels.get(baseId) ?? 0) + 1;
+      seenLabels.set(baseId, count);
+      if (count > 1) {
+        dataId = `${baseId}_${count}`;
+      }
 
       // Find the parent rect or group that represents this field
       let target: SVGElement | null = null;
