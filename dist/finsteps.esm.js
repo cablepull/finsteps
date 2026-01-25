@@ -2765,9 +2765,31 @@ var PacketStrategy = class extends BaseDiagramStrategy {
       if (count > 1) {
         dataId = `${baseId}_${count}`;
       }
-      const parent = textEl.parentElement;
-      if (parent && parent.tagName.toLowerCase() === "g") {
-        nodeIdMap.set(dataId, parent);
+      let rectEl = null;
+      let sibling = textEl.previousElementSibling;
+      while (sibling) {
+        if (sibling.tagName.toLowerCase() === "rect" && sibling.classList.contains("packetBlock")) {
+          rectEl = sibling;
+          break;
+        }
+        sibling = sibling.previousElementSibling;
+      }
+      if (rectEl) {
+        const parent = textEl.parentElement;
+        if (parent) {
+          const wrapperGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          wrapperGroup.setAttribute("data-id", dataId);
+          parent.insertBefore(wrapperGroup, rectEl);
+          wrapperGroup.appendChild(rectEl);
+          wrapperGroup.appendChild(textEl);
+          let nextSibling = wrapperGroup.nextElementSibling;
+          while (nextSibling && nextSibling.tagName.toLowerCase() === "text" && nextSibling.classList.contains("packetByte")) {
+            const toMove = nextSibling;
+            nextSibling = nextSibling.nextElementSibling;
+            wrapperGroup.appendChild(toMove);
+          }
+          nodeIdMap.set(dataId, wrapperGroup);
+        }
       }
     }
     if (typeof console !== "undefined") {
