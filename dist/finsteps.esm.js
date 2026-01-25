@@ -1370,27 +1370,13 @@ var ClassDiagramStrategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
-    if (typeof console !== "undefined") {
-      const allIds = Array.from(svg.querySelectorAll("[id]")).map((el) => ({
-        id: el.getAttribute("id"),
-        tag: el.tagName,
-        class: el.getAttribute("class")
-      }));
-      console.log("[ClassDiagramStrategy] All elements with IDs:", allIds.slice(0, 20));
-    }
     const patterns = [
       /^classId-([A-Za-z0-9_]+)-\d+$/,
       // classId-name-digit (Mermaid v11+)
       /^class-([A-Za-z0-9_]+)-\d+$/,
-      // class-name-digit
+      // class-name-digit (older versions)
       /^classBox-([A-Za-z0-9_]+)-\d+$/,
       // classBox-name-digit
-      /^id_([A-Za-z0-9_]+)_[A-Za-z0-9_]+_\d+$/,
-      // id_Class1_Class2_digit (relations)
-      /^relation-([A-Za-z0-9_]+)-\d+$/,
-      // relation-name-digit
-      /^edge-([A-Za-z0-9_]+)-\d+$/,
-      // edge-name-digit
       /^([A-Za-z0-9_]+)-\d+$/
       // name-digit (fallback)
     ];
@@ -1402,9 +1388,6 @@ var ClassDiagramStrategy = class extends BaseDiagramStrategy {
       if (nodeId && !nodeIdMap.has(nodeId)) {
         nodeIdMap.set(nodeId, el);
       }
-    }
-    if (typeof console !== "undefined") {
-      console.log("[ClassDiagramStrategy] Extracted data-ids:", Array.from(nodeIdMap.keys()));
     }
     return nodeIdMap;
   }
@@ -2790,9 +2773,6 @@ var PacketStrategy = class extends BaseDiagramStrategy {
           nodeIdMap.set(dataId, wrapperGroup);
         }
       }
-    }
-    if (typeof console !== "undefined") {
-      console.log("[PacketStrategy] Extracted data-ids:", Array.from(nodeIdMap.keys()));
     }
     return nodeIdMap;
   }

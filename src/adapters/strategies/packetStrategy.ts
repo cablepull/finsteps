@@ -95,12 +95,7 @@ export class PacketStrategy extends BaseDiagramStrategy {
       }
     }
 
-    // Debug: log all extracted IDs
-    if (typeof console !== 'undefined') {
-      console.log('[PacketStrategy] Extracted data-ids:', Array.from(nodeIdMap.keys()));
-    }
-
-    return nodeIdMap;
+      return nodeIdMap;
   }
 
   getTargetSelectors(dataId: string): string[] {
