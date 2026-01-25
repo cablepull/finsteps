@@ -65,9 +65,7 @@
           { 
             id: "todo", 
             actions: [
-              { type: "camera.zoom", payload: { factor: 0.5, duration: 400, easing: "cubicInOut" } },
-              { type: "wait", payload: { duration: 450 } },
-              { type: "camera.fit", payload: { target: { dataId: "Todo" }, padding: 60, duration: 600, easing: "cubicInOut" } }, 
+              { type: "camera.fit", payload: { target: { dataId: "Todo" }, padding: 60, duration: 800, easing: "cubicInOut" } }, 
               { type: "style.highlight", payload: { target: { dataId: "Todo" } } }, 
               { type: "overlay.bubble", payload: { target: { dataId: "Todo" }, text: "Todo: tasks not yet started." } }
             ] 
@@ -75,9 +73,7 @@
           { 
             id: "doing", 
             actions: [
-              { type: "camera.zoom", payload: { factor: 0.5, duration: 400, easing: "cubicInOut" } },
-              { type: "wait", payload: { duration: 450 } },
-              { type: "camera.fit", payload: { target: { dataId: "Doing" }, padding: 60, duration: 600, easing: "cubicInOut" } }, 
+              { type: "camera.fit", payload: { target: { dataId: "Doing" }, padding: 60, duration: 800, easing: "cubicInOut" } }, 
               { type: "style.highlight", payload: { target: { dataId: "Doing" } } }, 
               { type: "overlay.bubble", payload: { target: { dataId: "Doing" }, text: "Doing: tasks currently in progress." } }
             ] 
@@ -85,9 +81,7 @@
           { 
             id: "done", 
             actions: [
-              { type: "camera.zoom", payload: { factor: 0.5, duration: 400, easing: "cubicInOut" } },
-              { type: "wait", payload: { duration: 450 } },
-              { type: "camera.fit", payload: { target: { dataId: "Done" }, padding: 60, duration: 600, easing: "cubicInOut" } }, 
+              { type: "camera.fit", payload: { target: { dataId: "Done" }, padding: 60, duration: 800, easing: "cubicInOut" } }, 
               { type: "style.highlight", payload: { target: { dataId: "Done" } } }, 
               { type: "overlay.bubble", payload: { target: { dataId: "Done" }, text: "Done: completed tasks." } }
             ] 

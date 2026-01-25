@@ -110,7 +110,8 @@ export const createDefaultActionHandlers = () => {
             ensureHighlight(highlightState, [], highlightState.className);
         },
         "wait": async (_context, action) => {
-            const delayMs = typeof action.payload?.ms === "number" ? action.payload.ms : 0;
+            const delayMs = typeof action.payload?.ms === "number" ? action.payload.ms :
+                typeof action.payload?.duration === "number" ? action.payload.duration : 0;
             await new Promise((resolve) => window.setTimeout(resolve, delayMs));
         }
     };
