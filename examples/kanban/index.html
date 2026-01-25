@@ -56,9 +56,36 @@
       const ast = {
         steps: [
           { id: "overview", actions: [{ type: "camera.reset" }, { type: "overlay.bubble", payload: { target: { dataId: "Todo" }, text: "Kanban overview. Focus on columns to discuss work in progress." } }] },
-          { id: "todo", actions: [{ type: "camera.fit", payload: { target: { dataId: "Todo" }, padding: 60, duration: 500, easing: "cubicOut" } }, { type: "style.highlight", payload: { target: { dataId: "Todo" } } }, { type: "overlay.bubble", payload: { target: { dataId: "Todo" }, text: "Todo: tasks not yet started." } }] },
-          { id: "doing", actions: [{ type: "camera.fit", payload: { target: { dataId: "Doing" }, padding: 60, duration: 500, easing: "cubicOut" } }, { type: "style.highlight", payload: { target: { dataId: "Doing" } } }, { type: "overlay.bubble", payload: { target: { dataId: "Doing" }, text: "Doing: tasks currently in progress." } }] },
-          { id: "done", actions: [{ type: "camera.fit", payload: { target: { dataId: "Done" }, padding: 60, duration: 500, easing: "cubicOut" } }, { type: "style.highlight", payload: { target: { dataId: "Done" } } }, { type: "overlay.bubble", payload: { target: { dataId: "Done" }, text: "Done: completed tasks." } }] }
+          { 
+            id: "todo", 
+            actions: [
+              { type: "camera.reset", payload: { duration: 300 } },
+              { type: "wait", payload: { duration: 350 } },
+              { type: "camera.fit", payload: { target: { dataId: "Todo" }, padding: 60, duration: 500, easing: "cubicOut" } }, 
+              { type: "style.highlight", payload: { target: { dataId: "Todo" } } }, 
+              { type: "overlay.bubble", payload: { target: { dataId: "Todo" }, text: "Todo: tasks not yet started." } }
+            ] 
+          },
+          { 
+            id: "doing", 
+            actions: [
+              { type: "camera.reset", payload: { duration: 300 } },
+              { type: "wait", payload: { duration: 350 } },
+              { type: "camera.fit", payload: { target: { dataId: "Doing" }, padding: 60, duration: 500, easing: "cubicOut" } }, 
+              { type: "style.highlight", payload: { target: { dataId: "Doing" } } }, 
+              { type: "overlay.bubble", payload: { target: { dataId: "Doing" }, text: "Doing: tasks currently in progress." } }
+            ] 
+          },
+          { 
+            id: "done", 
+            actions: [
+              { type: "camera.reset", payload: { duration: 300 } },
+              { type: "wait", payload: { duration: 350 } },
+              { type: "camera.fit", payload: { target: { dataId: "Done" }, padding: 60, duration: 500, easing: "cubicOut" } }, 
+              { type: "style.highlight", payload: { target: { dataId: "Done" } } }, 
+              { type: "overlay.bubble", payload: { target: { dataId: "Done" }, text: "Done: completed tasks." } }
+            ] 
+          }
         ],
         bindings: [
           { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
