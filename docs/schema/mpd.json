@@ -1029,6 +1029,33 @@
           ]
         }
       }
+    },
+    "UnaryExprNode": {
+      "type": "object",
+      "required": ["type", "operator", "operand", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "UnaryExpr" },
+        "operator": { 
+          "type": "string", 
+          "enum": ["!", "-"]
+        },
+        "operand": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
+    },
+    "BinaryExprNode": {
+      "type": "object",
+      "required": ["type", "operator", "left", "right", "span"],
+      "properties": {
+        "type": { "type": "string", "const": "BinaryExpr" },
+        "operator": { 
+          "type": "string", 
+          "enum": ["or", "and", "==", "!=", "<", "<=", ">", ">=", "+", "-", "*", "/", "%"]
+        },
+        "left": { "$ref": "#/definitions/Expr" },
+        "right": { "$ref": "#/definitions/Expr" },
+        "span": { "$ref": "#/definitions/SourceSpan" }
+      }
     }
   }
 }
