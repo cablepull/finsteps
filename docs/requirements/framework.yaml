@@ -70,7 +70,7 @@
     type-specific behavior to well-defined strategy implementations.
   priority: P1
   criticality: MEDIUM
-  status: proposed
+  status: implemented
   acceptance_criteria:
     - For each listed diagram type, `detectDiagramType()` returns the correct type from Mermaid source text
     - For each listed diagram type, rendered SVG contains at least one element with a stable `data-id`
@@ -79,10 +79,13 @@
     - In the editor, “Generate Presentation” produces MPD that parses with zero errors for each listed type
     - Examples exist under `examples/<type>/index.html` for each listed type and demonstrate targeting
     - Automated tests cover detection + data-id extraction for each listed type
-  code_links: []
-  test_links: []
+  code_links:
+    - https://github.com/tenguns/finsteps/blob/c148f2478e3aa4052c8f14107bfede8887315ddc/src/adapters/strategies/requirementStrategy.ts#L4-L120
+    - https://github.com/tenguns/finsteps/blob/c148f2478e3aa4052c8f14107bfede8887315ddc/examples/requirement/index.html
+  test_links:
+    - https://github.com/tenguns/finsteps/blob/c148f2478e3aa4052c8f14107bfede8887315ddc/tests/e2e/requirement-example.spec.ts#L1-L210
   dependencies: []
   related_adrs:
     - ADR-0011
-  modified: 2026-01-24
-  modified_by: plan-implementation
+  modified: 2026-01-25
+  modified_by: commit:c148f2478e3aa4052c8f14107bfede8887315ddc

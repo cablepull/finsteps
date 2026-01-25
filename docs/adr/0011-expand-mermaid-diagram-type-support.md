@@ -1,7 +1,7 @@
 # ADR-0011: Expand Mermaid Diagram Type Support
 
 ## Status
-proposed
+accepted
 
 ## Context
 Finsteps relies on Mermaid-rendered SVGs to support interactive presentation behavior (camera fit, highlighting, overlays). The editor and runtime depend on stable target resolution via `target: { dataId: "..." }`.
@@ -55,7 +55,7 @@ We will expand Mermaid diagram type support by:
   - `overlay.bubble`
 
 ## Related
-- Implements: (to be linked from requirements) REQ-FRAMEWORK-XXX
+- Implements: REQ-FRAMEWORK-002
 - Related to: ADR-0006 (Mermaid ID to dataId mapping), ADR-0005 (camera fit adjacent nodes)
 
 ## Date

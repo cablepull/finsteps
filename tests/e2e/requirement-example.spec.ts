@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
 
+// Tests for REQ-FRAMEWORK-002: Expand Mermaid diagram type support
+// Validates requirement diagram targeting, highlighting, and camera operations
+
 const exampleUrl = "http://localhost:5173/examples/requirement/";
 
 test.describe("requirement diagram example", () => {
