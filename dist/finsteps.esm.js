@@ -2883,10 +2883,12 @@ var ZenUMLStrategy = class extends LabelBasedStrategy {
         let text = (labelEl.textContent ?? "").trim();
         if (!text || text.length > 100)
           continue;
-        const cleanText = text.replace(/[«»<>]/g, "").trim();
+        const cleanText = text.replace(/[«»<>]/g, "").replace(/Icon-[^\s]+/g, "").trim();
+        const nameOnly = text.replace(/«[^»]*»/g, "").replace(/<<[^>]*>>/g, "").replace(/Icon-[^\s]+/g, "").trim();
         const dataIds = /* @__PURE__ */ new Set();
         dataIds.add(text.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
         dataIds.add(cleanText.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
+        dataIds.add(nameOnly.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
         for (const dataId of dataIds) {
           if (!dataId || map.has(dataId))
             continue;

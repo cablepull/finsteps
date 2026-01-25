@@ -11,6 +11,7 @@ export class ZenUMLStrategy extends LabelBasedStrategy {
     // ZenUML renders everything inside a single root foreignObject.
     // We need to find all meaningful HTML elements inside it.
     const foreignObjects = Array.from(svg.querySelectorAll("foreignObject"));
+    
     for (const fo of foreignObjects) {
       // ZenUML classes:
       // .participant - Participant name containers
@@ -24,11 +25,27 @@ export class ZenUMLStrategy extends LabelBasedStrategy {
 
         // ZenUML often includes stereotypes like «BFF» in the text.
         // We want to provide a data-id both with and without the stereotype if possible.
-        const cleanText = text.replace(/[«»<>]/g, "").trim();
+        // Also remove icon text like "Icon-Architecture/16/Arch_Amazon-EC2_16"
+        const cleanText = text
+          .replace(/[«»<>]/g, "")  // Remove stereotype markers
+          .replace(/Icon-[^\s]+/g, "")  // Remove icon text
+          .trim();
+        
+        // Extract just the participant name without stereotype
+        // e.g., "«BFF»OrderService" -> "OrderService"
+        const nameOnly = text
+          .replace(/«[^»]*»/g, "")  // Remove «stereotype»
+          .replace(/<<[^>]*>>/g, "")  // Remove <<stereotype>>
+          .replace(/Icon-[^\s]+/g, "")  // Remove icon text
+          .trim();
         
         const dataIds = new Set<string>();
+        // Add original (with stereotype removed but concatenated)
         dataIds.add(text.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
+        // Add clean version
         dataIds.add(cleanText.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
+        // Add name-only version (most important for targeting)
+        dataIds.add(nameOnly.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, ""));
         
         for (const dataId of dataIds) {
           if (!dataId || map.has(dataId)) continue;
