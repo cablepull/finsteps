@@ -20,16 +20,42 @@ export class PacketStrategy extends BaseDiagramStrategy {
 
   extractNodeIds(svg: SVGSVGElement): Map<string, SVGElement> {
     const nodeIdMap = new Map<string, SVGElement>();
+    const seenLabels = new Map<string, number>();
 
-    // Packet diagrams already have data-id attributes on <g> elements!
-    // Structure: <g data-id="Field_Name"><rect/><text/></g>
-    // We just need to find all elements with data-id attributes
-    const elementsWithDataId = Array.from(svg.querySelectorAll<SVGElement>("[data-id]"));
+    // Packet diagrams structure:
+    // <g>
+    //   <rect class="packetBlock"/>
+    //   <text class="packetLabel">Field Name</text>
+    //   <text class="packetByte start">0</text>
+    //   <text class="packetByte end">7</text>
+    // </g>
+    
+    // Find all text elements with class="packetLabel"
+    const labelElements = Array.from(svg.querySelectorAll<SVGTextElement>("text.packetLabel"));
 
-    for (const element of elementsWithDataId) {
-      const dataId = element.getAttribute("data-id");
-      if (dataId && !nodeIdMap.has(dataId)) {
-        nodeIdMap.set(dataId, element);
+    for (const textEl of labelElements) {
+      const label = textEl.textContent?.trim();
+      if (!label) continue;
+
+      // Normalize the label to create a data-id
+      let dataId = label
+        .replace(/\s+/g, "_")
+        .replace(/[^A-Za-z0-9_-]/g, "");
+
+      if (!dataId) continue;
+
+      // Handle duplicate labels by adding suffix
+      const baseId = dataId;
+      const count = (seenLabels.get(baseId) ?? 0) + 1;
+      seenLabels.set(baseId, count);
+      if (count > 1) {
+        dataId = `${baseId}_${count}`;
+      }
+
+      // The parent <g> element contains the rect and text
+      const parent = textEl.parentElement;
+      if (parent && parent.tagName.toLowerCase() === "g") {
+        nodeIdMap.set(dataId, parent as unknown as SVGElement);
       }
     }
 

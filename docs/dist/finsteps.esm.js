@@ -2750,11 +2750,24 @@ var PacketStrategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
-    const elementsWithDataId = Array.from(svg.querySelectorAll("[data-id]"));
-    for (const element of elementsWithDataId) {
-      const dataId = element.getAttribute("data-id");
-      if (dataId && !nodeIdMap.has(dataId)) {
-        nodeIdMap.set(dataId, element);
+    const seenLabels = /* @__PURE__ */ new Map();
+    const labelElements = Array.from(svg.querySelectorAll("text.packetLabel"));
+    for (const textEl of labelElements) {
+      const label = textEl.textContent?.trim();
+      if (!label)
+        continue;
+      let dataId = label.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
+      if (!dataId)
+        continue;
+      const baseId = dataId;
+      const count = (seenLabels.get(baseId) ?? 0) + 1;
+      seenLabels.set(baseId, count);
+      if (count > 1) {
+        dataId = `${baseId}_${count}`;
+      }
+      const parent = textEl.parentElement;
+      if (parent && parent.tagName.toLowerCase() === "g") {
+        nodeIdMap.set(dataId, parent);
       }
     }
     if (typeof console !== "undefined") {
