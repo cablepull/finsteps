@@ -2280,39 +2280,18 @@ var RequirementStrategy = class extends BaseDiagramStrategy {
   }
   extractNodeIds(svg) {
     const nodeIdMap = /* @__PURE__ */ new Map();
-    const patterns = [
-      /^requirement-([A-Za-z0-9_]+)-\d+$/,
-      // requirement-name-digit
-      /^function-([A-Za-z0-9_]+)-\d+$/,
-      // function-name-digit
-      /^relationship-([A-Za-z0-9_]+)-\d+$/,
-      // relationship-name-digit
-      /^([A-Za-z0-9_]+)-\d+$/
-      // name-digit (fallback)
-    ];
-    for (const el of Array.from(svg.querySelectorAll("[id]"))) {
-      const id = el.getAttribute("id");
-      if (!id)
-        continue;
-      let nodeId = this.extractIdFromPatterns(id, patterns);
-      if (nodeId && !nodeIdMap.has(nodeId)) {
-        let current = el;
-        let nodeGroup = null;
-        while (current && current !== svg) {
-          if (current instanceof SVGElement && current.tagName === "g") {
-            const className = this.getElementClassName(current);
-            if (className && (className.includes("requirement") || className.includes("function") || className.includes("relationship"))) {
-              nodeGroup = current;
-              break;
-            }
-          }
-          current = current.parentElement;
-        }
-        if (nodeGroup) {
-          nodeIdMap.set(nodeId, nodeGroup);
-        } else if (el.tagName === "g" && this.hasTargetableClass(el)) {
-          nodeIdMap.set(nodeId, el);
-        }
+    const nodeGroups = Array.from(svg.querySelectorAll("g.node[id]"));
+    for (const nodeGroup of nodeGroups) {
+      const id = nodeGroup.getAttribute("id");
+      if (id && id.trim()) {
+        nodeIdMap.set(id, nodeGroup);
+      }
+    }
+    const relationshipPaths = Array.from(svg.querySelectorAll("path[data-id].relationshipLine"));
+    for (const path of relationshipPaths) {
+      const dataId = path.getAttribute("data-id");
+      if (dataId && dataId.trim()) {
+        nodeIdMap.set(dataId, path);
       }
     }
     return nodeIdMap;
@@ -2320,14 +2299,12 @@ var RequirementStrategy = class extends BaseDiagramStrategy {
   getTargetSelectors(dataId) {
     const escapedId = this.escapeSelector(dataId);
     return [
-      `g.requirement[data-id="${escapedId}"]`,
-      `g.function[data-id="${escapedId}"]`,
-      `g.relationship[data-id="${escapedId}"]`,
-      `g[class*="requirement"][data-id="${escapedId}"]`,
-      `g[class*="function"][data-id="${escapedId}"]`,
-      `g[class*="relationship"][data-id="${escapedId}"]`,
-      `[data-id="${escapedId}"]`
-      // Fallback
+      // Try to find node group by id attribute (most common for req1, req2, func1)
+      `g.node[id="${escapedId}"]`,
+      // Try to find by data-id on label or relationship
+      `[data-id="${escapedId}"]`,
+      // Fallback: try parent of element with data-id
+      `g:has([data-id="${escapedId}"])`
     ];
   }
   findAdjacentElements(target, svg) {
