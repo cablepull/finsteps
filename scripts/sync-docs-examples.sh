@@ -30,11 +30,44 @@ cp -R dist/* docs/dist/
 
 echo "✅ Sync complete!"
 echo ""
+
+# Verify the sync worked correctly
+echo "🔍 Verifying path resolution..."
+if [ -f "docs/dist/index.js" ]; then
+  echo "  ✓ docs/dist/index.js exists"
+else
+  echo "  ✗ docs/dist/index.js missing!"
+  exit 1
+fi
+
+if [ -d "docs/examples/mindmap" ]; then
+  echo "  ✓ docs/examples/mindmap/ exists"
+else
+  echo "  ✗ docs/examples/mindmap/ missing!"
+  exit 1
+fi
+
+# Verify relative paths work (examples import from ../../dist/)
+cd docs/examples/mindmap
+if [ -f "../../dist/index.js" ]; then
+  echo "  ✓ Relative path ../../dist/index.js resolves correctly"
+else
+  echo "  ✗ Relative path resolution failed!"
+  exit 1
+fi
+cd ../../..
+
+echo ""
 echo "📋 Summary:"
-echo "  - examples/ → docs/examples/"
-echo "  - dist/ → docs/dist/"
+echo "  - Copied examples/ → docs/examples/"
+echo "  - Copied dist/ → docs/dist/"
+echo "  - Verified relative imports (../../dist/) work correctly"
 echo ""
 echo "🌐 You can now preview the docs site locally:"
 echo "  npx serve -p 5173"
 echo "  Open: http://localhost:5173/docs/"
+echo ""
+echo "📝 Note: Examples use relative paths (../../dist/) which work because:"
+echo "  - docs/examples/mindmap/ imports ../../dist/ → resolves to docs/dist/ ✓"
+echo "  - This matches the GitHub Pages structure where /docs is the root"
 echo ""
