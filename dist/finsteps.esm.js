@@ -2738,9 +2738,56 @@ var KanbanStrategy = class extends LabelBasedStrategy {
 };
 
 // src/adapters/strategies/packetStrategy.ts
-var PacketStrategy = class extends LabelBasedStrategy {
-  constructor() {
-    super("packet", { skipNumericLabels: true, maxTargets: 300 });
+var PacketStrategy = class extends BaseDiagramStrategy {
+  getDiagramType() {
+    return "packet";
+  }
+  getTargetableClasses() {
+    return ["packetBlock", "packet"];
+  }
+  getTargetableTags() {
+    return ["g", "rect", "text"];
+  }
+  extractNodeIds(svg) {
+    const nodeIdMap = /* @__PURE__ */ new Map();
+    const textElements = Array.from(svg.querySelectorAll("text"));
+    for (const textEl of textElements) {
+      const label = textEl.textContent?.trim();
+      if (!label)
+        continue;
+      if (/^\d+$/.test(label))
+        continue;
+      const dataId = label.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
+      if (!dataId)
+        continue;
+      let target = null;
+      const parent = textEl.parentElement;
+      if (parent) {
+        const rect = parent.querySelector("rect");
+        if (rect) {
+          target = parent;
+        } else if (parent.tagName.toLowerCase() === "g") {
+          target = parent;
+        }
+      }
+      if (!target && textEl.parentElement) {
+        target = textEl.parentElement;
+      }
+      if (target && !nodeIdMap.has(dataId)) {
+        nodeIdMap.set(dataId, target);
+      }
+    }
+    return nodeIdMap;
+  }
+  getTargetSelectors(dataId) {
+    const escaped = dataId.replace(/"/g, '\\"');
+    return [
+      `g[data-id="${escaped}"]`,
+      `[data-id="${escaped}"]`
+    ];
+  }
+  findAdjacentElements(_target, _svg) {
+    return [];
   }
 };
 
