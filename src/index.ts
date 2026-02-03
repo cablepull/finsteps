@@ -162,4 +162,8 @@ export type {
   VarRefNode
 } from "./ast.js";
 
+// Re-export Reveal.js plugin for convenience
+export { FinstepsRevealPlugin } from "./integrations/revealjs/index.js";
+export type { FinstepsPluginOptions, RevealApi, RevealPlugin } from "./integrations/revealjs/index.js";
+
 export default presentMermaid;

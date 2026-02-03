@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Compact Controls Demo</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: #0f172a;
+        color: #e2e8f0;
+        min-height: 100vh;
+      }
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: 1.5rem;
+      }
+      p {
+        margin: 0 0 2rem;
+        color: #94a3b8;
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+      }
+      .demo-card {
+        background: rgba(30, 41, 59, 0.5);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid rgba(51, 65, 85, 0.5);
+      }
+      .demo-card h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+        color: #f1f5f9;
+      }
+      .demo-card .subtitle {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-bottom: 1rem;
+      }
+      .diagram-stage {
+        min-height: 200px;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 8px;
+        padding: 1rem;
+        position: relative;
+      }
+      .light-bg {
+        background: #f8fafc;
+      }
+      .light-bg .demo-card {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(203, 213, 225, 0.5);
+      }
+      .light-bg .demo-card h2 {
+        color: #1e293b;
+      }
+      .light-bg .diagram-stage {
+        background: rgba(241, 245, 249, 0.8);
+      }
+      .section-title {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #64748b;
+        margin: 2rem 0 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Compact Controls Demo</h1>
+    <p>Demonstrating size, theme, orientation, playbackSpeed, and reset button options.</p>
+
+    <div class="section-title">Size Presets</div>
+    <div class="demo-grid">
+      <div class="demo-card">
+        <h2>Compact Size</h2>
+        <div class="subtitle">size: "compact" | 28px buttons, 6px padding</div>
+        <div class="diagram-stage" id="diagram-compact"></div>
+      </div>
+
+      <div class="demo-card">
+        <h2>Normal Size (Default)</h2>
+        <div class="subtitle">size: "normal" | 40px buttons, 12px padding</div>
+        <div class="diagram-stage" id="diagram-normal"></div>
+      </div>
+
+      <div class="demo-card">
+        <h2>Large Size</h2>
+        <div class="subtitle">size: "large" | 52px buttons, 16px padding</div>
+        <div class="diagram-stage" id="diagram-large"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Theme Presets</div>
+    <div class="demo-grid">
+      <div class="demo-card">
+        <h2>Dark Theme</h2>
+        <div class="subtitle">theme: "dark"</div>
+        <div class="diagram-stage" id="diagram-dark"></div>
+      </div>
+
+      <div class="demo-card light-bg">
+        <h2>Light Theme</h2>
+        <div class="subtitle">theme: "light"</div>
+        <div class="diagram-stage" id="diagram-light"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Orientation & Options</div>
+    <div class="demo-grid">
+      <div class="demo-card">
+        <h2>Horizontal Orientation</h2>
+        <div class="subtitle">orientation: "horizontal" | showReset: true</div>
+        <div class="diagram-stage" id="diagram-horizontal"></div>
+      </div>
+
+      <div class="demo-card">
+        <h2>Custom Playback Speed</h2>
+        <div class="subtitle">playbackSpeed: 1000ms | showReset: true</div>
+        <div class="diagram-stage" id="diagram-speed"></div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid, createFloatingControls } from "../../dist/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      const mermaidText = `flowchart LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Action 1]
+  B -->|No| D[Action 2]
+  C --> E[End]
+  D --> E`;
+
+      const ast = {
+        steps: [
+          {
+            id: "start",
+            actions: [
+              { type: "overlay.bubble", payload: { target: { dataId: "A" }, text: "Begin here" } }
+            ]
+          },
+          {
+            id: "decision",
+            actions: [
+              { type: "overlay.bubble", payload: { target: { dataId: "B" }, text: "Make a choice" } }
+            ]
+          },
+          {
+            id: "actions",
+            actions: [
+              { type: "overlay.bubble", payload: { target: { dataId: "C" }, text: "Path A" } }
+            ]
+          },
+          {
+            id: "end",
+            actions: [
+              { type: "overlay.bubble", payload: { target: { dataId: "E" }, text: "Complete!" } }
+            ]
+          }
+        ]
+      };
+
+      // Store controllers for cleanup
+      const controllers = [];
+      const controls = [];
+
+      // Helper to create a demo
+      async function createDemo(mountId, controlsOptions) {
+        const mountEl = document.getElementById(mountId);
+        const controller = await presentMermaid({ mountEl, mermaidText, ast });
+        controllers.push(controller);
+
+        const ctrl = createFloatingControls({
+          controller,
+          showZoomControls: false,
+          ...controlsOptions
+        });
+        controls.push(ctrl);
+        return { controller, ctrl };
+      }
+
+      // Compact size
+      await createDemo("diagram-compact", {
+        size: "compact",
+        position: "bottom-right",
+        offset: { x: 10, y: 10 }
+      });
+
+      // Normal size (default)
+      await createDemo("diagram-normal", {
+        size: "normal",
+        position: "bottom-right",
+        offset: { x: 10, y: 10 }
+      });
+
+      // Large size
+      await createDemo("diagram-large", {
+        size: "large",
+        position: "bottom-right",
+        offset: { x: 10, y: 10 }
+      });
+
+      // Dark theme
+      await createDemo("diagram-dark", {
+        theme: "dark",
+        size: "compact",
+        position: "bottom-right",
+        offset: { x: 10, y: 10 }
+      });
+
+      // Light theme
+      mermaid.initialize({ startOnLoad: false, theme: "default" });
+      await createDemo("diagram-light", {
+        theme: "light",
+        size: "compact",
+        position: "bottom-right",
+        offset: { x: 10, y: 10 }
+      });
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      // Horizontal orientation with reset
+      await createDemo("diagram-horizontal", {
+        orientation: "horizontal",
+        showReset: true,
+        size: "compact",
+        position: "bottom-center",
+        offset: { x: 0, y: 10 }
+      });
+
+      // Custom playback speed with reset
+      await createDemo("diagram-speed", {
+        playbackSpeed: 1000,
+        showReset: true,
+        size: "compact",
+        position: "bottom-right",
+        offset: { x: 10, y: 10 }
+      });
+    </script>
+  </body>
+</html>

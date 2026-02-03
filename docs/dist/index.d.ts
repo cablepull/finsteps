@@ -25,5 +25,7 @@ export declare function validateMPD(mpdText: string): {
     warnings: Diagnostic[];
 };
 export type { ActionArg, ActionCallNode, AlignOption, ArrayExprNode, AssertStmtNode, BindingDeclNode, BindingRuleNode, BindingStmt, CallExprNode, CameraDeclNode, CameraItem, ConstDeclNode, ControlsDeclNode, ControlsItem, DeckItem, DeckNode, Diagnostic, DiagramAssetsDeclNode, DiagramDeclNode, DiagramItem, DoStmtNode, EdgeRef, EdgeTuple, EventSpecNode, Expr, FocusOptions, FocusStmtNode, LetStmtNode, LiteralExprNode, LockMode, MetaDeclNode, MetaEntry, MermaidConfigDeclNode, MermaidSourceDeclNode, NameValue, NavigationDeclNode, NavigationItem, NodeRef, ObjectEntryNode, ObjectExprNode, OverlayDeclNode, OverlayItem, ParseResult, PerformanceDeclNode, PluginDeclNode, ProgramNode, RuntimeDeclNode, RuntimeItem, SceneDeclNode, SceneItem, SelectorsDeclNode, SelectorsItem, SourcePosition, SourceSpan, StepDeclNode, StepStmt, StylesDeclNode, StylesItem, SubgraphRef, TargetExprNode, TargetExceptExpr, TargetGroupExpr, TargetIntersectExpr, TargetUnionExpr, UnaryExprNode, UnknownBlockNode, VarRefNode } from "./ast.js";
+export { FinstepsRevealPlugin } from "./integrations/revealjs/index.js";
+export type { FinstepsPluginOptions, RevealApi, RevealPlugin } from "./integrations/revealjs/index.js";
 export default presentMermaid;
 //# sourceMappingURL=index.d.ts.map

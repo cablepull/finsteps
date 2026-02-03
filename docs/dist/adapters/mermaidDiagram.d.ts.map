@@ -1,1 +1,1 @@
-{"version":3,"file":"mermaidDiagram.d.ts","sourceRoot":"","sources":["../../src/adapters/mermaidDiagram.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAmC,MAAM,aAAa,CAAC;AAuiC9E,eAAO,MAAM,2BAA2B,QAAO,cAgH9C,CAAC"}
+{"version":3,"file":"mermaidDiagram.d.ts","sourceRoot":"","sources":["../../src/adapters/mermaidDiagram.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAmC,MAAM,aAAa,CAAC;AAyiC9E,eAAO,MAAM,2BAA2B,QAAO,cAgH9C,CAAC"}

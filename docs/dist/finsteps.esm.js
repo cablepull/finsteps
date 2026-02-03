@@ -1041,6 +1041,9 @@ function detectDiagramType(mermaidText) {
   if (firstLine.startsWith("zenuml")) {
     return "zenuml";
   }
+  if (firstLine.startsWith("wardley")) {
+    return "wardley";
+  }
   if (trimmed.includes("graph") || trimmed.includes("-->") || trimmed.includes("---")) {
     return "flowchart";
   }
@@ -2903,6 +2906,59 @@ var ZenUMLStrategy = class extends LabelBasedStrategy {
   }
 };
 
+// src/adapters/strategies/wardleyStrategy.ts
+var WardleyStrategy = class extends BaseDiagramStrategy {
+  getDiagramType() {
+    return "wardley";
+  }
+  getTargetableClasses() {
+    return ["component", "anchor", "node", "label"];
+  }
+  getTargetableTags() {
+    return ["g", "text", "circle", "rect"];
+  }
+  extractNodeIds(svg) {
+    const nodeIdMap = /* @__PURE__ */ new Map();
+    const textElements = Array.from(svg.querySelectorAll("text"));
+    for (const textEl of textElements) {
+      const text = textEl.textContent?.trim();
+      if (!text || text.length === 0)
+        continue;
+      if (text.length > 100)
+        continue;
+      let dataId = text.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
+      if (!dataId)
+        continue;
+      let targetElement = textEl;
+      let parent = textEl.parentElement;
+      while (parent && parent.tagName.toLowerCase() === "g") {
+        const parentId = parent.getAttribute("id");
+        const parentClass = parent.getAttribute("class");
+        if (parentId || parentClass) {
+          targetElement = parent;
+          break;
+        }
+        parent = parent.parentElement;
+      }
+      if (!nodeIdMap.has(dataId)) {
+        nodeIdMap.set(dataId, targetElement);
+      }
+    }
+    return nodeIdMap;
+  }
+  getTargetSelectors(dataId) {
+    const escaped = dataId.replace(/"/g, '\\"');
+    return [
+      `g[data-id="${escaped}"]`,
+      `text[data-id="${escaped}"]`,
+      `[data-id="${escaped}"]`
+    ];
+  }
+  findAdjacentElements(_target, _svg) {
+    return [];
+  }
+};
+
 // src/adapters/mermaidDiagram.ts
 strategyRegistry.register("flowchart", new FlowchartStrategy());
 strategyRegistry.register("gantt", new GanttStrategy());
@@ -2929,6 +2985,7 @@ strategyRegistry.register("radar", new RadarStrategy());
 strategyRegistry.register("sankey", new SankeyStrategy());
 strategyRegistry.register("treemap", new TreemapStrategy());
 strategyRegistry.register("zenuml", new ZenUMLStrategy());
+strategyRegistry.register("wardley", new WardleyStrategy());
 strategyRegistry.setDefault(new FlowchartStrategy());
 function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
   let nodeIdMap = strategy.extractNodeIds(svg);
@@ -4325,7 +4382,39 @@ var MermaidController = class {
 };
 
 // src/adapters/floatingControls.ts
-function createIconButton(icon, title, onClick) {
+var SIZE_PRESETS = {
+  compact: { button: 28, fontSize: 12, gap: 4, padding: 6, borderRadius: 6 },
+  normal: { button: 40, fontSize: 16, gap: 8, padding: 12, borderRadius: 50 },
+  large: { button: 52, fontSize: 20, gap: 12, padding: 16, borderRadius: 50 }
+};
+var THEME_PRESETS = {
+  dark: {
+    containerBg: "rgba(15, 23, 42, 0.85)",
+    buttonBg: "rgba(30, 41, 59, 0.9)",
+    buttonHoverBg: "rgba(51, 65, 85, 0.95)",
+    buttonColor: "#e2e8f0",
+    indicatorColor: "#94a3b8",
+    borderColor: "rgba(51, 65, 85, 0.5)"
+  },
+  light: {
+    containerBg: "rgba(255, 255, 255, 0.9)",
+    buttonBg: "rgba(241, 245, 249, 0.95)",
+    buttonHoverBg: "rgba(226, 232, 240, 1)",
+    buttonColor: "#334155",
+    indicatorColor: "#64748b",
+    borderColor: "rgba(203, 213, 225, 0.5)"
+  }
+};
+function getEffectiveTheme(theme) {
+  if (theme === "auto") {
+    if (typeof window !== "undefined" && window.matchMedia) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    return "dark";
+  }
+  return theme;
+}
+function createIconButton(icon, title, onClick, config) {
   const button = document.createElement("button");
   button.className = "finsteps-control-btn";
   button.setAttribute("aria-label", title);
@@ -4337,31 +4426,33 @@ function createIconButton(icon, title, onClick) {
     next: "\u25B6",
     zoomIn: "+",
     zoomOut: "\u2212",
-    fitAll: "\u229E"
+    fitAll: "\u229E",
+    reset: "\u21BA"
   };
   const iconText = iconMap[icon] || icon;
   button.innerHTML = `<span class="finsteps-control-icon">${iconText}</span>`;
+  const { size, theme } = config;
   button.style.cssText = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: ${size.button}px;
+    height: ${size.button}px;
     border: none;
-    border-radius: 50%;
-    background: rgba(30, 41, 59, 0.9);
-    color: #e2e8f0;
+    border-radius: ${size.borderRadius}px;
+    background: ${theme.buttonBg};
+    color: ${theme.buttonColor};
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 16px;
+    font-size: ${size.fontSize}px;
     backdrop-filter: blur(8px);
   `;
   button.addEventListener("mouseenter", () => {
-    button.style.background = "rgba(51, 65, 85, 0.95)";
+    button.style.background = theme.buttonHoverBg;
     button.style.transform = "scale(1.1)";
   });
   button.addEventListener("mouseleave", () => {
-    button.style.background = "rgba(30, 41, 59, 0.9)";
+    button.style.background = theme.buttonBg;
     button.style.transform = "scale(1)";
   });
   button.addEventListener("click", (e) => {
@@ -4380,20 +4471,30 @@ function createFloatingControls(options) {
     showZoomControls = true,
     showStepIndicator = true,
     autoHide = false,
-    offset = { x: 20, y: 20 }
+    offset = { x: 20, y: 20 },
+    size = "normal",
+    theme = "dark",
+    playbackSpeed = 3e3,
+    showReset = false,
+    orientation = "vertical"
   } = options;
+  const sizePreset = SIZE_PRESETS[size];
+  const effectiveTheme = getEffectiveTheme(theme);
+  const themePreset = THEME_PRESETS[effectiveTheme];
+  const styleConfig = { size: sizePreset, theme: themePreset };
+  const isHorizontal = orientation === "horizontal";
   const container = document.createElement("div");
   container.className = "finsteps-floating-controls";
   container.style.cssText = `
     position: fixed;
     z-index: 10000;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px;
-    background: rgba(15, 23, 42, 0.85);
+    flex-direction: ${isHorizontal ? "row" : "column"};
+    gap: ${sizePreset.gap}px;
+    padding: ${sizePreset.padding}px;
+    background: ${themePreset.containerBg};
     backdrop-filter: blur(12px);
-    border-radius: 16px;
+    border-radius: ${size === "compact" ? "8px" : "16px"};
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     pointer-events: auto;
   `;
@@ -4409,7 +4510,7 @@ function createFloatingControls(options) {
   navGroup.className = "finsteps-control-group";
   navGroup.style.cssText = `
     display: flex;
-    gap: 8px;
+    gap: ${sizePreset.gap}px;
     align-items: center;
   `;
   let isPlaying = false;
@@ -4435,7 +4536,7 @@ function createFloatingControls(options) {
       } else {
         stopPlayback();
       }
-    }, 3e3);
+    }, playbackSpeed);
   };
   const playPauseBtn = showPlayPause ? createIconButton("play", "Play/Pause", () => {
     if (isPlaying) {
@@ -4443,7 +4544,7 @@ function createFloatingControls(options) {
     } else {
       startPlayback();
     }
-  }) : null;
+  }, styleConfig) : null;
   const updatePlayPauseButton = () => {
     if (!playPauseBtn)
       return;
@@ -4457,30 +4558,40 @@ function createFloatingControls(options) {
     stopPlayback();
     controller.prev().catch(() => {
     });
-  }) : null;
+  }, styleConfig) : null;
   const nextBtn = showPrevNext ? createIconButton("next", "Next Step", () => {
     stopPlayback();
     controller.next().catch(() => {
     });
-  }) : null;
+  }, styleConfig) : null;
+  const resetBtn = showReset ? createIconButton("reset", "Reset", () => {
+    stopPlayback();
+    controller.reset().catch(() => {
+    });
+  }, styleConfig) : null;
   if (prevBtn)
     navGroup.appendChild(prevBtn);
   if (playPauseBtn)
     navGroup.appendChild(playPauseBtn);
   if (nextBtn)
     navGroup.appendChild(nextBtn);
+  if (resetBtn)
+    navGroup.appendChild(resetBtn);
   const stepIndicator = showStepIndicator ? document.createElement("div") : null;
   if (stepIndicator) {
     stepIndicator.className = "finsteps-step-indicator";
+    const indicatorFontSize = size === "compact" ? 10 : size === "large" ? 14 : 12;
+    const indicatorPadding = size === "compact" ? "4px 8px" : "6px 12px";
+    const indicatorMinWidth = size === "compact" ? "40px" : "80px";
     stepIndicator.style.cssText = `
-      padding: 6px 12px;
-      background: rgba(30, 41, 59, 0.9);
-      border-radius: 8px;
-      color: #94a3b8;
-      font-size: 12px;
+      padding: ${indicatorPadding};
+      background: ${themePreset.buttonBg};
+      border-radius: ${size === "compact" ? "4px" : "8px"};
+      color: ${themePreset.indicatorColor};
+      font-size: ${indicatorFontSize}px;
       font-family: monospace;
       text-align: center;
-      min-width: 80px;
+      min-width: ${indicatorMinWidth};
     `;
     navGroup.appendChild(stepIndicator);
   }
@@ -4488,28 +4599,28 @@ function createFloatingControls(options) {
   if (showZoomControls && camera) {
     const zoomGroup = document.createElement("div");
     zoomGroup.className = "finsteps-control-group";
+    const borderStyle = isHorizontal ? `border-left: 1px solid ${themePreset.borderColor}; padding-left: ${sizePreset.gap}px;` : `border-top: 1px solid ${themePreset.borderColor}; padding-top: ${sizePreset.gap}px;`;
     zoomGroup.style.cssText = `
       display: flex;
-      gap: 8px;
+      gap: ${sizePreset.gap}px;
       align-items: center;
-      border-top: 1px solid rgba(51, 65, 85, 0.5);
-      padding-top: 8px;
+      ${borderStyle}
     `;
     const zoomOutBtn = createIconButton("zoomOut", "Zoom Out", () => {
       if (camera.zoom) {
         camera.zoom(0.8);
       }
-    });
+    }, styleConfig);
     const zoomInBtn = createIconButton("zoomIn", "Zoom In", () => {
       if (camera.zoom) {
         camera.zoom(1.2);
       }
-    });
+    }, styleConfig);
     const fitAllBtn = createIconButton("fitAll", "Fit All", () => {
       if (camera.fitAll) {
         camera.fitAll();
       }
-    });
+    }, styleConfig);
     zoomGroup.appendChild(zoomOutBtn);
     zoomGroup.appendChild(zoomInBtn);
     zoomGroup.appendChild(fitAllBtn);
@@ -4518,7 +4629,7 @@ function createFloatingControls(options) {
   document.body.appendChild(container);
   const updateState = (state) => {
     if (stepIndicator) {
-      stepIndicator.textContent = `Step ${state.stepIndex + 1} / ${state.stepCount}`;
+      stepIndicator.textContent = size === "compact" ? `${state.stepIndex + 1}/${state.stepCount}` : `Step ${state.stepIndex + 1} / ${state.stepCount}`;
     }
     if (prevBtn) {
       prevBtn.disabled = state.stepIndex <= 0;
@@ -6852,6 +6963,283 @@ function formatDiagnostics(diagnostics) {
   }).join("\n");
 }
 
+// src/integrations/revealjs/discovery.ts
+function discoverDiagrams(container) {
+  const diagrams = [];
+  const finstepsElements = container.querySelectorAll("[data-finsteps]");
+  finstepsElements.forEach((element) => {
+    const discovered = parseDiagramElement(element);
+    if (discovered) {
+      diagrams.push(discovered);
+    }
+  });
+  return diagrams;
+}
+function parseDiagramElement(element) {
+  const mermaidElement = element.querySelector(".finsteps-mermaid, pre.mermaid, .mermaid");
+  if (!mermaidElement) {
+    console.warn("[finsteps] No mermaid element found in", element);
+    return null;
+  }
+  const mermaidText = mermaidElement.textContent?.trim();
+  if (!mermaidText) {
+    console.warn("[finsteps] Empty mermaid text in", element);
+    return null;
+  }
+  const ast = parseAstConfig(element);
+  if (!ast) {
+    console.warn("[finsteps] No valid AST configuration found in", element);
+    return null;
+  }
+  const controlsPosition = parseControlsPosition(element.dataset.finstepsControls);
+  const controlsSize = parseControlsSize(element.dataset.finstepsControlsSize);
+  const controlsTheme = parseControlsTheme(element.dataset.finstepsControlsTheme);
+  return {
+    element,
+    mermaidElement,
+    mermaidText,
+    ast,
+    controlsPosition,
+    controlsSize,
+    controlsTheme
+  };
+}
+function parseAstConfig(element) {
+  const scriptTag = element.querySelector(
+    'script[type="application/finsteps+json"], script[type="application/json"]'
+  );
+  if (scriptTag?.textContent) {
+    try {
+      const parsed = JSON.parse(scriptTag.textContent);
+      if (parsed.steps && Array.isArray(parsed.steps)) {
+        return { steps: parsed.steps, bindings: parsed.bindings };
+      }
+      if (parsed.ast?.steps && Array.isArray(parsed.ast.steps)) {
+        return parsed.ast;
+      }
+    } catch (e) {
+      console.warn("[finsteps] Failed to parse AST from script tag:", e);
+    }
+  }
+  const astAttr = element.dataset.finstepsAst;
+  if (astAttr) {
+    try {
+      const parsed = JSON.parse(astAttr);
+      if (parsed.steps && Array.isArray(parsed.steps)) {
+        return { steps: parsed.steps, bindings: parsed.bindings };
+      }
+    } catch (e) {
+      console.warn("[finsteps] Failed to parse AST from data attribute:", e);
+    }
+  }
+  return null;
+}
+function parseControlsPosition(value) {
+  const valid = ["bottom-right", "bottom-left", "top-right", "top-left", "bottom-center"];
+  return valid.includes(value || "") ? value : void 0;
+}
+function parseControlsSize(value) {
+  const valid = ["compact", "normal", "large"];
+  return valid.includes(value || "") ? value : void 0;
+}
+function parseControlsTheme(value) {
+  const valid = ["dark", "light", "auto"];
+  return valid.includes(value || "") ? value : void 0;
+}
+
+// src/integrations/revealjs/fragmentSync.ts
+function setupFragmentSync(options) {
+  const { reveal, slideElement, controller } = options;
+  const fragments = slideElement.querySelectorAll("[data-finsteps-step]");
+  if (fragments.length === 0) {
+    return { destroy: () => {
+    } };
+  }
+  const fragmentStepMap = /* @__PURE__ */ new Map();
+  fragments.forEach((fragment, index) => {
+    const stepAttr = fragment.dataset.finstepsStep;
+    if (stepAttr) {
+      const stepNum = parseInt(stepAttr, 10);
+      if (!isNaN(stepNum)) {
+        fragmentStepMap.set(index, stepNum);
+      }
+    }
+  });
+  const handleFragmentShown = (event) => {
+    if (!event.fragment)
+      return;
+    if (!slideElement.contains(event.fragment))
+      return;
+    const stepAttr = event.fragment.dataset.finstepsStep;
+    if (stepAttr) {
+      const stepIndex = parseInt(stepAttr, 10);
+      if (!isNaN(stepIndex)) {
+        controller.goto(stepIndex).catch(() => {
+        });
+      }
+    }
+  };
+  const handleFragmentHidden = (event) => {
+    if (!event.fragment)
+      return;
+    if (!slideElement.contains(event.fragment))
+      return;
+    const stepAttr = event.fragment.dataset.finstepsStep;
+    if (stepAttr) {
+      const stepIndex = parseInt(stepAttr, 10);
+      if (!isNaN(stepIndex) && stepIndex > 0) {
+        controller.goto(stepIndex - 1).catch(() => {
+        });
+      }
+    }
+  };
+  reveal.on("fragmentshown", handleFragmentShown);
+  reveal.on("fragmenthidden", handleFragmentHidden);
+  return {
+    destroy() {
+      reveal.off("fragmentshown", handleFragmentShown);
+      reveal.off("fragmenthidden", handleFragmentHidden);
+    }
+  };
+}
+
+// src/integrations/revealjs/plugin.ts
+function FinstepsRevealPlugin(options = {}) {
+  const {
+    defaultControlsPosition = "bottom-right",
+    defaultControlsSize = "compact",
+    defaultControlsTheme = "auto",
+    showControls = true,
+    syncWithFragments = false,
+    resetOnSlideChange = true
+  } = options;
+  const instances = /* @__PURE__ */ new Map();
+  const fragmentSyncHandles = /* @__PURE__ */ new Map();
+  let reveal = null;
+  let currentSlide = null;
+  async function initializeDiagram(discovered) {
+    try {
+      const mountEl = discovered.mermaidElement;
+      const controller = await presentMermaid({
+        mountEl,
+        mermaidText: discovered.mermaidText,
+        ast: discovered.ast
+      });
+      let controlsHandle;
+      if (showControls) {
+        controlsHandle = createFloatingControls({
+          controller,
+          position: discovered.controlsPosition ?? defaultControlsPosition,
+          size: discovered.controlsSize ?? defaultControlsSize,
+          theme: discovered.controlsTheme ?? defaultControlsTheme,
+          showZoomControls: false,
+          showReset: true,
+          offset: { x: 10, y: 10 }
+        });
+        if (reveal && reveal.getCurrentSlide() !== getSlideForElement(discovered.element)) {
+          controlsHandle.hide();
+        }
+      }
+      return {
+        element: discovered.element,
+        controller,
+        controlsHandle
+      };
+    } catch (error) {
+      console.error("[finsteps] Failed to initialize diagram:", error);
+      return null;
+    }
+  }
+  function getSlideForElement(element) {
+    return element.closest("section");
+  }
+  function handleSlideChanged(event) {
+    const { currentSlide: newSlide, previousSlide } = event;
+    currentSlide = newSlide;
+    if (previousSlide) {
+      for (const [element, instance] of instances) {
+        if (previousSlide.contains(element)) {
+          instance.controlsHandle?.hide();
+        }
+      }
+    }
+    for (const [element, instance] of instances) {
+      if (newSlide.contains(element)) {
+        instance.controlsHandle?.show();
+        if (resetOnSlideChange) {
+          instance.controller.reset().catch(() => {
+          });
+        }
+      }
+    }
+  }
+  function setupFragmentSyncForSlide(slide) {
+    if (!syncWithFragments || !reveal)
+      return;
+    for (const [element, instance] of instances) {
+      if (slide.contains(element)) {
+        if (fragmentSyncHandles.has(element))
+          continue;
+        const handle = setupFragmentSync({
+          reveal,
+          slideElement: slide,
+          controller: instance.controller
+        });
+        fragmentSyncHandles.set(element, handle);
+      }
+    }
+  }
+  return {
+    id: "finsteps",
+    async init(revealApi) {
+      reveal = revealApi;
+      const slidesContainer = document.querySelector(".reveal .slides");
+      if (!slidesContainer) {
+        console.warn("[finsteps] No Reveal.js slides container found");
+        return;
+      }
+      const discovered = discoverDiagrams(slidesContainer);
+      for (const diagram of discovered) {
+        const instance = await initializeDiagram(diagram);
+        if (instance) {
+          instances.set(diagram.element, instance);
+        }
+      }
+      reveal.on("slidechanged", handleSlideChanged);
+      if (syncWithFragments) {
+        reveal.on("slidechanged", (event) => {
+          setupFragmentSyncForSlide(event.currentSlide);
+        });
+        const initialSlide = reveal.getCurrentSlide();
+        if (initialSlide) {
+          setupFragmentSyncForSlide(initialSlide);
+        }
+      }
+      currentSlide = reveal.getCurrentSlide();
+      if (currentSlide) {
+        for (const [element, instance] of instances) {
+          if (currentSlide.contains(element)) {
+            instance.controlsHandle?.show();
+          }
+        }
+      }
+    },
+    destroy() {
+      for (const handle of fragmentSyncHandles.values()) {
+        handle.destroy();
+      }
+      fragmentSyncHandles.clear();
+      for (const instance of instances.values()) {
+        instance.controlsHandle?.destroy();
+        instance.controller.destroy();
+      }
+      instances.clear();
+      reveal = null;
+      currentSlide = null;
+    }
+  };
+}
+
 // src/index.ts
 var resolveAst = (options) => {
   if (options.ast) {
@@ -6909,8 +7297,11 @@ function validateMPD(mpdText) {
 var src_default = presentMermaid;
 export {
   ActionError,
+  FinstepsRevealPlugin,
   MPFError,
   ParseError,
+  SIZE_PRESETS,
+  THEME_PRESETS,
   createBasicCameraHandle,
   createBasicOverlayHandle,
   createFloatingControls,

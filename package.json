@@ -11,6 +11,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./revealjs": {
+      "types": "./dist/integrations/revealjs/index.d.ts",
+      "import": "./dist/integrations/revealjs/index.js",
+      "default": "./dist/integrations/revealjs/index.js"
     }
   },
   "files": [

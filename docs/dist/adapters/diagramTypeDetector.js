@@ -104,6 +104,10 @@ export function detectDiagramType(mermaidText) {
     if (firstLine.startsWith('zenuml')) {
         return 'zenuml';
     }
+    // Wardley maps (tractorjuice fork)
+    if (firstLine.startsWith('wardley')) {
+        return 'wardley';
+    }
     // Fallback: check for common patterns
     if (trimmed.includes('graph') || trimmed.includes('-->') || trimmed.includes('---')) {
         return 'flowchart';

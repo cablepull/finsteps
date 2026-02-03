@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps Reveal.js Plugin Demo</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css"
+    />
+    <style>
+      .mermaid-stage {
+        min-height: 300px;
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        position: relative;
+      }
+      .slide-card {
+        padding: 1rem;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.3);
+        margin-top: 1rem;
+        font-size: 0.8em;
+      }
+      .callout {
+        font-size: 0.7em;
+        color: #a0ffce;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.2em 0.4em;
+        border-radius: 4px;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <!-- Title Slide -->
+        <section>
+          <h1>Finsteps Plugin</h1>
+          <p class="callout">Declarative Reveal.js Integration</p>
+          <p>
+            Diagrams auto-initialize using <code>data-finsteps</code> attributes.
+            No manual JavaScript required!
+          </p>
+        </section>
+
+        <!-- Basic Usage Slide -->
+        <section>
+          <h2>Basic Usage</h2>
+          <div class="mermaid-stage">
+            <div data-finsteps data-finsteps-controls="bottom-right" data-finsteps-controls-size="compact">
+              <pre class="finsteps-mermaid">flowchart LR
+  A[Start] --> B{Decision}
+  B -->|Yes| C[Action]
+  B -->|No| D[Skip]
+  C --> E[End]
+  D --> E</pre>
+              <script type="application/finsteps+json">
+                {
+                  "steps": [
+                    {
+                      "id": "start",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Begin here" } }
+                      ]
+                    },
+                    {
+                      "id": "decision",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Make a choice" } }
+                      ]
+                    },
+                    {
+                      "id": "action",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Execute action" } }
+                      ]
+                    }
+                  ]
+                }
+              </script>
+            </div>
+          </div>
+          <div class="slide-card">
+            Use the controls to navigate through diagram steps.
+          </div>
+        </section>
+
+        <!-- Custom Position Slide -->
+        <section>
+          <h2>Custom Controls Position</h2>
+          <div class="mermaid-stage">
+            <div data-finsteps
+                 data-finsteps-controls="bottom-left"
+                 data-finsteps-controls-size="normal"
+                 data-finsteps-controls-theme="light">
+              <pre class="finsteps-mermaid">flowchart TD
+  S[Client] --> A[API Gateway]
+  A --> B{Auth Check}
+  B -->|Valid| C[Service]
+  B -->|Invalid| D[Error]
+  C --> E[Response]</pre>
+              <script type="application/finsteps+json">
+                {
+                  "steps": [
+                    {
+                      "id": "client",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "S" }, "text": "Request initiated" } }
+                      ]
+                    },
+                    {
+                      "id": "gateway",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Gateway receives request" } }
+                      ]
+                    },
+                    {
+                      "id": "auth",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Validate credentials" } }
+                      ]
+                    },
+                    {
+                      "id": "service",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Process request" } }
+                      ]
+                    }
+                  ]
+                }
+              </script>
+            </div>
+          </div>
+          <div class="slide-card">
+            Controls positioned at <code>bottom-left</code> with <code>light</code> theme.
+          </div>
+        </section>
+
+        <!-- Fragment Sync Slide -->
+        <section>
+          <h2>Fragment Synchronization</h2>
+          <div class="mermaid-stage">
+            <div data-finsteps data-finsteps-controls="bottom-center" data-finsteps-controls-size="compact">
+              <pre class="finsteps-mermaid">flowchart LR
+  A[Phase 1] --> B[Phase 2]
+  B --> C[Phase 3]
+  C --> D[Complete]</pre>
+              <script type="application/finsteps+json">
+                {
+                  "steps": [
+                    {
+                      "id": "phase1",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Planning" } }
+                      ]
+                    },
+                    {
+                      "id": "phase2",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Development" } }
+                      ]
+                    },
+                    {
+                      "id": "phase3",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Testing" } }
+                      ]
+                    },
+                    {
+                      "id": "complete",
+                      "actions": [
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "D" }, "text": "Ship it!" } }
+                      ]
+                    }
+                  ]
+                }
+              </script>
+              <!-- Hidden fragments for sync (enable syncWithFragments option) -->
+              <span class="fragment" data-finsteps-step="0" style="display:none"></span>
+              <span class="fragment" data-finsteps-step="1" style="display:none"></span>
+              <span class="fragment" data-finsteps-step="2" style="display:none"></span>
+              <span class="fragment" data-finsteps-step="3" style="display:none"></span>
+            </div>
+          </div>
+          <div class="slide-card">
+            With <code>syncWithFragments: true</code>, pressing space/arrow advances both
+            Reveal.js fragments and diagram steps together.
+          </div>
+        </section>
+
+        <!-- Multiple Diagrams Slide -->
+        <section>
+          <h2>Multiple Diagrams</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="mermaid-stage">
+              <div data-finsteps data-finsteps-controls="bottom-right" data-finsteps-controls-size="compact">
+                <pre class="finsteps-mermaid">flowchart TB
+  A[Input] --> B[Process]
+  B --> C[Output]</pre>
+                <script type="application/finsteps+json">
+                  {
+                    "steps": [
+                      { "id": "s1", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Data in" } }] },
+                      { "id": "s2", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Transform" } }] },
+                      { "id": "s3", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Data out" } }] }
+                    ]
+                  }
+                </script>
+              </div>
+            </div>
+            <div class="mermaid-stage">
+              <div data-finsteps data-finsteps-controls="bottom-left" data-finsteps-controls-size="compact">
+                <pre class="finsteps-mermaid">flowchart TB
+  X[Request] --> Y[Handler]
+  Y --> Z[Response]</pre>
+                <script type="application/finsteps+json">
+                  {
+                    "steps": [
+                      { "id": "s1", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "X" }, "text": "HTTP in" } }] },
+                      { "id": "s2", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "Y" }, "text": "Route" } }] },
+                      { "id": "s3", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "Z" }, "text": "HTTP out" } }] }
+                    ]
+                  }
+                </script>
+              </div>
+            </div>
+          </div>
+          <div class="slide-card">
+            Each diagram has independent controls and state.
+          </div>
+        </section>
+
+        <!-- Summary Slide -->
+        <section>
+          <h2>HTML API Summary</h2>
+          <pre style="text-align: left; font-size: 0.5em; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;"><code>&lt;div data-finsteps
+     data-finsteps-controls="bottom-right"
+     data-finsteps-controls-size="compact"
+     data-finsteps-controls-theme="dark"&gt;
+  &lt;pre class="finsteps-mermaid"&gt;
+    flowchart LR; A--&gt;B
+  &lt;/pre&gt;
+  &lt;script type="application/finsteps+json"&gt;
+    {"steps": [...]}
+  &lt;/script&gt;
+&lt;/div&gt;</code></pre>
+        </section>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { FinstepsRevealPlugin } from "../../dist/integrations/revealjs/index.js";
+
+      mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+      Reveal.initialize({
+        hash: true,
+        slideNumber: true,
+        transition: "slide",
+        plugins: [
+          FinstepsRevealPlugin({
+            defaultControlsPosition: "bottom-right",
+            defaultControlsSize: "compact",
+            defaultControlsTheme: "dark",
+            showControls: true,
+            syncWithFragments: true,
+            resetOnSlideChange: true
+          })
+        ]
+      });
+    </script>
+  </body>
+</html>

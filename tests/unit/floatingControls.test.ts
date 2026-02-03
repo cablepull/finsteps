@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
-import { createFloatingControls, ControlsHandle } from "../../src/adapters/floatingControls";
+import { createFloatingControls, ControlsHandle, SIZE_PRESETS, THEME_PRESETS } from "../../src/adapters/floatingControls";
 import { Controller, ControllerState, CameraHandle } from "../../src/types";
 
 // Mock controller
@@ -290,7 +290,7 @@ describe("createFloatingControls", () => {
 
     const prevBtn = Array.from(document.querySelectorAll(".finsteps-control-btn"))
       .find(btn => btn.getAttribute("aria-label")?.includes("Previous")) as HTMLButtonElement;
-    
+
     if (prevBtn) {
       expect(prevBtn.disabled).toBe(true);
       expect(prevBtn.style.opacity).toBe("0.5");
@@ -304,12 +304,243 @@ describe("createFloatingControls", () => {
 
     const nextBtn = Array.from(document.querySelectorAll(".finsteps-control-btn"))
       .find(btn => btn.getAttribute("aria-label")?.includes("Next")) as HTMLButtonElement;
-    
+
     if (nextBtn) {
       expect(nextBtn.disabled).toBe(true);
       expect(nextBtn.style.opacity).toBe("0.5");
     }
 
     controls.destroy();
+  });
+
+  describe("size presets", () => {
+    it("applies compact size preset", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        size: "compact"
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      expect(controlsElement.style.padding).toBe("6px");
+      expect(controlsElement.style.gap).toBe("4px");
+
+      const buttons = document.querySelectorAll(".finsteps-control-btn") as NodeListOf<HTMLElement>;
+      expect(buttons.length).toBeGreaterThan(0);
+      expect(buttons[0].style.width).toBe("28px");
+      expect(buttons[0].style.height).toBe("28px");
+
+      controls.destroy();
+    });
+
+    it("applies large size preset", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        size: "large"
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      expect(controlsElement.style.padding).toBe("16px");
+      expect(controlsElement.style.gap).toBe("12px");
+
+      const buttons = document.querySelectorAll(".finsteps-control-btn") as NodeListOf<HTMLElement>;
+      expect(buttons.length).toBeGreaterThan(0);
+      expect(buttons[0].style.width).toBe("52px");
+      expect(buttons[0].style.height).toBe("52px");
+
+      controls.destroy();
+    });
+
+    it("uses compact step indicator format", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        size: "compact",
+        showStepIndicator: true
+      });
+
+      controls.updateState({
+        stepIndex: 1,
+        stepCount: 5
+      });
+
+      const indicator = document.querySelector(".finsteps-step-indicator");
+      expect(indicator?.textContent).toBe("2/5");
+
+      controls.destroy();
+    });
+
+    it("uses normal step indicator format for normal/large sizes", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        size: "normal",
+        showStepIndicator: true
+      });
+
+      controls.updateState({
+        stepIndex: 1,
+        stepCount: 5
+      });
+
+      const indicator = document.querySelector(".finsteps-step-indicator");
+      expect(indicator?.textContent).toBe("Step 2 / 5");
+
+      controls.destroy();
+    });
+  });
+
+  describe("theme presets", () => {
+    it("applies light theme", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        theme: "light"
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      expect(controlsElement.style.background).toBe(THEME_PRESETS.light.containerBg);
+
+      const buttons = document.querySelectorAll(".finsteps-control-btn") as NodeListOf<HTMLElement>;
+      expect(buttons[0].style.background).toBe(THEME_PRESETS.light.buttonBg);
+
+      controls.destroy();
+    });
+
+    it("applies dark theme", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        theme: "dark"
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      expect(controlsElement.style.background).toBe(THEME_PRESETS.dark.containerBg);
+
+      controls.destroy();
+    });
+
+    it("auto theme defaults to dark when matchMedia unavailable", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        theme: "auto"
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      // In JSDOM, matchMedia returns false for prefers-color-scheme: dark
+      expect(controlsElement.style.background).toBeTruthy();
+
+      controls.destroy();
+    });
+  });
+
+  describe("reset button", () => {
+    it("creates reset button when showReset is true", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller,
+        showReset: true
+      });
+
+      const resetBtn = Array.from(document.querySelectorAll(".finsteps-control-btn"))
+        .find(btn => btn.getAttribute("aria-label") === "Reset");
+      expect(resetBtn).toBeTruthy();
+
+      controls.destroy();
+    });
+
+    it("does not create reset button by default", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller
+      });
+
+      const resetBtn = Array.from(document.querySelectorAll(".finsteps-control-btn"))
+        .find(btn => btn.getAttribute("aria-label") === "Reset");
+      expect(resetBtn).toBeFalsy();
+
+      controls.destroy();
+    });
+
+    it("reset button calls controller.reset()", () => {
+      const controller = createMockController();
+      const resetSpy = vi.spyOn(controller, "reset");
+      const controls = createFloatingControls({
+        controller,
+        showReset: true
+      });
+
+      const resetBtn = Array.from(document.querySelectorAll(".finsteps-control-btn"))
+        .find(btn => btn.getAttribute("aria-label") === "Reset") as HTMLButtonElement;
+      resetBtn?.click();
+
+      expect(resetSpy).toHaveBeenCalled();
+
+      controls.destroy();
+    });
+  });
+
+  describe("playbackSpeed", () => {
+    it("uses custom playback speed", async () => {
+      const controller = createMockController();
+      const nextSpy = vi.spyOn(controller, "next");
+      const controls = createFloatingControls({
+        controller,
+        showPlayPause: true,
+        playbackSpeed: 500 // 500ms instead of default 3000ms
+      });
+
+      const playPauseBtn = Array.from(document.querySelectorAll(".finsteps-control-btn"))
+        .find(btn => btn.getAttribute("aria-label")?.includes("Play")) as HTMLButtonElement;
+
+      playPauseBtn?.click();
+
+      // Wait for less than default but more than custom speed
+      await new Promise(resolve => setTimeout(resolve, 700));
+
+      expect(nextSpy).toHaveBeenCalled();
+
+      // Stop playback
+      playPauseBtn?.click();
+      controls.destroy();
+    }, 5000);
+  });
+
+  describe("orientation", () => {
+    it("applies vertical orientation by default", () => {
+      const controller = createMockController();
+      const controls = createFloatingControls({
+        controller
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      expect(controlsElement.style.flexDirection).toBe("column");
+
+      controls.destroy();
+    });
+
+    it("applies horizontal orientation", () => {
+      const controller = createMockController();
+      const camera = createMockCamera();
+      const controls = createFloatingControls({
+        controller,
+        camera,
+        showZoomControls: true,
+        orientation: "horizontal"
+      });
+
+      const controlsElement = document.querySelector(".finsteps-floating-controls") as HTMLElement;
+      expect(controlsElement.style.flexDirection).toBe("row");
+
+      // Check zoom group has left border instead of top border in horizontal mode
+      const controlGroups = document.querySelectorAll(".finsteps-control-group");
+      expect(controlGroups.length).toBe(2); // nav and zoom groups
+      const zoomGroup = controlGroups[1] as HTMLElement;
+      expect(zoomGroup.style.borderLeft).toBeTruthy();
+
+      controls.destroy();
+    });
   });
 });

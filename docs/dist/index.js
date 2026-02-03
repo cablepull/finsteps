@@ -72,5 +72,7 @@ export function validateMPD(mpdText) {
         warnings
     };
 }
+// Re-export Reveal.js plugin for convenience
+export { FinstepsRevealPlugin } from "./integrations/revealjs/index.js";
 export default presentMermaid;
 //# sourceMappingURL=index.js.map

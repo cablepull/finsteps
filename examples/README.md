@@ -35,6 +35,24 @@ Interactive live editor for creating and testing Finsteps presentations. Feature
 
 Multiple Mermaid diagrams in a Reveal.js deck. Each slide has its own stepper; buttons and keyboard control overlays.
 
+## Reveal.js plugin (declarative)
+
+<http://localhost:5173/examples/revealjs-plugin/>
+
+Declarative Reveal.js integration using `data-finsteps` HTML attributes. Diagrams auto-initialize with no manual JavaScript required. Supports fragment synchronization.
+
+## Floating controls
+
+<http://localhost:5173/examples/floating-controls/>
+
+Built-in UI controls for navigation and camera operations.
+
+## Compact controls
+
+<http://localhost:5173/examples/floating-controls-compact/>
+
+Demonstrates compact controls with size presets (compact/normal/large), theme presets (dark/light/auto), orientation (horizontal/vertical), custom playback speed, and reset button.
+
 ## Large diagram walkthrough
 
 <http://localhost:5173/examples/walkthrough/>
