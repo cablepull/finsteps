@@ -99,8 +99,65 @@ const controls = createFloatingControls({
 - Breaking changes in public interfaces or behavior: major version.
 - Bug fixes and non-breaking internal changes: patch version.
 
+## AI Model Management (Optional)
+
+Finsteps includes an optional AI model management system for multi-provider AI integration:
+
+### Exports
+
+```typescript
+import { 
+  modelManager,           // Singleton model manager instance
+  type ModelConfig,       // Model configuration interface
+  type ModelChatRequest,  // Chat request interface
+  type ModelChatResponse, // Chat response interface
+  type ModelManager,      // Model manager interface
+  type ModelProvider      // Supported provider types
+} from 'finsteps';
+```
+
+### ModelManager API
+
+- `getAvailableModels(): ModelConfig[]` - Get all enabled models
+- `getModel(id: string): ModelConfig | undefined` - Get specific model
+- `addModel(model: ModelConfig): void` - Add new model configuration
+- `removeModel(id: string): void` - Remove model
+- `setDefaultModel(modelId: string): void` - Set default model
+- `chat(request: ModelChatRequest): Promise<ModelChatResponse>` - Send chat request
+- `detectOllamaModels(): Promise<string[]>` - Detect available Ollama models
+- `pullOllamaModel(model: string): Promise<void>` - Pull model from Ollama
+
+### Pre-Configured Models
+
+- **GPT-4** (OpenAI) - ID: `gpt-4`
+- **Claude 3 Sonnet** (Anthropic) - ID: `claude-3-sonnet`
+- **Qwen3 Coder 30B** (Ollama) - ID: `qwen3-coder-30b` *(local)*
+
+### Example Usage
+
+```typescript
+import { modelManager } from 'finsteps';
+
+// List available models
+const models = modelManager.getAvailableModels();
+
+// Chat with local qwen3-coder:30b
+const response = await modelManager.chat({
+  model: 'qwen3-coder-30b',
+  messages: [
+    { role: 'user', content: 'Write MPD code for a flowchart' }
+  ],
+  options: { maxTokens: 500, temperature: 0.7 }
+});
+
+console.log(response.choices[0].message.content);
+```
+
+See [AI Model Documentation](../ai-models.md) for complete setup and provider configuration.
+
 ## Related Documentation
 
 - [JSON Schema](../schema/api.json) - Machine-readable PresentationAst schema
 - [MPD Grammar](../grammar.md) - Complete MPD grammar reference
 - [MPD Parser Compatibility Contract](../mpd-parser/compatibility-contract.md) - ParseResult AST structure
+- [AI Model Documentation](../ai-models.md) - Multi-provider AI integration guide

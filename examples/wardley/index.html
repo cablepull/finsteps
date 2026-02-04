@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finsteps: Wardley Map - Tea Shop (EXPERIMENTAL)</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+      .layout { display: grid; grid-template-columns: 240px 1fr; grid-template-rows: auto 1fr; height: 100vh; }
+      header { grid-column: 1 / -1; padding: 0.75rem 1rem; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 0.75rem; }
+      header h1 { margin: 0; font-size: 1rem; font-weight: 600; flex: 1; }
+      .badge { display: inline-block; padding: 0.25rem 0.5rem; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: #dc2626; color: #fff; border-radius: 4px; }
+      .sidebar { padding: 1rem 0.75rem; background: #1e293b; border-right: 1px solid #334155; overflow-y: auto; }
+      .sidebar h2 { margin: 0 0 0.5rem; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+      .sidebar .note { margin-top: 1rem; padding: 0.75rem; font-size: 0.75rem; line-height: 1.4; background: #334155; border-left: 3px solid #dc2626; border-radius: 4px; color: #cbd5e1; }
+      .jump-btn { display: block; width: 100%; padding: 0.5rem 0.75rem; margin-bottom: 0.35rem; font-size: 0.8rem; text-align: left; background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 6px; cursor: pointer; }
+      .jump-btn.active { background: #3b82f6; border-color: #60a5fa; color: #fff; }
+      .stage-wrap { padding: 1rem; overflow: auto; min-height: 0; display: flex; flex-direction: column; }
+      .diagram-stage { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 600px; width: 100%; position: relative; }
+      .diagram-stage .finsteps-diagram { width: 100%; height: 100%; min-height: 600px; display: flex; align-items: center; justify-content: center; }
+      .diagram-stage .finsteps-diagram svg { width: 100%; height: 100%; min-height: 600px; max-width: 100%; display: block; }
+      .finsteps-highlight { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8)); }
+      g.finsteps-highlight, rect.finsteps-highlight, path.finsteps-highlight, polygon.finsteps-highlight, text.finsteps-highlight { stroke: #3b82f6 !important; stroke-width: 3px !important; stroke-opacity: 0.9 !important; }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <header>
+        <h1>Wardley Map: Tea Shop</h1>
+        <span class="badge">Experimental</span>
+      </header>
+      <aside class="sidebar">
+        <h2>Navigation</h2>
+        <button class="jump-btn" data-goto="overview">Full Overview</button>
+        <button class="jump-btn" data-goto="business">Business Anchor</button>
+        <button class="jump-btn" data-goto="cup">Cup of Tea</button>
+        <button class="jump-btn" data-goto="tea">Tea</button>
+        <button class="jump-btn" data-goto="water">Hot Water</button>
+        <button class="jump-btn" data-goto="kettle">Kettle (Evolving)</button>
+        <button class="jump-btn" data-goto="power">Power (Commodity)</button>
+        <div class="note">
+          <strong>Note:</strong> This example uses the tractorjuice/mermaid fork which adds Wardley map support. 
+          Wardley maps are not yet officially supported in Mermaid. 
+          If the diagram fails to load, the fork's CDN may not be available.
+        </div>
+      </aside>
+      <main class="stage-wrap">
+        <div class="diagram-stage" id="diagram-mount"></div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/tractorjuice/mermaid@9cd687a/dist/mermaid.min.js"></script>
+    <script type="module">
+      import { presentMermaid } from "../../dist/index.js";
+
+      // Check if mermaid loaded successfully
+      if (typeof mermaid === 'undefined') {
+        document.getElementById('diagram-mount').innerHTML = 
+          '<div style="padding: 2rem; text-align: center; color: #ef4444;">' +
+          '<h2>Mermaid Fork Not Available</h2>' +
+          '<p>The tractorjuice/mermaid fork with Wardley map support could not be loaded from jsDelivr.</p>' +
+          '<p>This may be because the fork does not have built distribution files committed to GitHub.</p>' +
+          '<p>To use Wardley maps, you would need to build the fork locally from source.</p>' +
+          '</div>';
+      } else {
+        mermaid.initialize({ startOnLoad: false, theme: "dark" });
+
+        const mermaidText = `wardley
+title Tea Shop
+size [1100, 800]
+
+anchor Business [0.95, 0.63]
+component Cup of Tea [0.79, 0.61]
+component Tea [0.63, 0.81]
+component Hot Water [0.52, 0.80]
+component Kettle [0.43, 0.35]
+component Power [0.1, 0.7]
+
+Business -> Cup of Tea
+Cup of Tea -> Tea
+Cup of Tea -> Hot Water
+Hot Water -> Kettle
+Kettle -> Power
+
+evolve Kettle 0.62
+evolve Power 0.89`;
+
+        const ast = {
+          steps: [
+            { 
+              id: "overview", 
+              actions: [
+                { type: "camera.reset" }
+              ] 
+            },
+            { 
+              id: "business", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Business" }, padding: 100, duration: 800, easing: "cubicInOut" } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Business" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Business" }, text: "The business anchor - our customer's need." } }
+              ] 
+            },
+            { 
+              id: "cup", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Cup_of_Tea" }, padding: 100, duration: 800, easing: "cubicInOut" } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Cup_of_Tea" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Cup_of_Tea" }, text: "The product we deliver - a cup of tea." } }
+              ] 
+            },
+            { 
+              id: "tea", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Tea" }, padding: 100, duration: 800, easing: "cubicInOut" } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Tea" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Tea" }, text: "Tea leaves - a commodity component." } }
+              ] 
+            },
+            { 
+              id: "water", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Hot_Water" }, padding: 100, duration: 800, easing: "cubicInOut" } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Hot_Water" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Hot_Water" }, text: "Hot water - essential for making tea." } }
+              ] 
+            },
+            { 
+              id: "kettle", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Kettle" }, padding: 100, duration: 800, easing: "cubicInOut" } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Kettle" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Kettle" }, text: "Kettle - evolving from custom to product (0.62 evolution)." } }
+              ] 
+            },
+            { 
+              id: "power", 
+              actions: [
+                { type: "camera.fit", payload: { target: { dataId: "Power" }, padding: 100, duration: 800, easing: "cubicInOut" } }, 
+                { type: "style.highlight", payload: { target: { dataId: "Power" } } }, 
+                { type: "overlay.bubble", payload: { target: { dataId: "Power" }, text: "Power - a utility/commodity (0.89 evolution)." } }
+              ] 
+            }
+          ],
+          bindings: [
+            { event: "key", key: "ArrowRight", actions: [{ type: "nav.next" }] },
+            { event: "key", key: "ArrowLeft", actions: [{ type: "nav.prev" }] },
+            { event: "click", target: { selector: "button[data-goto='overview']" }, actions: [{ type: "nav.goto", payload: { id: "overview" } }] },
+            { event: "click", target: { selector: "button[data-goto='business']" }, actions: [{ type: "nav.goto", payload: { id: "business" } }] },
+            { event: "click", target: { selector: "button[data-goto='cup']" }, actions: [{ type: "nav.goto", payload: { id: "cup" } }] },
+            { event: "click", target: { selector: "button[data-goto='tea']" }, actions: [{ type: "nav.goto", payload: { id: "tea" } }] },
+            { event: "click", target: { selector: "button[data-goto='water']" }, actions: [{ type: "nav.goto", payload: { id: "water" } }] },
+            { event: "click", target: { selector: "button[data-goto='kettle']" }, actions: [{ type: "nav.goto", payload: { id: "kettle" } }] },
+            { event: "click", target: { selector: "button[data-goto='power']" }, actions: [{ type: "nav.goto", payload: { id: "power" } }] }
+          ]
+        };
+
+        try {
+          const controller = await presentMermaid({ 
+            mountEl: document.getElementById("diagram-mount"), 
+            mermaidText, 
+            ast 
+          });
+          
+          const updateActiveButtons = () => {
+            const state = controller.getState();
+            document.querySelectorAll('.jump-btn').forEach(btn => {
+              btn.classList.toggle('active', btn.getAttribute('data-goto') === state.stepId);
+            });
+          };
+          
+          controller.on('stepchange', updateActiveButtons);
+          updateActiveButtons();
+          
+          // Manual click backup
+          document.querySelectorAll('.jump-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const stepId = btn.getAttribute('data-goto');
+              controller.goto(stepId);
+            });
+          });
+
+          console.log("Wardley Map Controller initialized");
+        } catch (err) {
+          console.error("Failed to initialize Wardley map presentation:", err);
+          document.getElementById('diagram-mount').innerHTML = 
+            '<div style="padding: 2rem; text-align: center; color: #ef4444;">' +
+            '<h2>Failed to Render Wardley Map</h2>' +
+            '<p>Error: ' + err.message + '</p>' +
+            '<p>Check the browser console for more details.</p>' +
+            '</div>';
+        }
+      }
+    </script>
+  </body>
+</html>

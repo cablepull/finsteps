@@ -6,6 +6,7 @@ Finsteps is a Mermaid presentation runtime that lets you walk through diagram st
 
 - [Quick Start Guide](docs/quick-start.md) - 5-minute tutorial (start here!)
 - Public API contract: `docs/api/public-api.md`
+- AI Model Management: `docs/ai-models.md` - Multi-provider AI integration with local Ollama support
 - Examples: `docs/examples/vanilla.html`, `docs/examples/react-hook.md`, `docs/examples/revealjs.md`
 - Product requirements: `docs/prd/finsteps-mermaid-presentation-framework.md`
 
@@ -37,6 +38,54 @@ npm install @mpf/mpd-parser
 ```
 
 ### Usage
+
+### AI Model Integration (Optional)
+
+Finsteps now includes an optional AI model management system for generating content and enabling AI-powered features:
+
+```ts
+import { modelManager } from 'finsteps';
+
+// Check available models (includes pre-configured qwen3-coder:30b via Ollama)
+const models = modelManager.getAvailableModels();
+
+// Chat with local AI model
+const response = await modelManager.chat({
+  model: 'qwen3-coder-30b',
+  messages: [
+    {
+      role: 'user',
+      content: 'Generate MPD code for a flowchart presentation'
+    }
+  ]
+});
+
+console.log(response.choices[0].message.content);
+```
+
+**Setup local AI model:**
+```bash
+# Install Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Start Ollama server
+ollama serve
+
+# Pull the qwen3-coder:30b model
+ollama pull qwen3-coder:30b
+
+# Test the integration
+npm run test:ollama
+```
+
+**Supported Providers:**
+- **OpenAI**: GPT-4, GPT-3.5 (requires API key)
+- **Anthropic**: Claude 3 Sonnet, Claude 3 Opus (requires API key)  
+- **Ollama**: Local models including qwen3-coder:30b (no API key needed)
+
+See [AI Model Documentation](docs/ai-models.md) for complete setup and usage guide.
+
+### MPD Parser Usage
 
 ```ts
 import { parseMPD, formatDiagnostics } from "@mpf/mpd-parser";

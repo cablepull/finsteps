@@ -350,12 +350,85 @@ You've built a complete interactive presentation with:
 - ✅ Navigation buttons
 - ✅ Keyboard controls
 
+## Step 6: AI-Powered Content Generation (Optional)
+
+Finsteps includes an optional AI model management system for generating presentation content:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <h1>AI-Generated Presentation</h1>
+  <div id="diagram"></div>
+  <div>
+    <button id="prev">Previous</button>
+    <button id="next">Next</button>
+    <button id="generate">Generate with AI</button>
+  </div>
+  
+  <script type="module">
+    import { presentMermaid, parseMPD, modelManager } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    
+    mermaid.initialize({ startOnLoad: false, theme: "dark" });
+    
+    // Generate presentation content with AI
+    document.getElementById('generate').addEventListener('click', async () => {
+      const prompt = `Generate a simple flowchart presentation about software development lifecycle.
+Return the response in this exact format:
+MERMAID: <mermaid diagram code>
+MPD: <mpd presentation code>`;
+      
+      try {
+        const response = await modelManager.chat({
+          model: 'qwen3-coder-30b', // Local AI model
+          messages: [{ role: 'user', content: prompt }],
+          options: { maxTokens: 800, temperature: 0.7 }
+        });
+        
+        const aiContent = response.choices[0].message.content;
+        // Parse AI response and create presentation
+        // (Implementation depends on your parsing logic)
+        
+      } catch (error) {
+        console.error('AI generation failed:', error);
+        alert('Make sure Ollama is running with qwen3-coder:30b model installed');
+      }
+    });
+    
+    // ... rest of presentation setup
+  </script>
+</body>
+</html>
+```
+
+**What this adds:**
+- AI-powered content generation using local models
+- No API keys required for Ollama models
+- Privacy-focused local processing
+- Extensible to other providers (OpenAI, Anthropic)
+
+**Setup for local AI models:**
+```bash
+# Install Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Start Ollama and pull model
+ollama serve && ollama pull qwen3-coder:30b
+
+# Test integration
+npm run test:ollama
+```
+
 ## Next Steps
 
 Now that you understand the basics, explore:
 
 - **[Complete Grammar Documentation](grammar.md)** - Learn all MPD syntax
-- **[API Reference](api/public-api.md)** - Full API documentation
+- **[API Reference](api/public-api.md)** - Full API documentation including AI integration
+- **[AI Model Documentation](../ai-models.md)** - Multi-provider AI integration guide
 - **[Live Examples](../examples/)** - See more complex presentations
 - **[JSON Schemas](schema/)** - Validate your MPD and AST
 
