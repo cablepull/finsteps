@@ -16,6 +16,39 @@ This directory contains runnable demos for the Finsteps presentation runtime.
 
 > Tip: You can use `npx serve -p 5173` directly if you prefer. The `serve` package handles ES modules better than Python's HTTP server.
 
+## AI Model Configuration
+
+<http://localhost:5173/examples/ai-configuration/demo.html> (Demo - works standalone)  
+<http://localhost:5173/examples/ai-configuration/> (Full version - requires build)
+
+Interactive AI model configuration and testing interface. Features:
+
+- **Model Management**: View and configure multiple AI providers (OpenAI, Anthropic, Ollama)
+- **Local AI Support**: First-class support for local Ollama models (qwen3-coder:30b)
+- **Chat Interface**: Test models with interactive conversation
+- **Configuration UI**: Set temperature, tokens, API keys
+- **Ollama Integration**: Detect and pull local models
+- **Quick Templates**: Pre-built prompts for common tasks
+- **Real-time Status**: Connection testing and model availability
+
+> Use the demo version for quick testing or the full version after running `npm run build`.
+
+## AI-Powered Presentation
+
+<http://localhost:5173/examples/ai-presentation/>
+
+Complete AI-integrated presentation creation workflow. Features:
+
+- **Natural Language Generation**: Create presentations from text descriptions
+- **AI Enhancement**: Improve existing presentations with AI suggestions  
+- **Template Prompts**: Pre-built templates for common presentation types
+- **Live Preview**: Real-time presentation updates and navigation
+- **Multi-Model Support**: Switch between different AI providers
+- **Interactive Editing**: Modify both Mermaid and MPD code
+- **Iterative Refinement**: Enhance and improve generated content
+
+Perfect for rapid content creation and AI-assisted presentation development.
+
 ## Live Editor
 
 <http://localhost:5173/examples/editor/>

@@ -757,6 +757,12 @@ var createBasicOverlayHandle = () => {
       bubble.element.remove();
       bubbles.delete(id);
     },
+    clear() {
+      for (const bubble of bubbles.values()) {
+        bubble.element.remove();
+      }
+      bubbles.clear();
+    },
     destroy() {
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onResize);
@@ -1040,9 +1046,6 @@ function detectDiagramType(mermaidText) {
   }
   if (firstLine.startsWith("zenuml")) {
     return "zenuml";
-  }
-  if (firstLine.startsWith("wardley")) {
-    return "wardley";
   }
   if (trimmed.includes("graph") || trimmed.includes("-->") || trimmed.includes("---")) {
     return "flowchart";
@@ -2906,59 +2909,6 @@ var ZenUMLStrategy = class extends LabelBasedStrategy {
   }
 };
 
-// src/adapters/strategies/wardleyStrategy.ts
-var WardleyStrategy = class extends BaseDiagramStrategy {
-  getDiagramType() {
-    return "wardley";
-  }
-  getTargetableClasses() {
-    return ["component", "anchor", "node", "label"];
-  }
-  getTargetableTags() {
-    return ["g", "text", "circle", "rect"];
-  }
-  extractNodeIds(svg) {
-    const nodeIdMap = /* @__PURE__ */ new Map();
-    const textElements = Array.from(svg.querySelectorAll("text"));
-    for (const textEl of textElements) {
-      const text = textEl.textContent?.trim();
-      if (!text || text.length === 0)
-        continue;
-      if (text.length > 100)
-        continue;
-      let dataId = text.replace(/\s+/g, "_").replace(/[^A-Za-z0-9_-]/g, "");
-      if (!dataId)
-        continue;
-      let targetElement = textEl;
-      let parent = textEl.parentElement;
-      while (parent && parent.tagName.toLowerCase() === "g") {
-        const parentId = parent.getAttribute("id");
-        const parentClass = parent.getAttribute("class");
-        if (parentId || parentClass) {
-          targetElement = parent;
-          break;
-        }
-        parent = parent.parentElement;
-      }
-      if (!nodeIdMap.has(dataId)) {
-        nodeIdMap.set(dataId, targetElement);
-      }
-    }
-    return nodeIdMap;
-  }
-  getTargetSelectors(dataId) {
-    const escaped = dataId.replace(/"/g, '\\"');
-    return [
-      `g[data-id="${escaped}"]`,
-      `text[data-id="${escaped}"]`,
-      `[data-id="${escaped}"]`
-    ];
-  }
-  findAdjacentElements(_target, _svg) {
-    return [];
-  }
-};
-
 // src/adapters/mermaidDiagram.ts
 strategyRegistry.register("flowchart", new FlowchartStrategy());
 strategyRegistry.register("gantt", new GanttStrategy());
@@ -2985,7 +2935,6 @@ strategyRegistry.register("radar", new RadarStrategy());
 strategyRegistry.register("sankey", new SankeyStrategy());
 strategyRegistry.register("treemap", new TreemapStrategy());
 strategyRegistry.register("zenuml", new ZenUMLStrategy());
-strategyRegistry.register("wardley", new WardleyStrategy());
 strategyRegistry.setDefault(new FlowchartStrategy());
 function ensureDataIdFromMermaidIds(svg, strategy, mermaidText) {
   let nodeIdMap = strategy.extractNodeIds(svg);
@@ -7153,6 +7102,14 @@ function FinstepsRevealPlugin(options = {}) {
   function getSlideForElement(element) {
     return element.closest("section");
   }
+  function clearOverlaysForDiagram(instance) {
+    const deps = instance.controller.getDeps?.();
+    if (deps?.overlay?.clear) {
+      deps.overlay.clear();
+    } else if (deps?.overlay?.hideBubble) {
+      deps.overlay.hideBubble();
+    }
+  }
   function handleSlideChanged(event) {
     const { currentSlide: newSlide, previousSlide } = event;
     currentSlide = newSlide;
@@ -7160,6 +7117,7 @@ function FinstepsRevealPlugin(options = {}) {
       for (const [element, instance] of instances) {
         if (previousSlide.contains(element)) {
           instance.controlsHandle?.hide();
+          clearOverlaysForDiagram(instance);
         }
       }
     }
@@ -7220,6 +7178,8 @@ function FinstepsRevealPlugin(options = {}) {
         for (const [element, instance] of instances) {
           if (currentSlide.contains(element)) {
             instance.controlsHandle?.show();
+          } else {
+            clearOverlaysForDiagram(instance);
           }
         }
       }

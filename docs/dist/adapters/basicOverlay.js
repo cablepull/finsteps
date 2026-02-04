@@ -53,6 +53,12 @@ export const createBasicOverlayHandle = () => {
             bubble.element.remove();
             bubbles.delete(id);
         },
+        clear() {
+            for (const bubble of bubbles.values()) {
+                bubble.element.remove();
+            }
+            bubbles.clear();
+        },
         destroy() {
             window.removeEventListener("scroll", onScroll, true);
             window.removeEventListener("resize", onResize);

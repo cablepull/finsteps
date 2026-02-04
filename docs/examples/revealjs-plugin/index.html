@@ -39,6 +39,25 @@
         border-radius: 4px;
         font-size: 0.85em;
       }
+      /* Finsteps highlight styles */
+      .finsteps-highlight {
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+      }
+      rect.finsteps-highlight,
+      polygon.finsteps-highlight,
+      path.finsteps-highlight,
+      g.finsteps-highlight {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      .finsteps-highlight rect,
+      .finsteps-highlight polygon,
+      .finsteps-highlight path {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
     </style>
   </head>
   <body>
@@ -71,18 +90,27 @@
                     {
                       "id": "start",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "A" }, "padding": 60, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "A" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Begin here" } }
                       ]
                     },
                     {
                       "id": "decision",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "B" }, "padding": 60, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "B" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Make a choice" } }
                       ]
                     },
                     {
                       "id": "action",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "C" }, "padding": 60, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "C" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Execute action" } }
                       ]
                     }
@@ -116,24 +144,36 @@
                     {
                       "id": "client",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "S" }, "padding": 50, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "S" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "S" }, "text": "Request initiated" } }
                       ]
                     },
                     {
                       "id": "gateway",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "A" }, "padding": 50, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "A" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Gateway receives request" } }
                       ]
                     },
                     {
                       "id": "auth",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "B" }, "padding": 50, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "B" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Validate credentials" } }
                       ]
                     },
                     {
                       "id": "service",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "C" }, "padding": 50, "duration": 500, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "C" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Process request" } }
                       ]
                     }
@@ -162,24 +202,36 @@
                     {
                       "id": "phase1",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "A" }, "padding": 60, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "A" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Planning" } }
                       ]
                     },
                     {
                       "id": "phase2",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "B" }, "padding": 60, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "B" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Development" } }
                       ]
                     },
                     {
                       "id": "phase3",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "C" }, "padding": 60, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "C" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Testing" } }
                       ]
                     },
                     {
                       "id": "complete",
                       "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "D" }, "padding": 60, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "D" } } },
                         { "type": "overlay.bubble", "payload": { "target": { "dataId": "D" }, "text": "Ship it!" } }
                       ]
                     }
@@ -211,9 +263,24 @@
                 <script type="application/finsteps+json">
                   {
                     "steps": [
-                      { "id": "s1", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Data in" } }] },
-                      { "id": "s2", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Transform" } }] },
-                      { "id": "s3", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Data out" } }] }
+                      { "id": "s1", "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "A" }, "padding": 40, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "A" } } },
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "A" }, "text": "Data in" } }
+                      ] },
+                      { "id": "s2", "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "B" }, "padding": 40, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "B" } } },
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "B" }, "text": "Transform" } }
+                      ] },
+                      { "id": "s3", "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "C" }, "padding": 40, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "C" } } },
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "C" }, "text": "Data out" } }
+                      ] }
                     ]
                   }
                 </script>
@@ -227,9 +294,24 @@
                 <script type="application/finsteps+json">
                   {
                     "steps": [
-                      { "id": "s1", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "X" }, "text": "HTTP in" } }] },
-                      { "id": "s2", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "Y" }, "text": "Route" } }] },
-                      { "id": "s3", "actions": [{ "type": "overlay.bubble", "payload": { "target": { "dataId": "Z" }, "text": "HTTP out" } }] }
+                      { "id": "s1", "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "X" }, "padding": 40, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "X" } } },
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "X" }, "text": "HTTP in" } }
+                      ] },
+                      { "id": "s2", "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "Y" }, "padding": 40, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "Y" } } },
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "Y" }, "text": "Route" } }
+                      ] },
+                      { "id": "s3", "actions": [
+                        { "type": "overlay.hide", "payload": {} },
+                        { "type": "camera.fit", "payload": { "target": { "dataId": "Z" }, "padding": 40, "duration": 400, "easing": "easeOut" } },
+                        { "type": "style.highlight", "payload": { "target": { "dataId": "Z" } } },
+                        { "type": "overlay.bubble", "payload": { "target": { "dataId": "Z" }, "text": "HTTP out" } }
+                      ] }
                     ]
                   }
                 </script>
@@ -270,6 +352,11 @@
         hash: true,
         slideNumber: true,
         transition: "slide",
+        // Parallax background
+        parallaxBackgroundImage: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80",
+        parallaxBackgroundSize: "2400px 1600px",
+        parallaxBackgroundHorizontal: 200,
+        parallaxBackgroundVertical: 100,
         plugins: [
           FinstepsRevealPlugin({
             defaultControlsPosition: "bottom-right",

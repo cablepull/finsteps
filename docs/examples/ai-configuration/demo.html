@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finsteps AI Model Configuration</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.12.2/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .config-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .config-section {
+            margin-bottom: 2rem;
+        }
+
+        .config-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select, textarea, input[type="text"], input[type="number"], input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus, textarea:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .model-list {
+            background: white;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .model-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .model-item:hover {
+            border-color: #667eea;
+            transform: translateY(-1px);
+        }
+
+        .model-item.selected {
+            border-color: #667eea;
+            background: #e7f3ff;
+        }
+
+        .model-info {
+            flex: 1;
+        }
+
+        .model-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .model-provider {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .model-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .model-status.disabled {
+            background: #dc3545;
+        }
+
+        .chat-panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-content {
+            display: inline-block;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: #667eea;
+            color: white;
+        }
+
+        .message.assistant .message-content {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .chat-input {
+            background: white;
+            border-radius: 6px;
+            padding: 1rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            margin: 0;
+            min-height: 50px;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .template-btn {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-panel {
+                order: 2;
+            }
+            
+            .chat-panel {
+                order: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI Model Configuration</h1>
+            <p>Configure and test AI models for Finsteps presentations</p>
+        </header>
+
+        <div class="main-content">
+            <aside class="config-panel">
+                <div class="config-section">
+                    <h3>Available Models</h3>
+                    <div id="model-list" class="model-list">
+                        <div class="loading" id="loading-models"></div>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>Model Configuration</h3>
+                    <div class="form-group">
+                        <label for="model-select">Selected Model:</label>
+                        <select id="model-select">
+                            <option value="">Select a model...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="api-key-group" style="display: none;">
+                        <label for="api-key">API Key:</label>
+                        <input type="password" id="api-key" placeholder="Enter API key...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="temperature">Temperature (0-1):</label>
+                        <input type="number" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="max-tokens">Max Tokens:</label>
+                        <input type="number" id="max-tokens" min="1" max="8000" value="2048">
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="save-config">Save Config</button>
+                        <button class="btn btn-secondary" id="test-connection">Test</button>
+                    </div>
+                </div>
+
+                <div class="config-section">
+                    <h3>Quick Templates</h3>
+                    <button class="template-btn" data-template="generate-mpd">📝 Generate MPD Code</button>
+                    <button class="template-btn" data-template="explain-concept">📚 Explain Concept</button>
+                    <button class="template-btn" data-template="code-review">🔍 Code Review</button>
+                    <button class="template-btn" data-template="creative-ideas">💡 Creative Ideas</button>
+                </div>
+
+                <div class="config-section">
+                    <h3>Ollama Status</h3>
+                    <div id="ollama-status">
+                        <span class="status-indicator status-warning">Checking...</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="detect-ollama">Detect Models</button>
+                        <button class="btn btn-warning" id="pull-model">Pull Model</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="chat-panel">
+                <div class="chat-header">
+                    <h3>💬 AI Chat Interface</h3>
+                    <div id="current-model-info">
+                        <span class="status-indicator status-warning">No model selected</span>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="message assistant">
+                        <div class="message-content">
+                            👋 Welcome! Select a model and start chatting. I can help you generate MPD code, explain concepts, or create presentation content.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input">
+                    <textarea id="chat-input" placeholder="Type your message here..." rows="2"></textarea>
+                    <button class="btn btn-primary" id="send-message">Send</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module">
+        // Note: This is a simplified demo version
+        // For full functionality, use the local build version
+        
+        // Initialize Mermaid (not used in this demo but required for context)
+        mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+
+        // Mock AI model manager for demonstration
+        const mockModelManager = {
+            models: [
+                {
+                    id: 'qwen3-coder-30b',
+                    name: 'Qwen3 Coder 30B (Local)',
+                    provider: 'ollama',
+                    model: 'qwen3-coder:30b',
+                    enabled: true,
+                    temperature: 0.7,
+                    maxTokens: 2048
+                },
+                {
+                    id: 'gpt-4',
+                    name: 'GPT-4',
+                    provider: 'openai',
+                    model: 'gpt-4',
+                    enabled: true,
+                    temperature: 0.7,
+                    maxTokens: 4096
+                },
+                {
+                    id: 'claude-3-sonnet',
+                    name: 'Claude 3 Sonnet',
+                    provider: 'anthropic',
+                    model: 'claude-3-sonnet-20240229',
+                    enabled: true,
+                    temperature: 0.7,
+                    maxTokens: 4096
+                }
+            ],
+            
+            getAvailableModels() {
+                return this.models.filter(m => m.enabled);
+            },
+            
+            getModel(id) {
+                return this.models.find(m => m.id === id);
+            },
+            
+            async chat(request) {
+                // Simulate AI response
+                await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+                
+                const responses = {
+                    'qwen3-coder-30b': "I'm a local AI model running on Ollama! I can help you generate MPD code and create presentations. Try asking me to create a flowchart presentation about software architecture.",
+                    'gpt-4': "I'm GPT-4! I can help with complex presentations, detailed explanations, and advanced content creation. Ask me anything about Finsteps or MPD programming.",
+                    'claude-3-sonnet': "I'm Claude 3 Sonnet! I excel at thoughtful, detailed explanations and creative content generation. Let me help you create amazing presentations."
+                };
+                
+                return {
+                    id: 'mock-' + Date.now(),
+                    model: request.model,
+                    choices: [{
+                        index: 0,
+                        message: {
+                            role: 'assistant',
+                            content: responses[request.model] || "Hello! I'm ready to help you with Finsteps presentations."
+                        },
+                        finishReason: 'stop'
+                    }]
+                };
+            },
+            
+            async detectOllamaModels() {
+                // Simulate Ollama detection
+                return ['qwen3-coder:30b', 'llama3.1:8b', 'wizardcoder:latest'];
+            },
+            
+            async pullOllamaModel(model) {
+                // Simulate pulling model
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            }
+        };
+
+        // Global state
+        let currentModel = null;
+        let chatHistory = [];
+
+        // DOM elements
+        const elements = {
+            modelList: document.getElementById('model-list'),
+            modelSelect: document.getElementById('model-select'),
+            apiKeyGroup: document.getElementById('api-key-group'),
+            apiKey: document.getElementById('api-key'),
+            temperature: document.getElementById('temperature'),
+            maxTokens: document.getElementById('max-tokens'),
+            chatMessages: document.getElementById('chat-messages'),
+            chatInput: document.getElementById('chat-input'),
+            sendButton: document.getElementById('send-message'),
+            currentModelInfo: document.getElementById('current-model-info'),
+            loadingModels: document.getElementById('loading-models')
+        };
+
+        // Initialize the application
+        async function init() {
+            await loadModels();
+            setupEventListeners();
+            await checkOllamaStatus();
+        }
+
+        // Load available models
+        async function loadModels() {
+            try {
+                elements.loadingModels.style.display = 'block';
+                
+                const models = mockModelManager.getAvailableModels();
+                const modelsHTML = models.map(model => `
+                    <div class="model-item ${model.enabled ? '' : 'disabled'}" data-model-id="${model.id}">
+                        <div class="model-info">
+                            <div class="model-name">${model.name}</div>
+                            <div class="model-provider">${model.provider} • ${model.model}</div>
+                        </div>
+                        <div class="model-status ${model.enabled ? '' : 'disabled'}"></div>
+                    </div>
+                `).join('');
+
+                elements.modelList.innerHTML = modelsHTML;
+                
+                // Populate model select dropdown
+                elements.modelSelect.innerHTML = '<option value="">Select a model...</option>' +
+                    models.map(model => `
+                        <option value="${model.id}">${model.name} (${model.provider})</option>
+                    `).join('');
+
+                elements.loadingModels.style.display = 'none';
+
+            } catch (error) {
+                console.error('Failed to load models:', error);
+                elements.modelList.innerHTML = '<div class="status-indicator status-error">Failed to load models</div>';
+                elements.loadingModels.style.display = 'none';
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Model selection
+            elements.modelSelect.addEventListener('change', (e) => {
+                const modelId = e.target.value;
+                if (modelId) {
+                    selectModel(modelId);
+                } else {
+                    currentModel = null;
+                    updateModelInfo();
+                }
+            });
+
+            // Model list click
+            elements.modelList.addEventListener('click', (e) => {
+                const modelItem = e.target.closest('.model-item');
+                if (modelItem) {
+                    const modelId = modelItem.dataset.modelId;
+                    elements.modelSelect.value = modelId;
+                    selectModel(modelId);
+                }
+            });
+
+            // Chat input
+            elements.sendButton.addEventListener('click', sendMessage);
+            elements.chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Configuration buttons
+            document.getElementById('save-config').addEventListener('click', saveConfiguration);
+            document.getElementById('test-connection').addEventListener('click', testConnection);
+
+            // Ollama buttons
+            document.getElementById('detect-ollama').addEventListener('click', detectOllamaModels);
+            document.getElementById('pull-model').addEventListener('click', pullOllamaModel);
+
+            // Template buttons
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const template = e.target.dataset.template;
+                    applyTemplate(template);
+                });
+            });
+        }
+
+        // Select a model
+        function selectModel(modelId) {
+            currentModel = mockModelManager.getModel(modelId);
+            if (!currentModel) {
+                showError('Model not found');
+                return;
+            }
+
+            // Update UI
+            document.querySelectorAll('.model-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelector(`[data-model-id="${modelId}"]`)?.classList.add('selected');
+
+            // Show/hide API key field based on provider
+            if (currentModel.provider === 'openai' || currentModel.provider === 'anthropic') {
+                elements.apiKeyGroup.style.display = 'block';
+                elements.apiKey.placeholder = `Enter ${currentModel.provider.toUpperCase()} API key...`;
+            } else {
+                elements.apiKeyGroup.style.display = 'none';
+            }
+
+            // Update configuration fields
+            elements.temperature.value = currentModel.temperature || 0.7;
+            elements.maxTokens.value = currentModel.maxTokens || 2048;
+
+            updateModelInfo();
+        }
+
+        // Update model info display
+        function updateModelInfo() {
+            if (currentModel) {
+                elements.currentModelInfo.innerHTML = `
+                    <strong>${currentModel.name}</strong>
+                    <span class="status-indicator status-success">Selected</span>
+                `;
+            } else {
+                elements.currentModelInfo.innerHTML = '<span class="status-indicator status-warning">No model selected</span>';
+            }
+        }
+
+        // Send message to AI
+        async function sendMessage() {
+            const message = elements.chatInput.value.trim();
+            if (!message || !currentModel) {
+                if (!currentModel) {
+                    showError('Please select a model first');
+                }
+                return;
+            }
+
+            // Add user message to chat
+            addMessageToChat('user', message);
+            elements.chatInput.value = '';
+            elements.sendButton.disabled = true;
+            elements.sendButton.innerHTML = '<div class="loading"></div>';
+
+            try {
+                const response = await mockModelManager.chat({
+                    model: currentModel.id,
+                    messages: [
+                        ...chatHistory,
+                        { role: 'user', content: message }
+                    ],
+                    options: {
+                        temperature: parseFloat(elements.temperature.value),
+                        maxTokens: parseInt(elements.maxTokens.value)
+                    }
+                });
+
+                const assistantMessage = response.choices[0].message.content;
+                addMessageToChat('assistant', assistantMessage);
+                
+                // Update history
+                chatHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: assistantMessage }
+                );
+
+            } catch (error) {
+                showError(`Chat error: ${error.message}`);
+                addMessageToChat('assistant', `❌ Error: ${error.message}`);
+            } finally {
+                elements.sendButton.disabled = false;
+                elements.sendButton.innerHTML = 'Send';
+            }
+        }
+
+        // Add message to chat
+        function addMessageToChat(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.innerHTML = `
+                <div class="message-content">${escapeHtml(content)}</div>
+            `;
+            elements.chatMessages.appendChild(messageDiv);
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+        }
+
+        // Save configuration
+        function saveConfiguration() {
+            if (!currentModel) {
+                showError('No model selected');
+                return;
+            }
+
+            // Update model configuration
+            if (currentModel.provider === 'openai' || currentModel.provider === 'anthropic') {
+                currentModel.apiKey = elements.apiKey.value;
+            }
+            currentModel.temperature = parseFloat(elements.temperature.value);
+            currentModel.maxTokens = parseInt(elements.maxTokens.value);
+            currentModel.enabled = true;
+
+            showSuccess('Configuration saved successfully');
+        }
+
+        // Test connection
+        async function testConnection() {
+            if (!currentModel) {
+                showError('No model selected');
+                return;
+            }
+
+            const button = document.getElementById('test-connection');
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div>';
+
+            try {
+                await mockModelManager.chat({
+                    model: currentModel.id,
+                    messages: [{ role: 'user', content: 'Connection test' }],
+                    options: { maxTokens: 5 }
+                });
+                showSuccess('Connection test successful');
+            } catch (error) {
+                showError(`Connection test failed: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Test';
+            }
+        }
+
+        // Check Ollama status
+        async function checkOllamaStatus() {
+            try {
+                const models = await mockModelManager.detectOllamaModels();
+                if (models.length > 0) {
+                    document.getElementById('ollama-status').innerHTML = `
+                        <span class="status-indicator status-success">
+                            Connected (${models.length} models)
+                        </span>
+                    `;
+                } else {
+                    document.getElementById('ollama-status').innerHTML = `
+                        <span class="status-indicator status-warning">
+                            Connected (no models)
+                        </span>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('ollama-status').innerHTML = `
+                    <span class="status-indicator status-error">
+                        Not connected
+                    </span>
+                `;
+            }
+        }
+
+        // Detect Ollama models
+        async function detectOllamaModels() {
+            const button = document.getElementById('detect-ollama');
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div>';
+
+            try {
+                const models = await mockModelManager.detectOllamaModels();
+                await loadModels(); // Refresh model list
+                await checkOllamaStatus();
+                showSuccess(`Found ${models.length} Ollama models`);
+            } catch (error) {
+                showError(`Failed to detect models: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Detect Models';
+            }
+        }
+
+        // Pull Ollama model
+        async function pullOllamaModel() {
+            const modelName = prompt('Enter model name to pull (e.g., qwen3-coder:30b):');
+            if (!modelName) return;
+
+            const button = document.getElementById('pull-model');
+            button.disabled = true;
+            button.innerHTML = '<div class="loading"></div>';
+
+            try {
+                await mockModelManager.pullOllamaModel(modelName);
+                await loadModels(); // Refresh model list
+                await checkOllamaStatus();
+                showSuccess(`Successfully pulled ${modelName}`);
+            } catch (error) {
+                showError(`Failed to pull model: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.innerHTML = 'Pull Model';
+            }
+        }
+
+        // Apply template
+        function applyTemplate(templateType) {
+            const templates = {
+                'generate-mpd': 'Generate MPD presentation steps for a software architecture diagram. Include overview, component details, and data flow steps.',
+                'explain-concept': 'Explain the concept of microservices architecture like I\'m a software engineering student. Include benefits and challenges.',
+                'code-review': 'Review this TypeScript code and suggest improvements:\n\n```typescript\n// paste your code here\n```',
+                'creative-ideas': 'Give me creative ideas for a presentation about renewable energy. Include slide structure and key talking points.'
+            };
+
+            elements.chatInput.value = templates[templateType] || '';
+            elements.chatInput.focus();
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `status-indicator status-${type}`;
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '1000';
+            notification.style.padding = '1rem 1.5rem';
+            notification.style.borderRadius = '6px';
+            notification.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Initialize application
+        init();
+    </script>
+</body>
+</html>

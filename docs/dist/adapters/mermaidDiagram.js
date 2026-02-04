@@ -24,7 +24,6 @@ import { RadarStrategy } from "./strategies/radarStrategy.js";
 import { SankeyStrategy } from "./strategies/sankeyStrategy.js";
 import { TreemapStrategy } from "./strategies/treemapStrategy.js";
 import { ZenUMLStrategy } from "./strategies/zenumlStrategy.js";
-import { WardleyStrategy } from "./strategies/wardleyStrategy.js";
 // Register default strategies
 strategyRegistry.register('flowchart', new FlowchartStrategy());
 strategyRegistry.register('gantt', new GanttStrategy());
@@ -53,7 +52,6 @@ strategyRegistry.register('radar', new RadarStrategy());
 strategyRegistry.register('sankey', new SankeyStrategy());
 strategyRegistry.register('treemap', new TreemapStrategy());
 strategyRegistry.register('zenuml', new ZenUMLStrategy());
-strategyRegistry.register('wardley', new WardleyStrategy());
 // Set flowchart as default fallback
 strategyRegistry.setDefault(new FlowchartStrategy());
 /**

@@ -68,6 +68,25 @@
       .legend strong {
         color: #ffe38b;
       }
+      /* Finsteps highlight styles */
+      .finsteps-highlight {
+        filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+      }
+      rect.finsteps-highlight,
+      polygon.finsteps-highlight,
+      path.finsteps-highlight,
+      g.finsteps-highlight {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
+      .finsteps-highlight rect,
+      .finsteps-highlight polygon,
+      .finsteps-highlight path {
+        stroke: #3b82f6 !important;
+        stroke-width: 3px !important;
+        stroke-opacity: 0.9 !important;
+      }
     </style>
   </head>
   <body>
@@ -201,6 +220,9 @@
             {
               id: "signal",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "A" }, padding: 60, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "A" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -213,6 +235,9 @@
             {
               id: "gate",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "B" }, padding: 60, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "B" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -225,6 +250,9 @@
             {
               id: "release",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "E" }, padding: 60, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "E" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -259,6 +287,9 @@
             {
               id: "gateway",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "A" }, padding: 50, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "A" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -271,6 +302,9 @@
             {
               id: "risk",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "B" }, padding: 50, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "B" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -283,6 +317,9 @@
             {
               id: "human",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "D" }, padding: 50, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "D" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -316,6 +353,9 @@
             {
               id: "foundation",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "A" }, padding: 60, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "A" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -328,6 +368,9 @@
             {
               id: "automation",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "B" }, padding: 60, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "B" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -340,6 +383,9 @@
             {
               id: "expansion",
               actions: [
+                { type: "overlay.hide", payload: {} },
+                { type: "camera.fit", payload: { target: { dataId: "C" }, padding: 60, duration: 500, easing: "easeOut" } },
+                { type: "style.highlight", payload: { target: { dataId: "C" } } },
                 {
                   type: "overlay.bubble",
                   payload: {
@@ -382,7 +428,12 @@
       Reveal.initialize({
         hash: true,
         slideNumber: true,
-        transition: "fade"
+        transition: "fade",
+        // Parallax background
+        parallaxBackgroundImage: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80",
+        parallaxBackgroundSize: "2400px 1600px",
+        parallaxBackgroundHorizontal: 200,
+        parallaxBackgroundVertical: 100
       });
 
       Reveal.on("slidechanged", (event) => {
