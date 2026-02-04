@@ -90,17 +90,31 @@ export function FinstepsRevealPlugin(options: FinstepsPluginOptions = {}): Revea
   }
 
   /**
+   * Clear overlays for a diagram
+   */
+  function clearOverlaysForDiagram(instance: DiagramInstance) {
+    const deps = instance.controller.getDeps?.();
+    if (deps?.overlay?.clear) {
+      deps.overlay.clear();
+    } else if (deps?.overlay?.hideBubble) {
+      // Fallback: hide default bubble
+      deps.overlay.hideBubble();
+    }
+  }
+
+  /**
    * Handle slide change events
    */
   function handleSlideChanged(event: { currentSlide: HTMLElement; previousSlide?: HTMLElement }) {
     const { currentSlide: newSlide, previousSlide } = event;
     currentSlide = newSlide;
 
-    // Hide controls for previous slide's diagrams
+    // Hide controls and clear overlays for previous slide's diagrams
     if (previousSlide) {
       for (const [element, instance] of instances) {
         if (previousSlide.contains(element)) {
           instance.controlsHandle?.hide();
+          clearOverlaysForDiagram(instance);
         }
       }
     }
@@ -177,12 +191,15 @@ export function FinstepsRevealPlugin(options: FinstepsPluginOptions = {}): Revea
         }
       }
 
-      // Show controls for initial slide
+      // Show controls for initial slide, clear overlays for non-current slides
       currentSlide = reveal.getCurrentSlide();
       if (currentSlide) {
         for (const [element, instance] of instances) {
           if (currentSlide.contains(element)) {
             instance.controlsHandle?.show();
+          } else {
+            // Clear any overlay bubbles from diagrams not on current slide
+            clearOverlaysForDiagram(instance);
           }
         }
       }
