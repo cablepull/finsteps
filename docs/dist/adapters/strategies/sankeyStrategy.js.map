@@ -1,0 +1,1 @@
+{"version":3,"file":"sankeyStrategy.js","sourceRoot":"","sources":["../../../src/adapters/strategies/sankeyStrategy.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,yBAAyB,CAAC;AAE7D,MAAM,OAAO,cAAe,SAAQ,kBAAkB;IACpD;QACE,KAAK,CAAC,QAAQ,EAAE,EAAE,iBAAiB,EAAE,IAAI,EAAE,UAAU,EAAE,GAAG,EAAE,CAAC,CAAC;IAChE,CAAC;CACF"}

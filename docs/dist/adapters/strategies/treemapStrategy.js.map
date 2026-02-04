@@ -1,0 +1,1 @@
+{"version":3,"file":"treemapStrategy.js","sourceRoot":"","sources":["../../../src/adapters/strategies/treemapStrategy.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,yBAAyB,CAAC;AAE7D,MAAM,OAAO,eAAgB,SAAQ,kBAAkB;IACrD;QACE,KAAK,CAAC,SAAS,EAAE,EAAE,iBAAiB,EAAE,IAAI,EAAE,UAAU,EAAE,GAAG,EAAE,CAAC,CAAC;IACjE,CAAC;CACF"}
