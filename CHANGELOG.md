@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.4 (Unreleased)
+## 0.4.4 (2026-02-04)
 
 ### Added
 - **AI Model Management System** - Optional multi-provider AI integration

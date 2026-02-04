@@ -21,7 +21,7 @@ The simplest working Finsteps presentation - just a diagram with one step.
   <div id="diagram"></div>
   
   <script type="module">
-    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
     
     mermaid.initialize({ startOnLoad: false, theme: "dark" });
     
@@ -77,7 +77,7 @@ Add Next/Previous buttons to navigate between steps.
   </div>
   
   <script type="module">
-    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
     
     mermaid.initialize({ startOnLoad: false, theme: "dark" });
     
@@ -140,7 +140,7 @@ Add camera movements to focus on different parts of the diagram.
   </div>
   
   <script type="module">
-    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
     
     mermaid.initialize({ startOnLoad: false, theme: "dark" });
     
@@ -209,7 +209,7 @@ Add bubble callouts to highlight and explain parts of the diagram.
   </div>
   
   <script type="module">
-    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
     
     mermaid.initialize({ startOnLoad: false, theme: "dark" });
     
@@ -283,7 +283,7 @@ Add keyboard navigation for a better presentation experience.
   </div>
   
   <script type="module">
-    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
     
     mermaid.initialize({ startOnLoad: false, theme: "dark" });
     
@@ -370,7 +370,7 @@ Finsteps includes an optional AI model management system for generating presenta
   </div>
   
   <script type="module">
-    import { presentMermaid, parseMPD, modelManager } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+    import { presentMermaid, parseMPD, modelManager } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
     
     mermaid.initialize({ startOnLoad: false, theme: "dark" });
     

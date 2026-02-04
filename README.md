@@ -126,7 +126,7 @@ This library enables interactive presentations over Mermaid diagrams using:
 ### Minimal Example Template
 
 ```javascript
-import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+import { presentMermaid, parseMPD } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
 
 const mermaidText = `graph LR
   A[Start] --> B[Process] --> C[End]`;
@@ -201,7 +201,7 @@ binding {
 Use `parseMPD()` to validate MPD syntax before suggesting code:
 
 ```javascript
-import { parseMPD, formatDiagnostics } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.3/dist/finsteps.esm.min.js';
+import { parseMPD, formatDiagnostics } from 'https://cdn.jsdelivr.net/gh/cablepull/finsteps@v0.4.4/dist/finsteps.esm.min.js';
 
 const result = parseMPD(mpdText);
 if (result.diagnostics.length > 0) {

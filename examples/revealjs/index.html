@@ -26,6 +26,8 @@
         padding: 1rem;
         border-radius: 12px;
         background: rgba(255, 255, 255, 0.05);
+        /* Isolate from Reveal.js transforms to prevent SVG corruption */
+        contain: layout style;
       }
 
       .slide-card {
@@ -123,7 +125,7 @@
           </section>
         </section>
 
-        <section data-auto-animate>
+        <section>
           <h2>1) Pipeline Synchronization</h2>
           <div class="mermaid-grid">
             <div class="mermaid-stage" id="pipeline-diagram"></div>
@@ -142,7 +144,7 @@
         </section>
 
         <section>
-          <section data-auto-animate>
+          <section>
             <h2>2) Service Orchestration</h2>
             <div class="mermaid-grid">
               <div class="mermaid-stage" id="orchestration-diagram"></div>
@@ -171,7 +173,7 @@
           </section>
         </section>
 
-        <section data-auto-animate>
+        <section>
           <h2>3) Delivery Runway</h2>
           <div class="mermaid-grid">
             <div class="mermaid-stage" id="runway-diagram"></div>
@@ -436,16 +438,70 @@
         parallaxBackgroundVertical: 100
       });
 
+      // Helper to restore diagram to its initial viewBox
+      function restoreDiagram(containerId, controller) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        const svg = container.querySelector("svg");
+        if (svg) {
+          // Restore the initial viewBox first (this is the source of truth)
+          const initialViewBox = svg.getAttribute("data-initial-viewbox");
+          if (initialViewBox) {
+            svg.setAttribute("viewBox", initialViewBox);
+          }
+        }
+        // Then reset the controller (which goes to step 0)
+        controller.reset();
+      }
+
+      // Helper to clear overlays for a controller
+      function clearOverlays(controller) {
+        const deps = controller.getDeps?.();
+        if (deps?.overlay?.clear) {
+          deps.overlay.clear();
+        }
+      }
+
+      // Track which diagrams have been initialized on their slides
+      const initialized = { pipeline: false, orchestration: false, runway: false };
+
+      Reveal.on("ready", () => {
+        // Reset all diagram viewBoxes to their initial state
+        // This ensures diagrams on hidden slides have correct viewBoxes after Reveal.js layout
+        ["pipeline-diagram", "orchestration-diagram", "runway-diagram"].forEach((id) => {
+          const container = document.getElementById(id);
+          if (container) {
+            const svg = container.querySelector("svg");
+            if (svg) {
+              const initialViewBox = svg.getAttribute("data-initial-viewbox");
+              if (initialViewBox) {
+                svg.setAttribute("viewBox", initialViewBox);
+              }
+            }
+          }
+        });
+      });
+
       Reveal.on("slidechanged", (event) => {
         const slide = event.currentSlide;
+
+        // Clear overlays for all diagrams when changing slides
+        clearOverlays(pipelineController);
+        clearOverlays(orchestrationController);
+        clearOverlays(runwayController);
+
+        // Reset the diagram on the current slide
         if (slide.querySelector("#pipeline-diagram")) {
-          pipelineController.reset();
+          restoreDiagram("pipeline-diagram", pipelineController);
+          initialized.pipeline = true;
         }
         if (slide.querySelector("#orchestration-diagram")) {
-          orchestrationController.reset();
+          restoreDiagram("orchestration-diagram", orchestrationController);
+          initialized.orchestration = true;
         }
         if (slide.querySelector("#runway-diagram")) {
-          runwayController.reset();
+          restoreDiagram("runway-diagram", runwayController);
+          initialized.runway = true;
         }
       });
     </script>
